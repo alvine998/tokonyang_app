@@ -45,6 +45,7 @@ const AdsListScreen = () => {
     const [searchQuery, setSearchQuery] = useState(search || '');
 
     const [isFilterVisible, setIsFilterVisible] = useState(false);
+    const [activeFilterTab, setActiveFilterTab] = useState('MEREK');
     const [filters, setFilters] = useState({
         brand_id: '',
         type_id: '',
@@ -58,6 +59,22 @@ const AdsListScreen = () => {
         ownership: '',
         status: '',
     });
+
+    const brands = [
+        { id: 'daihatsu', name: 'DAIHATSU', logo: 'https://www.carlogos.org/logo/Daihatsu-logo-800x450.png' },
+        { id: 'honda', name: 'HONDA', logo: 'https://www.carlogos.org/logo/Honda-logo-1966-1024x768.png' },
+        { id: 'hyundai', name: 'HYUNDAI', logo: 'https://www.carlogos.org/logo/Hyundai-logo-640x334.png' },
+        { id: 'mercedes', name: 'Mercedes-Benz', logo: 'https://www.carlogos.org/logo/Mercedes-Benz-logo-2011-640x334.png' },
+        { id: 'mitsubishi', name: 'MITSUBISHI', logo: 'https://www.carlogos.org/logo/Mitsubishi-logo-640x554.png' },
+        { id: 'nissan', name: 'NISSAN', logo: 'https://www.carlogos.org/logo/Nissan-logo-2013-640x480.png' },
+        { id: 'suzuki', name: 'SUZUKI', logo: 'https://www.carlogos.org/logo/Suzuki-logo-640x550.png' },
+        { id: 'toyota', name: 'TOYOTA', logo: 'https://www.carlogos.org/logo/Toyota-logo-2005-640x480.png' },
+        { id: 'wuling', name: 'WULING', logo: 'https://manuals.plus/wp-content/uploads/2022/10/WULING-Logo.png' },
+    ];
+
+    const otherBrands = [
+        'ALFA ROMEO', 'ASTON MARTIN', 'AUDI', 'AUSTIN', 'BENTLEY', 'BIMANTARA', 'BMW', 'BYD', 'CADILLAC'
+    ];
 
     useEffect(() => {
         fetchAds(0, true);
@@ -246,168 +263,204 @@ const AdsListScreen = () => {
                 transparent={true}
                 onRequestClose={() => setIsFilterVisible(false)}>
                 <View style={styles.modalOverlay}>
-                    <View style={styles.modalContent}>
-                        <View style={styles.modalHeader}>
-                            <Text style={styles.modalTitle}>Filter</Text>
-                            <TouchableOpacity onPress={() => setIsFilterVisible(false)}>
-                                <Icon name="close" size={28} color="#000" />
-                            </TouchableOpacity>
+                    <View style={styles.newModalContent}>
+                        {/* Custom Modal Header */}
+                        <View style={styles.newModalHeader}>
+                            <Text style={styles.newModalTitle}>
+                                Filter: {category?.name || 'KATEGORI'} {'>'} {subcategory?.name || 'SUBKATEGORI'}
+                            </Text>
+                            <View style={styles.headerActionRow}>
+                                <TouchableOpacity
+                                    style={styles.resetHeaderBtn}
+                                    onPress={() => {
+                                        setFilters({
+                                            brand_id: '',
+                                            type_id: '',
+                                            province_id: '',
+                                            city_id: '',
+                                            district_id: '',
+                                            km: '',
+                                            transmission: '',
+                                            year: '',
+                                            color: '',
+                                            ownership: '',
+                                            status: '',
+                                        });
+                                    }}>
+                                    <Text style={styles.resetHeaderText}>Reset</Text>
+                                </TouchableOpacity>
+                                <TouchableOpacity onPress={() => setIsFilterVisible(false)}>
+                                    <Icon name="close-circle-outline" size={32} color="#000" />
+                                </TouchableOpacity>
+                            </View>
                         </View>
 
-                        <ScrollView style={styles.filterForm}>
-                            <View style={styles.filterSection}>
-                                <Text style={styles.sectionLabel}>Brand ID</Text>
-                                <TextInput
-                                    style={styles.filterInput}
-                                    placeholder="Brand ID"
-                                    value={filters.brand_id}
-                                    onChangeText={(text) => setFilters({ ...filters, brand_id: text })}
-                                />
+                        <View style={styles.modalBodyContainer}>
+                            {/* Sidebar */}
+                            <View style={styles.sidebar}>
+                                {[
+                                    'MEREK', 'MODEL', 'HARGA', 'TAHUN', 'TRANSMISI',
+                                    'BAHAN BAKAR', 'URUTKAN', 'KATEGORI'
+                                ].map((tab) => (
+                                    <TouchableOpacity
+                                        key={tab}
+                                        style={[
+                                            styles.sidebarTab,
+                                            activeFilterTab === tab && styles.activeSidebarTab
+                                        ]}
+                                        onPress={() => setActiveFilterTab(tab)}>
+                                        <Text style={[
+                                            styles.sidebarTabText,
+                                            activeFilterTab === tab && styles.activeSidebarTabText
+                                        ]}>{tab}</Text>
+                                    </TouchableOpacity>
+                                ))}
                             </View>
 
-                            <View style={styles.filterSection}>
-                                <Text style={styles.sectionLabel}>Tahun</Text>
-                                <TextInput
-                                    style={styles.filterInput}
-                                    placeholder="Contoh: 2020"
-                                    keyboardType="numeric"
-                                    value={filters.year}
-                                    onChangeText={(text) => setFilters({ ...filters, year: text })}
-                                />
-                            </View>
+                            {/* Main Content */}
+                            <ScrollView style={styles.filterContentScroll} showsVerticalScrollIndicator={true}>
+                                {activeFilterTab === 'MEREK' && (
+                                    <View style={styles.brandContainer}>
+                                        <View style={styles.logoGrid}>
+                                            {brands.map((brand) => (
+                                                <TouchableOpacity
+                                                    key={brand.id}
+                                                    style={[
+                                                        styles.logoItem,
+                                                        filters.brand_id === brand.id && styles.activeLogoItem
+                                                    ]}
+                                                    onPress={() => setFilters({ ...filters, brand_id: brand.id })}>
+                                                    <Image
+                                                        source={{ uri: brand.logo }}
+                                                        style={styles.brandLogo}
+                                                        resizeMode="contain"
+                                                    />
+                                                    <Text style={styles.brandLogoName}>{brand.name}</Text>
+                                                </TouchableOpacity>
+                                            ))}
+                                        </View>
 
-                            <View style={styles.filterSection}>
-                                <Text style={styles.sectionLabel}>Kilometer (KM)</Text>
-                                <TextInput
-                                    style={styles.filterInput}
-                                    placeholder="Contoh: 10000"
-                                    keyboardType="numeric"
-                                    value={filters.km}
-                                    onChangeText={(text) => setFilters({ ...filters, km: text })}
-                                />
-                            </View>
+                                        <View style={styles.brandList}>
+                                            {otherBrands.map((name) => (
+                                                <TouchableOpacity
+                                                    key={name}
+                                                    style={styles.brandListItem}
+                                                    onPress={() => setFilters({ ...filters, brand_id: name })}>
+                                                    <Icon
+                                                        name={filters.brand_id === name ? "checkbox" : "square-outline"}
+                                                        size={24}
+                                                        color={filters.brand_id === name ? "#2D5BD6" : "#000"}
+                                                    />
+                                                    <Text style={styles.brandListText}>{name}</Text>
+                                                </TouchableOpacity>
+                                            ))}
+                                        </View>
+                                    </View>
+                                )}
+                                {['MODEL', 'BAHAN BAKAR', 'KATEGORI'].includes(activeFilterTab) && (
+                                    <View style={styles.placeholderTab}>
+                                        <Text style={styles.placeholderTabText}>Filter {activeFilterTab} akan tersedia segera</Text>
+                                    </View>
+                                )}
 
-                            <View style={styles.filterSection}>
-                                <Text style={styles.sectionLabel}>Type ID</Text>
-                                <TextInput
-                                    style={styles.filterInput}
-                                    placeholder="Type ID"
-                                    value={filters.type_id}
-                                    onChangeText={(text) => setFilters({ ...filters, type_id: text })}
-                                />
-                            </View>
+                                {activeFilterTab === 'HARGA' && (
+                                    <View style={styles.newFilterSection}>
+                                        <Text style={styles.newSectionLabel}>Range Harga</Text>
+                                        <TextInput
+                                            style={styles.newFilterInput}
+                                            placeholder="Harga Minimum"
+                                            keyboardType="numeric"
+                                        />
+                                        <View style={{ height: 10 }} />
+                                        <TextInput
+                                            style={styles.newFilterInput}
+                                            placeholder="Harga Maksimum"
+                                            keyboardType="numeric"
+                                        />
+                                    </View>
+                                )}
 
-                            <View style={styles.filterSection}>
-                                <Text style={styles.sectionLabel}>Provinsi ID</Text>
-                                <TextInput
-                                    style={styles.filterInput}
-                                    placeholder="Province ID"
-                                    value={filters.province_id}
-                                    onChangeText={(text) => setFilters({ ...filters, province_id: text })}
-                                />
-                            </View>
+                                {activeFilterTab === 'TAHUN' && (
+                                    <View style={styles.newFilterSection}>
+                                        <Text style={styles.newSectionLabel}>Tahun Kendaraan</Text>
+                                        <TextInput
+                                            style={styles.newFilterInput}
+                                            placeholder="Contoh: 2020"
+                                            keyboardType="numeric"
+                                            value={filters.year}
+                                            onChangeText={(text) => setFilters({ ...filters, year: text })}
+                                        />
+                                    </View>
+                                )}
 
-                            <View style={styles.filterSection}>
-                                <Text style={styles.sectionLabel}>Kota ID</Text>
-                                <TextInput
-                                    style={styles.filterInput}
-                                    placeholder="City ID"
-                                    value={filters.city_id}
-                                    onChangeText={(text) => setFilters({ ...filters, city_id: text })}
-                                />
-                            </View>
+                                {activeFilterTab === 'TRANSMISI' && (
+                                    <View style={styles.newFilterSection}>
+                                        <Text style={styles.newSectionLabel}>Transmisi</Text>
+                                        <View style={styles.chipContainer}>
+                                            {['Manual', 'Automatic'].map((t) => (
+                                                <TouchableOpacity
+                                                    key={t}
+                                                    style={[
+                                                        styles.chip,
+                                                        filters.transmission === t && styles.activeChip
+                                                    ]}
+                                                    onPress={() => setFilters({ ...filters, transmission: t })}>
+                                                    <Text style={[
+                                                        styles.chipText,
+                                                        filters.transmission === t && styles.activeChipText
+                                                    ]}>{t}</Text>
+                                                </TouchableOpacity>
+                                            ))}
+                                        </View>
+                                    </View>
+                                )}
 
-                            <View style={styles.filterSection}>
-                                <Text style={styles.sectionLabel}>Kecamatan ID</Text>
-                                <TextInput
-                                    style={styles.filterInput}
-                                    placeholder="District ID"
-                                    value={filters.district_id}
-                                    onChangeText={(text) => setFilters({ ...filters, district_id: text })}
-                                />
-                            </View>
-
-                            <View style={styles.filterSection}>
-                                <Text style={styles.sectionLabel}>Transmisi</Text>
-                                <View style={styles.chipContainer}>
-                                    {['Manual', 'Automatic'].map((t) => (
-                                        <TouchableOpacity
-                                            key={t}
-                                            style={[
-                                                styles.chip,
-                                                filters.transmission === t && styles.activeChip
-                                            ]}
-                                            onPress={() => setFilters({ ...filters, transmission: t })}>
-                                            <Text style={[
-                                                styles.chipText,
-                                                filters.transmission === t && styles.activeChipText
-                                            ]}>{t}</Text>
-                                        </TouchableOpacity>
-                                    ))}
-                                </View>
-                            </View>
-
-                            <View style={styles.filterSection}>
-                                <Text style={styles.sectionLabel}>Warna</Text>
-                                <TextInput
-                                    style={styles.filterInput}
-                                    placeholder="Contoh: Merah"
-                                    value={filters.color}
-                                    onChangeText={(text) => setFilters({ ...filters, color: text })}
-                                />
-                            </View>
-
-                            <View style={styles.filterSection}>
-                                <Text style={styles.sectionLabel}>Kepemilikan</Text>
-                                <TextInput
-                                    style={styles.filterInput}
-                                    placeholder="Contoh: Tangan Pertama"
-                                    value={filters.ownership}
-                                    onChangeText={(text) => setFilters({ ...filters, ownership: text })}
-                                />
-                            </View>
-
-                            <View style={styles.filterSection}>
-                                <Text style={styles.sectionLabel}>Status</Text>
-                                <TextInput
-                                    style={styles.filterInput}
-                                    placeholder="Status"
-                                    value={filters.status}
-                                    onChangeText={(text) => setFilters({ ...filters, status: text })}
-                                />
-                            </View>
-                        </ScrollView>
-
-                        <View style={styles.modalFooter}>
-                            <TouchableOpacity
-                                style={styles.clearButton}
-                                onPress={() => {
-                                    setFilters({
-                                        brand_id: '',
-                                        type_id: '',
-                                        province_id: '',
-                                        city_id: '',
-                                        district_id: '',
-                                        km: '',
-                                        transmission: '',
-                                        year: '',
-                                        color: '',
-                                        ownership: '',
-                                        status: '',
-                                    });
-                                }}>
-                                <Text style={styles.clearButtonText}>Reset</Text>
-                            </TouchableOpacity>
-                            <TouchableOpacity
-                                style={styles.applyButton}
-                                onPress={() => {
-                                    setIsFilterVisible(false);
-                                    setPage(0);
-                                    fetchAds(0, true);
-                                }}>
-                                <Text style={styles.applyButtonText}>Terapkan</Text>
-                            </TouchableOpacity>
+                                {activeFilterTab === 'URUTKAN' && (
+                                    <View style={styles.brandList}>
+                                        {['Terbaru', 'Harga Terendah', 'Harga Tertinggi', 'KM Terendah'].map((sort) => (
+                                            <TouchableOpacity
+                                                key={sort}
+                                                style={styles.brandListItem}
+                                                onPress={() => { }}>
+                                                <Icon
+                                                    name="radio-button-off"
+                                                    size={24}
+                                                    color="#000"
+                                                />
+                                                <Text style={styles.brandListText}>{sort}</Text>
+                                            </TouchableOpacity>
+                                        ))}
+                                    </View>
+                                )}
+                                {activeFilterTab === 'URUTKAN' && (
+                                    <View style={styles.brandList}>
+                                        {['Terbaru', 'Harga Terendah', 'Harga Tertinggi', 'KM Terendah'].map((sort) => (
+                                            <TouchableOpacity
+                                                key={sort}
+                                                style={styles.brandListItem}
+                                                onPress={() => { }}>
+                                                <Icon
+                                                    name="radio-button-off"
+                                                    size={24}
+                                                    color="#000"
+                                                />
+                                                <Text style={styles.brandListText}>{sort}</Text>
+                                            </TouchableOpacity>
+                                        ))}
+                                    </View>
+                                )}
+                            </ScrollView>
                         </View>
+
+                        <TouchableOpacity
+                            style={styles.newApplyButton}
+                            onPress={() => {
+                                setIsFilterVisible(false);
+                                setPage(0);
+                                fetchAds(0, true);
+                            }}>
+                            <Text style={styles.newApplyButtonText}>Terapkan</Text>
+                        </TouchableOpacity>
                     </View>
                 </View>
             </Modal>
@@ -554,39 +607,160 @@ const styles = StyleSheet.create({
         backgroundColor: 'rgba(0,0,0,0.5)',
         justifyContent: 'flex-end',
     },
-    modalContent: {
+    newModalContent: {
         backgroundColor: '#fff',
         borderTopLeftRadius: 20,
         borderTopRightRadius: 20,
-        height: '80%',
+        height: '92%',
+        paddingBottom: 20,
     },
-    modalHeader: {
+    newModalHeader: {
         flexDirection: 'row',
         justifyContent: 'space-between',
         alignItems: 'center',
-        padding: 16,
+        paddingHorizontal: 16,
+        paddingVertical: 12,
         borderBottomWidth: 1,
         borderBottomColor: '#F2F4F5',
     },
-    modalTitle: {
-        fontSize: 18,
+    newModalTitle: {
+        fontSize: 16,
         fontWeight: 'bold',
-        color: '#002F34',
-    },
-    filterForm: {
+        color: '#000',
         flex: 1,
-        padding: 16,
     },
-    filterSection: {
+    headerActionRow: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        gap: 12,
+    },
+    resetHeaderBtn: {
+        paddingHorizontal: 16,
+        paddingVertical: 8,
+        borderWidth: 1,
+        borderColor: '#000',
+        borderRadius: 4,
+    },
+    resetHeaderText: {
+        fontSize: 14,
+        fontWeight: 'bold',
+        color: '#2D5BD6',
+    },
+    modalBodyContainer: {
+        flex: 1,
+        flexDirection: 'row',
+    },
+    sidebar: {
+        width: 100,
+        backgroundColor: '#fff',
+        borderRightWidth: 1,
+        borderRightColor: '#F2F4F5',
+    },
+    sidebarTab: {
+        paddingVertical: 15,
+        paddingHorizontal: 8,
+        alignItems: 'center',
+        borderBottomWidth: 1,
+        borderBottomColor: '#F2F4F5',
+    },
+    activeSidebarTab: {
+        backgroundColor: '#D1D5DB', // Light grey as per image
+    },
+    sidebarTabText: {
+        fontSize: 11,
+        fontWeight: 'bold',
+        color: '#000',
+        textAlign: 'center',
+    },
+    activeSidebarTabText: {
+        color: '#000',
+    },
+    filterContentScroll: {
+        flex: 1,
+        padding: 10,
+    },
+    brandContainer: {
+        flex: 1,
+    },
+    logoGrid: {
+        flexDirection: 'row',
+        flexWrap: 'wrap',
+        justifyContent: 'space-between',
         marginBottom: 20,
     },
-    sectionLabel: {
+    logoItem: {
+        width: '31%',
+        aspectRatio: 1,
+        borderWidth: 1,
+        borderColor: '#E5E7EB',
+        borderRadius: 4,
+        justifyContent: 'center',
+        alignItems: 'center',
+        marginBottom: 8,
+        padding: 5,
+    },
+    activeLogoItem: {
+        borderColor: '#2D5BD6',
+        borderWidth: 2,
+    },
+    brandLogo: {
+        width: '80%',
+        height: '60%',
+    },
+    brandLogoName: {
+        fontSize: 8,
+        color: '#000',
+        marginTop: 2,
+        textAlign: 'center',
+    },
+    brandList: {
+        marginTop: 10,
+    },
+    brandListItem: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        paddingVertical: 10,
+        gap: 10,
+    },
+    brandListText: {
+        fontSize: 14,
+        fontWeight: 'bold',
+        color: '#000',
+    },
+    placeholderTab: {
+        flex: 1,
+        justifyContent: 'center',
+        alignItems: 'center',
+        paddingTop: 50,
+    },
+    placeholderTabText: {
+        fontSize: 14,
+        color: '#757575',
+    },
+    newApplyButton: {
+        backgroundColor: '#2D5BD6',
+        marginHorizontal: 16,
+        height: 48,
+        borderRadius: 8,
+        justifyContent: 'center',
+        alignItems: 'center',
+        marginTop: 10,
+    },
+    newApplyButtonText: {
+        fontSize: 16,
+        fontWeight: 'bold',
+        color: '#fff',
+    },
+    newFilterSection: {
+        marginBottom: 20,
+    },
+    newSectionLabel: {
         fontSize: 14,
         fontWeight: 'bold',
         color: '#002F34',
         marginBottom: 8,
     },
-    filterInput: {
+    newFilterInput: {
         borderWidth: 1,
         borderColor: '#E0E0E0',
         borderRadius: 8,
@@ -594,40 +768,6 @@ const styles = StyleSheet.create({
         height: 48,
         fontSize: 14,
         color: '#000',
-    },
-    modalFooter: {
-        flexDirection: 'row',
-        padding: 16,
-        borderTopWidth: 1,
-        borderTopColor: '#F2F4F5',
-        gap: 12,
-    },
-    clearButton: {
-        flex: 1,
-        height: 48,
-        justifyContent: 'center',
-        alignItems: 'center',
-        borderWidth: 1,
-        borderColor: '#E0E0E0',
-        borderRadius: 8,
-    },
-    clearButtonText: {
-        fontSize: 16,
-        fontWeight: 'bold',
-        color: '#002F34',
-    },
-    applyButton: {
-        flex: 1,
-        height: 48,
-        justifyContent: 'center',
-        alignItems: 'center',
-        backgroundColor: '#002F34',
-        borderRadius: 8,
-    },
-    applyButtonText: {
-        fontSize: 16,
-        fontWeight: 'bold',
-        color: '#fff',
     },
     chipContainer: {
         flexDirection: 'row',
