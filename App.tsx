@@ -6,6 +6,7 @@ import { SafeAreaProvider } from 'react-native-safe-area-context';
 import Icon from 'react-native-vector-icons/Ionicons';
 
 
+
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 
 // Import Screens
@@ -16,6 +17,7 @@ import IklanSayaScreen from './src/screens/IklanSayaScreen';
 import AkunSayaScreen from './src/screens/AkunSayaScreen';
 import AdsListScreen from './src/screens/AdsListScreen';
 import AdDetailScreen from './src/screens/AdDetailScreen';
+import SplashScreen from './src/screens/SplashScreen';
 
 const Tab = createBottomTabNavigator();
 const Stack = createNativeStackNavigator();
@@ -97,13 +99,16 @@ function HomeTabs() {
 function App() {
   return (
     <SafeAreaProvider>
-      <NavigationContainer>
-        <Stack.Navigator screenOptions={{ headerShown: false }}>
-          <Stack.Screen name="Main" component={HomeTabs} />
-          <Stack.Screen name="AdsList" component={AdsListScreen} />
-          <Stack.Screen name="AdDetail" component={AdDetailScreen} />
-        </Stack.Navigator>
-      </NavigationContainer>
+      <View style={{ flex: 1, marginTop: 20 }}>
+        <NavigationContainer>
+          <Stack.Navigator screenOptions={{ headerShown: false }}>
+            <Stack.Screen name="Splash" component={SplashScreen} options={{ animationTypeForReplace: 'pop' }} />
+            <Stack.Screen name="Main" component={HomeTabs} />
+            <Stack.Screen name="AdsList" component={AdsListScreen} />
+            <Stack.Screen name="AdDetail" component={AdDetailScreen} />
+          </Stack.Navigator>
+        </NavigationContainer>
+      </View>
     </SafeAreaProvider>
   );
 }

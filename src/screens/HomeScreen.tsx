@@ -127,9 +127,10 @@ const HomeScreen = () => {
                 {/* Header Container */}
                 <View style={styles.header}>
                     <View style={styles.logoContainer}>
-                        <View style={styles.greenBox}>
+                        {/* <View style={styles.greenBox}>
                             <Icon name="happy-outline" size={24} color="#000" />
-                        </View>
+                        </View> */}
+                        <Image source={require('../assets/images/tokotitoh.png')} style={{ width: 40, height: 40 }} />
                     </View>
                     <View style={styles.searchBar}>
                         <TextInput
