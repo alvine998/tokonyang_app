@@ -13,8 +13,9 @@ import {
 import axios from 'axios';
 import { useNavigation } from '@react-navigation/native';
 import Icon from 'react-native-vector-icons/Ionicons';
+import { SCREEN_WIDTH, getCategoryColumns, isTablet } from '../utils/responsive';
 
-const { width } = Dimensions.get('window');
+const { width } = { width: SCREEN_WIDTH };
 
 interface Category {
     id: number;
@@ -135,7 +136,7 @@ const MenuScreen = () => {
                     data={categories}
                     renderItem={renderCategoryItem}
                     keyExtractor={(item) => item.id.toString()}
-                    numColumns={3}
+                    numColumns={getCategoryColumns()}
                     contentContainerStyle={styles.gridContent}
                     showsVerticalScrollIndicator={false}
                 />
@@ -218,25 +219,25 @@ const styles = StyleSheet.create({
         padding: 8,
     },
     gridItem: {
-        width: (width - 16) / 3,
+        width: (width - 16) / getCategoryColumns(),
         alignItems: 'center',
         paddingVertical: 16,
     },
     iconWrapper: {
-        width: 64,
-        height: 64,
+        width: isTablet ? 100 : 64,
+        height: isTablet ? 100 : 64,
         backgroundColor: '#F7F8F9',
-        borderRadius: 32,
+        borderRadius: isTablet ? 50 : 32,
         justifyContent: 'center',
         alignItems: 'center',
         marginBottom: 8,
     },
     gridIcon: {
-        width: 40,
-        height: 40,
+        width: isTablet ? 60 : 40,
+        height: isTablet ? 60 : 40,
     },
     gridText: {
-        fontSize: 12,
+        fontSize: isTablet ? 14 : 12,
         fontWeight: '700',
         color: '#002F34',
         textAlign: 'center',

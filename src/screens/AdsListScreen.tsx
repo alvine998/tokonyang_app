@@ -16,8 +16,16 @@ import {
 import Icon from 'react-native-vector-icons/Ionicons';
 import axios from 'axios';
 import { useRoute, useNavigation } from '@react-navigation/native';
+import { SCREEN_WIDTH, getGridColumns } from '../utils/responsive';
+import {
+    navsCar,
+    navsProperty,
+    navsBusTruck,
+    navsFoodPet,
+    navsDefault,
+} from '../utils/constants';
 
-const { width } = Dimensions.get('window');
+const width = SCREEN_WIDTH;
 
 interface AdItem {
     id: number;
@@ -58,7 +66,84 @@ const AdsListScreen = () => {
         color: '',
         ownership: '',
         status: '',
+        min_price: '',
+        max_price: '',
+        area: '',
+        building: '',
     });
+
+    const [provinces, setProvinces] = useState<any[]>([]);
+    const [cities, setCities] = useState<any[]>([]);
+    const [loadingProvinces, setLoadingProvinces] = useState(false);
+    const [loadingCities, setLoadingCities] = useState(false);
+
+    const [currentNavSet, setCurrentNavSet] = useState<any[]>(navsDefault);
+
+    useEffect(() => {
+        fetchAds(0, true);
+        fetchProvinces();
+        determineNavSet();
+    }, []);
+
+    const determineNavSet = () => {
+        const catName = category?.name?.toLowerCase() || '';
+        const subcatName = subcategory?.name?.toLowerCase() || '';
+
+        if (catName.includes('mobil') || catName.includes('motor')) {
+            setCurrentNavSet(navsCar);
+            setActiveFilterTab('MEREK');
+        } else if (catName.includes('properti')) {
+            setCurrentNavSet(navsProperty);
+            setActiveFilterTab('HARGA');
+        } else if (subcatName.includes('alat berat') || subcatName.includes('bus dan truk')) {
+            setCurrentNavSet(navsBusTruck);
+            setActiveFilterTab('MEREK');
+        } else if (catName.includes('makanan') || catName.includes('hewan')) {
+            setCurrentNavSet(navsFoodPet);
+            setActiveFilterTab('HARGA');
+        } else {
+            setCurrentNavSet(navsDefault);
+            setActiveFilterTab('HARGA');
+        }
+    };
+
+    const fetchProvinces = async () => {
+        setLoadingProvinces(true);
+        try {
+            const response = await axios.get('https://api.tokotitoh.co.id/provinces', {
+                headers: {
+                    'bearer-token': 'tokotitohapi',
+                    'x-partner-code': 'id.marketplace.tokotitoh'
+                }
+            });
+            if (response.data && response.data.items) {
+                setProvinces(response.data.items);
+            }
+        } catch (error) {
+            console.error('Error fetching provinces:', error);
+        } finally {
+            setLoadingProvinces(false);
+        }
+    };
+
+    const fetchCities = async (provinceId: string) => {
+        setLoadingCities(true);
+        try {
+            const response = await axios.get(`https://api.tokotitoh.co.id/cities?province_id=${provinceId}`, {
+                headers: {
+                    'bearer-token': 'tokotitohapi',
+                    'x-partner-code': 'id.marketplace.tokotitoh'
+                }
+            });
+            if (response.data && response.data.items) {
+                setCities(response.data.items);
+            }
+        } catch (error) {
+            console.error('Error fetching cities:', error);
+        } finally {
+            setLoadingCities(false);
+        }
+    };
 
     const brands = [
         { id: 'daihatsu', name: 'DAIHATSU', logo: 'https://www.carlogos.org/logo/Daihatsu-logo-800x450.png' },
@@ -189,12 +274,20 @@ const AdsListScreen = () => {
                 </TouchableOpacity>
                 <View style={styles.locationInfo}>
                     <Icon name="location-outline" size={18} color="#002F34" />
-                    <Text style={styles.locationTitle}>Jakarta Selatan</Text>
+                    <Text style={styles.locationTitle}>
+                        {filters.city_id ? cities.find(c => c.id === filters.city_id)?.name :
+                            filters.province_id ? provinces.find(p => p.id === filters.province_id)?.name :
+                                'Lokasi'}
+                    </Text>
                 </View>
                 <View style={styles.logoContainer}>
-                    <View style={styles.greenBox}>
+                    {/* <View style={styles.greenBox}>
                         <Icon name="happy-outline" size={20} color="#000" />
-                    </View>
+                    </View> */}
+                    <Image
+                        source={require('../assets/images/tokotitoh.png')}
+                        style={styles.logo}
+                    />
                 </View>
             </View>
 
@@ -230,9 +323,9 @@ const AdsListScreen = () => {
                     data={ads}
                     renderItem={renderAdItem}
                     keyExtractor={(item) => item.id.toString()}
-                    numColumns={2}
+                    numColumns={getGridColumns()}
                     contentContainerStyle={styles.listContainer}
-                    columnWrapperStyle={styles.columnWrapper}
+                    columnWrapperStyle={getGridColumns() > 1 ? styles.columnWrapper : null}
                     refreshControl={
                         <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
                     }
@@ -285,6 +378,10 @@ const AdsListScreen = () => {
                                             color: '',
                                             ownership: '',
                                             status: '',
+                                            min_price: '',
+                                            max_price: '',
+                                            area: '',
+                                            building: '',
                                         });
                                     }}>
                                     <Text style={styles.resetHeaderText}>Reset</Text>
@@ -298,27 +395,84 @@ const AdsListScreen = () => {
                         <View style={styles.modalBodyContainer}>
                             {/* Sidebar */}
                             <View style={styles.sidebar}>
-                                {[
-                                    'MEREK', 'MODEL', 'HARGA', 'TAHUN', 'TRANSMISI',
-                                    'BAHAN BAKAR', 'URUTKAN', 'KATEGORI'
-                                ].map((tab) => (
+                                <TouchableOpacity
+                                    style={[
+                                        styles.sidebarTab,
+                                        activeFilterTab === 'LOKASI' && styles.activeSidebarTab
+                                    ]}
+                                    onPress={() => setActiveFilterTab('LOKASI')}>
+                                    <Text style={[
+                                        styles.sidebarTabText,
+                                        activeFilterTab === 'LOKASI' && styles.activeSidebarTabText
+                                    ]}>LOKASI</Text>
+                                </TouchableOpacity>
+                                {currentNavSet.map((tab: any) => (
                                     <TouchableOpacity
-                                        key={tab}
+                                        key={tab.name}
                                         style={[
                                             styles.sidebarTab,
-                                            activeFilterTab === tab && styles.activeSidebarTab
+                                            activeFilterTab === tab.name && styles.activeSidebarTab
                                         ]}
-                                        onPress={() => setActiveFilterTab(tab)}>
+                                        onPress={() => setActiveFilterTab(tab.name)}>
                                         <Text style={[
                                             styles.sidebarTabText,
-                                            activeFilterTab === tab && styles.activeSidebarTabText
-                                        ]}>{tab}</Text>
+                                            activeFilterTab === tab.name && styles.activeSidebarTabText
+                                        ]}>{tab.name}</Text>
                                     </TouchableOpacity>
                                 ))}
                             </View>
 
                             {/* Main Content */}
                             <ScrollView style={styles.filterContentScroll} showsVerticalScrollIndicator={true}>
+                                {activeFilterTab === 'LOKASI' && (
+                                    <View style={styles.newFilterSection}>
+                                        <Text style={styles.newSectionLabel}>Pilih Provinsi</Text>
+                                        <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.chipScroll}>
+                                            <View style={styles.chipContainer}>
+                                                {provinces.map((p) => (
+                                                    <TouchableOpacity
+                                                        key={p.id}
+                                                        style={[
+                                                            styles.chip,
+                                                            filters.province_id === p.id && styles.activeChip
+                                                        ]}
+                                                        onPress={() => {
+                                                            setFilters({ ...filters, province_id: p.id, city_id: '' });
+                                                            fetchCities(p.id);
+                                                        }}>
+                                                        <Text style={[
+                                                            styles.chipText,
+                                                            filters.province_id === p.id && styles.activeChipText
+                                                        ]}>{p.name}</Text>
+                                                    </TouchableOpacity>
+                                                ))}
+                                            </View>
+                                        </ScrollView>
+
+                                        {filters.province_id !== '' && (
+                                            <>
+                                                <Text style={[styles.newSectionLabel, { marginTop: 20 }]}>Pilih Kota</Text>
+                                                <View style={styles.chipContainer}>
+                                                    {cities.map((c) => (
+                                                        <TouchableOpacity
+                                                            key={c.id}
+                                                            style={[
+                                                                styles.chip,
+                                                                filters.city_id === c.id && styles.activeChip
+                                                            ]}
+                                                            onPress={() => setFilters({ ...filters, city_id: c.id })}>
+                                                            <Text style={[
+                                                                styles.chipText,
+                                                                filters.city_id === c.id && styles.activeChipText
+                                                            ]}>{c.name}</Text>
+                                                        </TouchableOpacity>
+                                                    ))}
+                                                </View>
+                                            </>
+                                        )}
+                                    </View>
+                                )}
+
                                 {activeFilterTab === 'MEREK' && (
                                     <View style={styles.brandContainer}>
                                         <View style={styles.logoGrid}>
@@ -357,11 +511,6 @@ const AdsListScreen = () => {
                                         </View>
                                     </View>
                                 )}
-                                {['MODEL', 'BAHAN BAKAR', 'KATEGORI'].includes(activeFilterTab) && (
-                                    <View style={styles.placeholderTab}>
-                                        <Text style={styles.placeholderTabText}>Filter {activeFilterTab} akan tersedia segera</Text>
-                                    </View>
-                                )}
 
                                 {activeFilterTab === 'HARGA' && (
                                     <View style={styles.newFilterSection}>
@@ -370,12 +519,42 @@ const AdsListScreen = () => {
                                             style={styles.newFilterInput}
                                             placeholder="Harga Minimum"
                                             keyboardType="numeric"
+                                            value={filters.min_price}
+                                            onChangeText={(text) => setFilters({ ...filters, min_price: text })}
                                         />
                                         <View style={{ height: 10 }} />
                                         <TextInput
                                             style={styles.newFilterInput}
                                             placeholder="Harga Maksimum"
                                             keyboardType="numeric"
+                                            value={filters.max_price}
+                                            onChangeText={(text) => setFilters({ ...filters, max_price: text })}
+                                        />
+                                    </View>
+                                )}
+
+                                {activeFilterTab === 'LUAS TANAH' && (
+                                    <View style={styles.newFilterSection}>
+                                        <Text style={styles.newSectionLabel}>Luas Tanah (m2)</Text>
+                                        <TextInput
+                                            style={styles.newFilterInput}
+                                            placeholder="Gunakan angka saja"
+                                            keyboardType="numeric"
+                                            value={filters.area}
+                                            onChangeText={(text) => setFilters({ ...filters, area: text })}
+                                        />
+                                    </View>
+                                )}
+
+                                {activeFilterTab === 'LUAS BANGUNAN' && (
+                                    <View style={styles.newFilterSection}>
+                                        <Text style={styles.newSectionLabel}>Luas Bangunan (m2)</Text>
+                                        <TextInput
+                                            style={styles.newFilterInput}
+                                            placeholder="Gunakan angka saja"
+                                            keyboardType="numeric"
+                                            value={filters.building}
+                                            onChangeText={(text) => setFilters({ ...filters, building: text })}
                                         />
                                     </View>
                                 )}
@@ -432,21 +611,10 @@ const AdsListScreen = () => {
                                         ))}
                                     </View>
                                 )}
-                                {activeFilterTab === 'URUTKAN' && (
-                                    <View style={styles.brandList}>
-                                        {['Terbaru', 'Harga Terendah', 'Harga Tertinggi', 'KM Terendah'].map((sort) => (
-                                            <TouchableOpacity
-                                                key={sort}
-                                                style={styles.brandListItem}
-                                                onPress={() => { }}>
-                                                <Icon
-                                                    name="radio-button-off"
-                                                    size={24}
-                                                    color="#000"
-                                                />
-                                                <Text style={styles.brandListText}>{sort}</Text>
-                                            </TouchableOpacity>
-                                        ))}
+
+                                {['MODEL', 'BAHAN BAKAR', 'KATEGORI'].includes(activeFilterTab) && (
+                                    <View style={styles.placeholderTab}>
+                                        <Text style={styles.placeholderTabText}>Filter {activeFilterTab} akan tersedia segera</Text>
                                     </View>
                                 )}
                             </ScrollView>
@@ -553,7 +721,7 @@ const styles = StyleSheet.create({
         justifyContent: 'space-between',
     },
     adCard: {
-        width: (width - 48) / 2,
+        width: (width - (16 * (getGridColumns() + 1))) / getGridColumns(),
         marginBottom: 16,
         backgroundColor: '#fff',
         borderRadius: 8,
@@ -769,6 +937,9 @@ const styles = StyleSheet.create({
         fontSize: 14,
         color: '#000',
     },
+    chipScroll: {
+        marginBottom: 10,
+    },
     chipContainer: {
         flexDirection: 'row',
         flexWrap: 'wrap',
@@ -804,6 +975,10 @@ const styles = StyleSheet.create({
     footerText: {
         fontSize: 14,
         color: '#757575',
+    },
+    logo: {
+        width: 30,
+        height: 30,
     },
 });
 

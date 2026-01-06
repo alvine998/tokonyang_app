@@ -17,6 +17,7 @@ import IklanSayaScreen from './src/screens/IklanSayaScreen';
 import AkunSayaScreen from './src/screens/AkunSayaScreen';
 import AdsListScreen from './src/screens/AdsListScreen';
 import AdDetailScreen from './src/screens/AdDetailScreen';
+import UserAdsScreen from './src/screens/UserAdsScreen';
 import SplashScreen from './src/screens/SplashScreen';
 
 const Tab = createBottomTabNavigator();
@@ -106,6 +107,7 @@ function App() {
             <Stack.Screen name="Main" component={HomeTabs} />
             <Stack.Screen name="AdsList" component={AdsListScreen} />
             <Stack.Screen name="AdDetail" component={AdDetailScreen} />
+            <Stack.Screen name="UserAds" component={UserAdsScreen} />
           </Stack.Navigator>
         </NavigationContainer>
       </View>

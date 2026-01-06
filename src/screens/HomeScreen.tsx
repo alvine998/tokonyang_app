@@ -16,8 +16,9 @@ import {
 import Icon from 'react-native-vector-icons/Ionicons';
 import axios from 'axios';
 import { useNavigation } from '@react-navigation/native';
+import { SCREEN_WIDTH, getCategoryColumns, isTablet } from '../utils/responsive';
 
-const { width } = Dimensions.get('window');
+const width = SCREEN_WIDTH;
 
 interface Category {
     id: number;
@@ -156,56 +157,62 @@ const HomeScreen = () => {
                         <ActivityIndicator size="large" color="#2196F3" />
                     ) : (
                         <View>
-
-                            <View style={styles.grid}>
-                                {categories.slice(0, 2).map((item) => (
-                                    <TouchableOpacity
-                                        key={item.id}
-                                        style={styles.categoryItem}
-                                        onPress={() => fetchSubcategories(item)}>
-                                        <Image
-                                            source={{
-                                                uri: item.icon.includes('localhost')
-                                                    ? 'https://via.placeholder.com/150' // Fallback for localhost URLs
-                                                    : item.icon,
-                                            }}
-                                            style={styles.categoryImage}
-                                            resizeMode="contain"
-                                        />
-                                        <Text style={styles.categoryText}>{item.name.toUpperCase()}</Text>
-                                    </TouchableOpacity>
-                                ))}
-                                {/* View All Categories Button */}
-                                <TouchableOpacity style={styles.categoryItem}>
-                                    <View style={styles.viewAllContainer}>
-                                        <Text style={styles.viewAllText}>LIHAT SEMUA</Text>
-                                        <Text style={styles.viewAllText}>KATEGORI</Text>
-                                    </View>
-                                </TouchableOpacity>
-                            </View>
-
-                            <View style={styles.grid}>
-                                {categories.slice(2, 5).map((item) => (
-                                    <TouchableOpacity
-                                        key={item.id}
-                                        style={styles.categoryItem}
-                                        onPress={() => fetchSubcategories(item)}>
-                                        <Image
-                                            source={{
-                                                uri: item.icon.includes('localhost')
-                                                    ? 'https://via.placeholder.com/150' // Fallback for localhost URLs
-                                                    : item.icon,
-                                            }}
-                                            style={styles.categoryImage}
-                                            resizeMode="contain"
-                                        />
-                                        <Text style={styles.categoryText}>{item.name.toUpperCase()}</Text>
-                                    </TouchableOpacity>
-                                ))}
-                            </View>
+                            <FlatList
+                                data={[...categories.slice(0, getCategoryColumns() - 1), { id: -1, name: 'Lihat Semua', icon: '' }]}
+                                renderItem={({ item }) => (
+                                    item.id === -1 ? (
+                                        <TouchableOpacity style={[styles.categoryItem, { width: (width - 32) / getCategoryColumns() }]}>
+                                            <View style={styles.viewAllContainer}>
+                                                <Text style={styles.viewAllText}>LIHAT SEMUA</Text>
+                                                <Text style={styles.viewAllText}>KATEGORI</Text>
+                                            </View>
+                                        </TouchableOpacity>
+                                    ) : (
+                                        <TouchableOpacity
+                                            style={[styles.categoryItem, { width: (width - 32) / getCategoryColumns() }]}
+                                            onPress={() => fetchSubcategories(item)}>
+                                            <Image
+                                                source={{
+                                                    uri: item.icon.includes('localhost')
+                                                        ? 'https://via.placeholder.com/150'
+                                                        : item.icon,
+                                                }}
+                                                style={[styles.categoryImage, isTablet && { width: 100, height: 100 }]}
+                                                resizeMode="contain"
+                                            />
+                                            <Text style={styles.categoryText}>{item.name.toUpperCase()}</Text>
+                                        </TouchableOpacity>
+                                    )
+                                )}
+                                keyExtractor={(item) => item.id.toString()}
+                                numColumns={getCategoryColumns()}
+                                scrollEnabled={false}
+                            />
+                            <FlatList
+                                data={[...categories.slice(getCategoryColumns() - 1, getCategoryColumns() + 2)]}
+                                renderItem={({ item }) => (
+                                    (
+                                        <TouchableOpacity
+                                            style={[styles.categoryItem, { width: (width - 32) / getCategoryColumns() }]}
+                                            onPress={() => fetchSubcategories(item)}>
+                                            <Image
+                                                source={{
+                                                    uri: item.icon.includes('localhost')
+                                                        ? 'https://via.placeholder.com/150'
+                                                        : item.icon,
+                                                }}
+                                                style={[styles.categoryImage, isTablet && { width: 100, height: 100 }]}
+                                                resizeMode="contain"
+                                            />
+                                            <Text style={styles.categoryText}>{item.name.toUpperCase()}</Text>
+                                        </TouchableOpacity>
+                                    )
+                                )}
+                                keyExtractor={(item) => item.id.toString()}
+                                numColumns={getCategoryColumns()}
+                                scrollEnabled={false}
+                            />
                         </View>
-
-
                     )}
                 </View>
 
@@ -314,7 +321,6 @@ const styles = StyleSheet.create({
         alignItems: 'center',
     },
     categoryItem: {
-        width: (width - 64) / 3,
         alignItems: 'center',
         marginBottom: 32,
     },

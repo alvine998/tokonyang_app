@@ -12,6 +12,9 @@ import {
     FlatList,
     Modal,
     StatusBar,
+    Share,
+    Alert,
+    TextInput,
 } from 'react-native';
 import Icon from 'react-native-vector-icons/Ionicons';
 import axios from 'axios';
@@ -20,6 +23,7 @@ import { useRoute, useNavigation } from '@react-navigation/native';
 const { width } = Dimensions.get('window');
 
 interface AdDetail {
+    user_id: number;
     id: number;
     title: string;
     price: number;
@@ -42,11 +46,13 @@ interface AdDetail {
     condition: string;
     wa: string;
     created_on: string;
+    area?: number;
+    building?: number;
 }
 
 const AdDetailScreen = () => {
     const route = useRoute<any>();
-    const navigation = useNavigation();
+    const navigation = useNavigation<any>();
     const { adId } = route.params;
 
     const [ad, setAd] = useState<AdDetail | null>(null);
@@ -54,6 +60,14 @@ const AdDetailScreen = () => {
     const [activeImageIndex, setActiveImageIndex] = useState(0);
     const [isImageFullVisible, setIsImageFullVisible] = useState(false);
     const [fullImageIndex, setFullImageIndex] = useState(0);
+    const [isSaved, setIsSaved] = useState(false);
+    const [isReportModalVisible, setIsReportModalVisible] = useState(false);
+    const [reportForm, setReportForm] = useState({
+        title: '',
+        description: '',
+        type: 'Penipuan',
+    });
+    const [isReporting, setIsReporting] = useState(false);
 
     useEffect(() => {
         fetchAdDetail();
@@ -90,6 +104,59 @@ const AdDetailScreen = () => {
     const handleWhatsApp = () => {
         if (ad?.wa) {
             Linking.openURL(`whatsapp://send?phone=${ad.wa}&text=Halo, saya tertarik dengan iklan ${ad.title}`);
+        }
+    };
+
+    const handleShare = async () => {
+        try {
+            await Share.share({
+                message: `Cek iklan ini: ${ad?.title} - https://tokotitoh.co.id/category/${ad?.subcategory_name}/${ad?.id}`,
+            });
+        } catch (error) {
+            console.error('Error sharing ad:', error);
+        }
+    };
+
+    const handleSave = () => {
+        setIsSaved(!isSaved);
+        // In a real app, this would call an API
+    };
+
+    const handleReport = async () => {
+        if (!reportForm.title || !reportForm.description) {
+            Alert.alert('Error', 'Harap isi semua bidang');
+            return;
+        }
+
+        setIsReporting(true);
+        try {
+            const payload = {
+                title: `${reportForm.type} - ${reportForm.title}`,
+                description: reportForm.description,
+                type: reportForm.type,
+                ads_id: ad?.id,
+                ads_name: ad?.title,
+                user_id: 0, // In real app, get from auth
+                user_name: 'Guest', // In real app, get from auth
+            };
+
+            await axios.post('https://api.tokotitoh.co.id/report', payload, {
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Accept': 'application/json',
+                    'bearer-token': 'tokotitohapi',
+                    'x-partner-code': 'id.marketplace.tokotitoh'
+                },
+            });
+
+            setIsReportModalVisible(false);
+            setReportForm({ title: '', description: '', type: 'Penipuan' });
+            Alert.alert('Sukses', 'Berhasil melaporkan iklan ini');
+        } catch (error) {
+            console.error('Error reporting ad:', error);
+            Alert.alert('Error', 'Gagal melaporkan iklan ini, harap hubungi admin');
+        } finally {
+            setIsReporting(false);
         }
     };
 
@@ -132,8 +199,8 @@ const AdDetailScreen = () => {
                     <Icon name="arrow-back" size={24} color="#000" />
                 </TouchableOpacity>
                 <View style={styles.headerRight}>
-                    <TouchableOpacity style={styles.headerBtn}>
-                        <Icon name="share-social-outline" size={24} color="#000" />
+                    <TouchableOpacity style={styles.headerBtn} onPress={() => setIsReportModalVisible(true)}>
+                        <Icon name="flag-outline" size={24} color="#000" />
                     </TouchableOpacity>
                     <TouchableOpacity style={styles.headerBtn}>
                         <Icon name="heart-outline" size={24} color="#000" />
@@ -185,13 +252,60 @@ const AdDetailScreen = () => {
                 <View style={styles.sectionHeader}>
                     <Text style={styles.sectionTitle}>Detail</Text>
                 </View>
+
+                {/* Categories Logic from Web */}
                 <View style={styles.specGrid}>
-                    <SpecItem icon="calendar-outline" label="Tahun" value={ad.year} />
-                    <SpecItem icon="speedometer-outline" label="KM" value={ad.km?.toLocaleString()} />
-                    <SpecItem icon="cog-outline" label="Transmisi" value={ad.transmission} />
-                    <SpecItem icon="flame-outline" label="Bahan Bakar" value={ad.fuel_type} />
-                    <SpecItem icon="color-palette-outline" label="Warna" value={ad.color} />
-                    <SpecItem icon="person-outline" label="Kepemilikan" value={ad.ownership} />
+                    {/* Heavy Machinery & Trucks Case */}
+                    {(ad.subcategory_name?.toLowerCase().includes("alat berat") ||
+                        ad.subcategory_name?.toLowerCase().includes("bus dan truk")) && (
+                            <SpecItem icon="calendar-outline" label="Tahun" value={ad.year} />
+                        )}
+
+                    {/* Mobil & Motor Case */}
+                    {((ad.category_name?.toLowerCase().includes("mobil") && ad.subcategory_name?.toLowerCase().includes("dijual")) ||
+                        (ad.category_name?.toLowerCase().includes("motor") && ad.subcategory_name?.toLowerCase().includes("dijual"))) && (
+                            <>
+                                <SpecItem icon="pricetag-outline" label="Merek" value={ad.brand_name} />
+                                <SpecItem icon="options-outline" label="Tipe" value={ad.type_name} />
+                                <SpecItem icon="calendar-outline" label="Tahun" value={ad.year} />
+                                <SpecItem icon="cog-outline" label="Transmisi" value={ad.transmission} />
+                                <SpecItem icon="flame-outline" label="Bahan Bakar" value={ad.fuel_type} />
+                            </>
+                        )}
+
+                    {/* Properti Case */}
+                    {ad.category_name?.toLowerCase().includes("properti") && (
+                        <>
+                            <SpecItem icon="expand-outline" label="Luas Tanah" value={`${ad.area || 0} m2`} />
+                            <SpecItem icon="business-outline" label="Luas Bangunan" value={`${ad.building || 0} m2`} />
+                        </>
+                    )}
+
+                    {/* General Specs */}
+                    <SpecItem icon="location-outline" label="Kota" value={ad.district_name} />
+                    <SpecItem icon="business-outline" label="Kabupaten/Kota" value={ad.city_name} />
+                    <SpecItem icon="checkmark-circle-outline" label="Kondisi" value={ad.condition} />
+                </View>
+
+                {/* Additional Action Buttons */}
+                <View style={styles.actionRow}>
+                    <TouchableOpacity style={styles.actionBtn} onPress={handleShare}>
+                        <Icon name="share-social-outline" size={18} color="#000" />
+                        <Text style={styles.actionBtnText}>Bagikan</Text>
+                    </TouchableOpacity>
+                    <TouchableOpacity style={styles.actionBtn} onPress={() => setIsReportModalVisible(true)}>
+                        <Icon name="flag-outline" size={18} color="#000" />
+                        <Text style={styles.actionBtnText}>Laporkan</Text>
+                    </TouchableOpacity>
+                    <TouchableOpacity
+                        style={[styles.actionBtn, isSaved && styles.savedBtn]}
+                        onPress={handleSave}
+                    >
+                        <Icon name={isSaved ? "heart" : "heart-outline"} size={18} color={isSaved ? "#fff" : "#000"} />
+                        <Text style={[styles.actionBtnText, isSaved && styles.savedBtnText]}>
+                            {isSaved ? "Tersimpan" : "Simpan"}
+                        </Text>
+                    </TouchableOpacity>
                 </View>
 
                 {/* Description Section */}
@@ -212,11 +326,20 @@ const AdDetailScreen = () => {
                     </View>
                     <View style={styles.sellerInfo}>
                         <Text style={styles.sellerName}>{ad.user_name}</Text>
-                        <Text style={styles.memberText}>Anggota Member</Text>
+                        <Text style={styles.memberText}>
+                            Bergabung sejak {new Date(ad.created_on).getFullYear()}
+                        </Text>
                     </View>
-                    <TouchableOpacity style={styles.viewProfileBtn}>
+                    <TouchableOpacity
+                        style={styles.viewProfileBtn}
+                        onPress={() => navigation.navigate('UserAds', { userName: ad.user_name, userId: ad.user_id })}>
                         <Icon name="chevron-forward" size={24} color="#757575" />
                     </TouchableOpacity>
+                </View>
+
+                <View style={styles.adIdFooter}>
+                    <Text style={styles.adIdLabel}>ID Iklan: </Text>
+                    <Text style={styles.adIdValue}>{ad.id}</Text>
                 </View>
 
                 <View style={styles.bottomPadding} />
@@ -270,14 +393,86 @@ const AdDetailScreen = () => {
 
             {/* Bottom Actions */}
             <View style={styles.bottomActions}>
-                <TouchableOpacity style={styles.chatBtn}>
-                    <Text style={styles.chatBtnText}>Chat</Text>
-                </TouchableOpacity>
                 <TouchableOpacity style={styles.waBtn} onPress={handleWhatsApp}>
                     <Icon name="logo-whatsapp" size={20} color="#fff" />
-                    <Text style={styles.waBtnText}>WhatsApp</Text>
+                    <Text style={styles.waBtnText}>Whatsapp Now</Text>
                 </TouchableOpacity>
             </View>
+
+            {/* Report Modal */}
+            <Modal
+                visible={isReportModalVisible}
+                transparent={true}
+                animationType="slide"
+                onRequestClose={() => setIsReportModalVisible(false)}>
+                <View style={styles.modalOverlay}>
+                    <View style={styles.reportModalContainer}>
+                        <View style={styles.modalHeader}>
+                            <Text style={styles.modalTitleText}>Laporkan Iklan Ini</Text>
+                            <TouchableOpacity onPress={() => setIsReportModalVisible(false)}>
+                                <Icon name="close-circle" size={28} color="#757575" />
+                            </TouchableOpacity>
+                        </View>
+
+                        <ScrollView style={styles.reportFormScroll}>
+                            <Text style={styles.inputLabel}>Apa yang ingin kamu laporkan?</Text>
+                            <View style={styles.inputWrapper}>
+                                <TextInput
+                                    style={styles.textInput}
+                                    placeholder="Judul laporan"
+                                    value={reportForm.title}
+                                    onChangeText={(text: string) => setReportForm({ ...reportForm, title: text })}
+                                />
+                            </View>
+
+                            <Text style={styles.inputLabel}>Deskripsi</Text>
+                            <View style={[styles.inputWrapper, styles.textAreaWrapper]}>
+                                <TextInput
+                                    style={[styles.textInput, styles.textArea]}
+                                    placeholder="Ketik deskripsi disini..."
+                                    multiline
+                                    numberOfLines={4}
+                                    value={reportForm.description}
+                                    onChangeText={(text: string) => setReportForm({ ...reportForm, description: text })}
+                                />
+                            </View>
+
+                            <Text style={styles.inputLabel}>Jenis Laporan:</Text>
+                            {[
+                                "Penipuan",
+                                "Produk Terjual",
+                                "Duplikat",
+                                "Mengandung Unsur Pornografi",
+                                "Konten Mengganggu",
+                                "Lainnya",
+                            ].map((type) => (
+                                <TouchableOpacity
+                                    key={type}
+                                    style={styles.radioOption}
+                                    onPress={() => setReportForm({ ...reportForm, type })}>
+                                    <Icon
+                                        name={reportForm.type === type ? "radio-button-on" : "radio-button-off"}
+                                        size={20}
+                                        color={reportForm.type === type ? "#002F34" : "#757575"}
+                                    />
+                                    <Text style={styles.radioText}>{type}</Text>
+                                </TouchableOpacity>
+                            ))}
+                        </ScrollView>
+
+                        <TouchableOpacity
+                            style={[styles.submitReportBtn, isReporting && styles.disabledBtn]}
+                            onPress={handleReport}
+                            disabled={isReporting}>
+                            {isReporting ? (
+                                <ActivityIndicator color="#fff" />
+                            ) : (
+                                <Text style={styles.submitReportBtnText}>Kirim Laporan</Text>
+                            )}
+                        </TouchableOpacity>
+                    </View>
+                </View>
+            </Modal>
         </View>
     );
 };
@@ -377,6 +572,35 @@ const styles = StyleSheet.create({
         flexWrap: 'wrap',
         paddingHorizontal: 16,
     },
+    actionRow: {
+        flexDirection: 'row',
+        paddingHorizontal: 16,
+        paddingVertical: 12,
+        gap: 8,
+        borderBottomWidth: 1,
+        borderBottomColor: '#F2F4F5',
+    },
+    actionBtn: {
+        flex: 1,
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'center',
+        backgroundColor: '#F2F4F5',
+        paddingVertical: 10,
+        borderRadius: 8,
+        gap: 6,
+    },
+    actionBtnText: {
+        fontSize: 13,
+        fontWeight: '600',
+        color: '#002F34',
+    },
+    savedBtn: {
+        backgroundColor: '#002F34',
+    },
+    savedBtnText: {
+        color: '#fff',
+    },
     specItem: {
         width: '50%',
         flexDirection: 'row',
@@ -434,6 +658,20 @@ const styles = StyleSheet.create({
     viewProfileBtn: {
         padding: 4,
     },
+    adIdFooter: {
+        flexDirection: 'row',
+        paddingHorizontal: 16,
+        paddingBottom: 20,
+    },
+    adIdLabel: {
+        fontSize: 14,
+        fontWeight: 'bold',
+        color: '#002F34',
+    },
+    adIdValue: {
+        fontSize: 14,
+        color: '#002F34',
+    },
     bottomPadding: {
         height: 100,
     },
@@ -448,6 +686,83 @@ const styles = StyleSheet.create({
         borderTopWidth: 1,
         borderTopColor: '#F2F4F5',
         gap: 12,
+    },
+    modalOverlay: {
+        flex: 1,
+        backgroundColor: 'rgba(0,0,0,0.5)',
+        justifyContent: 'flex-end',
+    },
+    reportModalContainer: {
+        backgroundColor: '#fff',
+        borderTopLeftRadius: 20,
+        borderTopRightRadius: 20,
+        padding: 20,
+        maxHeight: '90%',
+    },
+    modalHeader: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        marginBottom: 20,
+    },
+    modalTitleText: {
+        fontSize: 18,
+        fontWeight: 'bold',
+        color: '#002F34',
+    },
+    reportFormScroll: {
+        marginBottom: 20,
+    },
+    inputLabel: {
+        fontSize: 14,
+        fontWeight: '600',
+        color: '#002F34',
+        marginBottom: 8,
+    },
+    inputWrapper: {
+        borderWidth: 1,
+        borderColor: '#CED4DA',
+        borderRadius: 8,
+        paddingHorizontal: 12,
+        marginBottom: 16,
+    },
+    textInput: {
+        height: 48,
+        fontSize: 14,
+        color: '#002F34',
+    },
+    textAreaWrapper: {
+        height: 120,
+        paddingVertical: 8,
+    },
+    textArea: {
+        height: '100%',
+        textAlignVertical: 'top',
+    },
+    radioOption: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        paddingVertical: 10,
+        gap: 10,
+    },
+    radioText: {
+        fontSize: 14,
+        color: '#002F34',
+    },
+    submitReportBtn: {
+        backgroundColor: '#D9534F',
+        height: 48,
+        borderRadius: 8,
+        justifyContent: 'center',
+        alignItems: 'center',
+    },
+    submitReportBtnText: {
+        color: '#fff',
+        fontSize: 16,
+        fontWeight: 'bold',
+    },
+    disabledBtn: {
+        opacity: 0.6,
     },
     chatBtn: {
         flex: 1,
@@ -469,7 +784,7 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         justifyContent: 'center',
         alignItems: 'center',
-        backgroundColor: '#002F34',
+        backgroundColor: 'green',
         borderRadius: 4,
         gap: 8,
     },
