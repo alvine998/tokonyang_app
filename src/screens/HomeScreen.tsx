@@ -146,7 +146,10 @@ const HomeScreen = () => {
                             }}
                         />
                     </View>
-                    <TouchableOpacity style={styles.notificationBtn}>
+                    <TouchableOpacity
+                        style={styles.notificationBtn}
+                        onPress={() => navigation.navigate('NotificationList')}
+                    >
                         <Icon name="notifications-outline" size={28} color="#000" />
                     </TouchableOpacity>
                 </View>

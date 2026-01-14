@@ -19,6 +19,10 @@ import AdsListScreen from './src/screens/AdsListScreen';
 import AdDetailScreen from './src/screens/AdDetailScreen';
 import UserAdsScreen from './src/screens/UserAdsScreen';
 import SplashScreen from './src/screens/SplashScreen';
+import NotificationListScreen from './src/screens/NotificationListScreen';
+import NotificationDetailScreen from './src/screens/NotificationDetailScreen';
+import EditProfileScreen from './src/screens/EditProfileScreen';
+import UbahPasswordScreen from './src/screens/UbahPasswordScreen';
 
 const Tab = createBottomTabNavigator();
 const Stack = createNativeStackNavigator();
@@ -108,6 +112,10 @@ function App() {
             <Stack.Screen name="AdsList" component={AdsListScreen} />
             <Stack.Screen name="AdDetail" component={AdDetailScreen} />
             <Stack.Screen name="UserAds" component={UserAdsScreen} />
+            <Stack.Screen name="NotificationList" component={NotificationListScreen} />
+            <Stack.Screen name="NotificationDetail" component={NotificationDetailScreen} />
+            <Stack.Screen name="EditProfile" component={EditProfileScreen} />
+            <Stack.Screen name="UbahPassword" component={UbahPasswordScreen} />
           </Stack.Navigator>
         </NavigationContainer>
       </View>

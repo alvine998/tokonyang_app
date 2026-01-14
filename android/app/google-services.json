@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "480874086535",
+    "project_id": "tokotitoh-cd962",
+    "storage_bucket": "tokotitoh-cd962.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:480874086535:android:373ba920ea3eb3c0223822",
+        "android_client_info": {
+          "package_name": "com.tokonyang_app"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "480874086535-7be0ntidffu72ab6ejothp81p74rt24i.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAdVx0J0w9QDppYUDQBXs5WBSZC6Vb1vSI"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "480874086535-7be0ntidffu72ab6ejothp81p74rt24i.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

@@ -48,7 +48,7 @@ const AkunSayaScreen = () => {
                     </View>
                     <View style={styles.profileInfo}>
                         <Text style={styles.userName}>User Tokonyang</Text>
-                        <TouchableOpacity onPress={() => { }}>
+                        <TouchableOpacity onPress={() => navigation.navigate('EditProfile', { userId: 1 })}>
                             <Text style={styles.editProfileText}>Lihat dan Edit Profil</Text>
                         </TouchableOpacity>
                     </View>
@@ -58,18 +58,16 @@ const AkunSayaScreen = () => {
                 <View style={styles.section}>
                     <Text style={styles.sectionTitle}>Akun</Text>
                     <MenuItem icon="heart-outline" label="Favorit Saya" />
-                    <MenuItem icon="notifications-outline" label="Notifikasi" />
-                    <MenuItem icon="newspaper-outline" label="Pesanan Saya" />
-                    <MenuItem icon="card-outline" label="Tagihan & Pembayaran" />
+                    <MenuItem icon="notifications-outline" onPress={() => navigation.navigate('NotificationList')} label="Notifikasi" />
+                    <MenuItem icon="lock-closed-outline" onPress={() => navigation.navigate('ChangePassword')} label="Ubah Password" />
                 </View>
 
                 {/* Settings Section */}
-                <View style={styles.section}>
+                {/* <View style={styles.section}>
                     <Text style={styles.sectionTitle}>Pengaturan</Text>
                     <MenuItem icon="settings-outline" label="Pengaturan Akun" />
-                    <MenuItem icon="lock-closed-outline" label="Privasi & Keamanan" />
                     <MenuItem icon="language-outline" label="Bahasa" />
-                </View>
+                </View> */}
 
                 {/* Support Section */}
                 <View style={styles.section}>
@@ -77,6 +75,7 @@ const AkunSayaScreen = () => {
                     <MenuItem icon="help-circle-outline" label="Pusat Bantuan" />
                     <MenuItem icon="information-circle-outline" label="Tentang Tokonyang" />
                     <MenuItem icon="document-text-outline" label="Syarat & Ketentuan" />
+                    <MenuItem icon="lock-closed-outline" label="Kebijakan Privasi" />
                 </View>
 
                 {/* Logout Button */}
