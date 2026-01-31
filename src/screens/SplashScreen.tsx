@@ -1,13 +1,17 @@
 import React, { useEffect } from 'react';
 import { View, Text, Image } from 'react-native';
+import { useAuth } from '../context/AuthContext';
 
 const SplashScreen = ({ navigation }: any) => {
+    const { user, isLoading } = useAuth();
 
     useEffect(() => {
-        setTimeout(() => {
-            navigation.navigate('Main');
-        }, 2000);
-    }, []);
+        if (!isLoading) {
+            setTimeout(() => {
+                navigation.replace('Main');
+            }, 2000);
+        }
+    }, [isLoading, navigation]);
 
     return (
         <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>

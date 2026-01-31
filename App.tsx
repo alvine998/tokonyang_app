@@ -1,6 +1,6 @@
 import React from 'react';
 import { View, Text, TouchableOpacity } from 'react-native';
-import { NavigationContainer } from '@react-navigation/native';
+import { NavigationContainer, useNavigation } from '@react-navigation/native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import Icon from 'react-native-vector-icons/Ionicons';
@@ -23,34 +23,56 @@ import NotificationListScreen from './src/screens/NotificationListScreen';
 import NotificationDetailScreen from './src/screens/NotificationDetailScreen';
 import EditProfileScreen from './src/screens/EditProfileScreen';
 import UbahPasswordScreen from './src/screens/UbahPasswordScreen';
+import SyaratKetentuanScreen from './src/screens/SyaratKetentuanScreen';
+import KebijakanPrivasiScreen from './src/screens/KebijakanPrivasiScreen';
+import PusatBantuanScreen from './src/screens/PusatBantuanScreen';
+import TentangTokotitohScreen from './src/screens/TentangTokotitohScreen';
+import HapusAkunScreen from './src/screens/HapusAkunScreen';
+
+import { AuthProvider, useAuth } from './src/context/AuthContext';
+import LoginScreen from './src/screens/LoginScreen';
+import RegisterScreen from './src/screens/RegisterScreen';
 
 const Tab = createBottomTabNavigator();
 const Stack = createNativeStackNavigator();
 
-const JualButton = ({ children, onPress }: any) => (
-  <TouchableOpacity
-    style={{
-      top: -10,
-      justifyContent: 'center',
-      alignItems: 'center',
-    }}
-    onPress={onPress}>
-    <View
+const JualButton = ({ children, onPress }: any) => {
+  const { user } = useAuth();
+  const navigation = useNavigation<any>();
+
+  const handlePress = () => {
+    if (user) {
+      navigation.navigate('Jual');
+    } else {
+      navigation.navigate('Login');
+    }
+  };
+
+  return (
+    <TouchableOpacity
       style={{
-        width: 48,
-        height: 48,
-        borderRadius: 4,
-        borderWidth: 2,
-        borderColor: '#000',
-        backgroundColor: '#fff',
+        top: -10,
         justifyContent: 'center',
         alignItems: 'center',
-      }}>
-      <Icon name="add" size={32} color="#000" />
-    </View>
-    <Text style={{ fontSize: 12, marginTop: 4, color: '#000', fontWeight: '800' }}>JUAL</Text>
-  </TouchableOpacity>
-);
+      }}
+      onPress={handlePress}>
+      <View
+        style={{
+          width: 48,
+          height: 48,
+          borderRadius: 4,
+          borderWidth: 2,
+          borderColor: '#000',
+          backgroundColor: '#fff',
+          justifyContent: 'center',
+          alignItems: 'center',
+        }}>
+        <Icon name="add" size={32} color="#000" />
+      </View>
+      <Text style={{ fontSize: 12, marginTop: 4, color: '#000', fontWeight: '800' }}>JUAL</Text>
+    </TouchableOpacity>
+  );
+};
 
 function HomeTabs() {
   return (
@@ -104,21 +126,30 @@ function HomeTabs() {
 function App() {
   return (
     <SafeAreaProvider>
-      <View style={{ flex: 1, marginTop: 20 }}>
-        <NavigationContainer>
-          <Stack.Navigator screenOptions={{ headerShown: false }}>
-            <Stack.Screen name="Splash" component={SplashScreen} options={{ animationTypeForReplace: 'pop' }} />
-            <Stack.Screen name="Main" component={HomeTabs} />
-            <Stack.Screen name="AdsList" component={AdsListScreen} />
-            <Stack.Screen name="AdDetail" component={AdDetailScreen} />
-            <Stack.Screen name="UserAds" component={UserAdsScreen} />
-            <Stack.Screen name="NotificationList" component={NotificationListScreen} />
-            <Stack.Screen name="NotificationDetail" component={NotificationDetailScreen} />
-            <Stack.Screen name="EditProfile" component={EditProfileScreen} />
-            <Stack.Screen name="UbahPassword" component={UbahPasswordScreen} />
-          </Stack.Navigator>
-        </NavigationContainer>
-      </View>
+      <AuthProvider>
+        <View style={{ flex: 1, marginTop: 20 }}>
+          <NavigationContainer>
+            <Stack.Navigator screenOptions={{ headerShown: false }}>
+              <Stack.Screen name="Splash" component={SplashScreen} options={{ animationTypeForReplace: 'pop' }} />
+              <Stack.Screen name="Login" component={LoginScreen} />
+              <Stack.Screen name="Register" component={RegisterScreen} />
+              <Stack.Screen name="Main" component={HomeTabs} />
+              <Stack.Screen name="AdsList" component={AdsListScreen} />
+              <Stack.Screen name="AdDetail" component={AdDetailScreen} />
+              <Stack.Screen name="UserAds" component={UserAdsScreen} />
+              <Stack.Screen name="NotificationList" component={NotificationListScreen} />
+              <Stack.Screen name="NotificationDetail" component={NotificationDetailScreen} />
+              <Stack.Screen name="EditProfile" component={EditProfileScreen} />
+              <Stack.Screen name="UbahPassword" component={UbahPasswordScreen} />
+              <Stack.Screen name="SyaratKetentuan" component={SyaratKetentuanScreen} />
+              <Stack.Screen name="KebijakanPrivasi" component={KebijakanPrivasiScreen} />
+              <Stack.Screen name="PusatBantuan" component={PusatBantuanScreen} />
+              <Stack.Screen name="TentangTokotitoh" component={TentangTokotitohScreen} />
+              <Stack.Screen name="HapusAkun" component={HapusAkunScreen} />
+            </Stack.Navigator>
+          </NavigationContainer>
+        </View>
+      </AuthProvider>
     </SafeAreaProvider>
   );
 }

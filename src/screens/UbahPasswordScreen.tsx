@@ -13,13 +13,14 @@ import {
     Platform,
 } from 'react-native';
 import Icon from 'react-native-vector-icons/Ionicons';
-import { useNavigation, useRoute } from '@react-navigation/native';
+import { useNavigation } from '@react-navigation/native';
+import { useAuth } from '../context/AuthContext';
 import axios from 'axios';
 
 const UbahPasswordScreen = () => {
     const navigation = useNavigation<any>();
-    const route = useRoute<any>();
-    const { userId } = route.params || {};
+    const { user } = useAuth();
+    const userId = user?.id;
 
     const [saving, setSaving] = useState(false);
 
@@ -69,17 +70,20 @@ const UbahPasswordScreen = () => {
 
     const handleSave = async () => {
         if (!validateForm()) return;
+        if (!userId) {
+            Alert.alert('Error', 'Sesi tidak ditemukan. Silakan login kembali.');
+            return;
+        }
 
         setSaving(true);
         try {
             const payload = {
-                user_id: userId || 1,
-                current_password: currentPassword,
-                new_password: newPassword,
+                id: userId,
+                password: newPassword,
             };
 
             await axios.patch(
-                'https://api.tokotitoh.co.id/users/change-password',
+                'https://api.tokotitoh.co.id/user',
                 payload,
                 { headers: API_HEADERS }
             );

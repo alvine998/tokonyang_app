@@ -11,6 +11,7 @@ import {
 } from 'react-native';
 import Icon from 'react-native-vector-icons/Ionicons';
 import { useNavigation } from '@react-navigation/native';
+import { useAuth } from '../context/AuthContext';
 
 const { width } = Dimensions.get('window');
 
@@ -34,60 +35,78 @@ const MenuItem = ({ icon, label, onPress, showChevron = true, color = '#002F34' 
 
 const AkunSayaScreen = () => {
     const navigation = useNavigation<any>();
+    const { user, logout } = useAuth();
+
+    const handleLogout = async () => {
+        await logout();
+        navigation.replace('Login');
+    };
 
     return (
         <SafeAreaView style={styles.container}>
             <ScrollView showsVerticalScrollIndicator={false}>
                 {/* Profile Header */}
-                <View style={styles.profileHeader}>
-                    <View style={styles.avatarContainer}>
-                        <Icon name="person-circle" size={80} color="#E0E0E0" />
-                        <TouchableOpacity style={styles.editAvatarBtn}>
-                            <Icon name="camera" size={16} color="#fff" />
+                {user ? (
+                    <View style={styles.profileHeader}>
+                        <View style={styles.avatarContainer}>
+                            <Icon name="person-circle" size={80} color="#E0E0E0" />
+                            <TouchableOpacity style={styles.editAvatarBtn}>
+                                <Icon name="camera" size={16} color="#fff" />
+                            </TouchableOpacity>
+                        </View>
+                        <View style={styles.profileInfo}>
+                            <Text style={styles.userName}>{user.name}</Text>
+                            <TouchableOpacity onPress={() => navigation.navigate('EditProfile', { userId: 1 })}>
+                                <Text style={styles.editProfileText}>Lihat dan Edit Profil</Text>
+                            </TouchableOpacity>
+                        </View>
+                    </View>
+                ) : (
+                    <View style={styles.profileHeader}>
+                        <TouchableOpacity
+                            style={styles.loginRegisterBtn}
+                            onPress={() => navigation.navigate('Login')}
+                        >
+                            <Icon name="person-circle" size={60} color="#E0E0E0" />
+                            <View style={styles.loginRegisterTextContainer}>
+                                <Text style={styles.loginRegisterTitle}>Login / Daftar</Text>
+                                <Text style={styles.loginRegisterSubtitle}>Masuk ke akun Tokonyang Anda</Text>
+                            </View>
+                            <Icon name="chevron-forward" size={24} color="#757575" />
                         </TouchableOpacity>
                     </View>
-                    <View style={styles.profileInfo}>
-                        <Text style={styles.userName}>User Tokonyang</Text>
-                        <TouchableOpacity onPress={() => navigation.navigate('EditProfile', { userId: 1 })}>
-                            <Text style={styles.editProfileText}>Lihat dan Edit Profil</Text>
-                        </TouchableOpacity>
-                    </View>
-                </View>
+                )}
 
                 {/* Account Section */}
                 <View style={styles.section}>
                     <Text style={styles.sectionTitle}>Akun</Text>
                     <MenuItem icon="heart-outline" label="Favorit Saya" />
                     <MenuItem icon="notifications-outline" onPress={() => navigation.navigate('NotificationList')} label="Notifikasi" />
-                    <MenuItem icon="lock-closed-outline" onPress={() => navigation.navigate('ChangePassword')} label="Ubah Password" />
+                    {user && <MenuItem icon="lock-closed-outline" onPress={() => navigation.navigate('ChangePassword')} label="Ubah Password" />}
                 </View>
-
-                {/* Settings Section */}
-                {/* <View style={styles.section}>
-                    <Text style={styles.sectionTitle}>Pengaturan</Text>
-                    <MenuItem icon="settings-outline" label="Pengaturan Akun" />
-                    <MenuItem icon="language-outline" label="Bahasa" />
-                </View> */}
 
                 {/* Support Section */}
                 <View style={styles.section}>
                     <Text style={styles.sectionTitle}>Dukungan</Text>
-                    <MenuItem icon="help-circle-outline" label="Pusat Bantuan" />
-                    <MenuItem icon="information-circle-outline" label="Tentang Tokonyang" />
-                    <MenuItem icon="document-text-outline" label="Syarat & Ketentuan" />
-                    <MenuItem icon="lock-closed-outline" label="Kebijakan Privasi" />
+                    <MenuItem icon="help-circle-outline" label="Pusat Bantuan" onPress={() => navigation.navigate('PusatBantuan')} />
+                    <MenuItem icon="information-circle-outline" label="Tentang Tokotitoh" onPress={() => navigation.navigate('TentangTokotitoh')} />
+                    <MenuItem icon="document-text-outline" label="Syarat & Ketentuan" onPress={() => navigation.navigate('SyaratKetentuan')} />
+                    <MenuItem icon="lock-closed-outline" label="Kebijakan Privasi" onPress={() => navigation.navigate('KebijakanPrivasi')} />
+                    <MenuItem icon="trash-outline" label="Hapus Akun" color="#FF3B30" onPress={() => navigation.navigate('HapusAkun')} />
                 </View>
 
                 {/* Logout Button */}
-                <View style={styles.logoutContainer}>
-                    <MenuItem
-                        icon="log-out-outline"
-                        label="Keluar"
-                        color="#FF3B30"
-                        showChevron={false}
-                        onPress={() => { }}
-                    />
-                </View>
+                {user && (
+                    <View style={styles.logoutContainer}>
+                        <MenuItem
+                            icon="log-out-outline"
+                            label="Keluar"
+                            color="#FF3B30"
+                            showChevron={false}
+                            onPress={handleLogout}
+                        />
+                    </View>
+                )}
 
                 <View style={styles.footer}>
                     <Text style={styles.versionText}>Versi 1.0.0</Text>
@@ -185,6 +204,25 @@ const styles = StyleSheet.create({
     versionText: {
         fontSize: 12,
         color: '#757575',
+    },
+    loginRegisterBtn: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        width: '100%',
+    },
+    loginRegisterTextContainer: {
+        flex: 1,
+        marginLeft: 15,
+    },
+    loginRegisterTitle: {
+        fontSize: 18,
+        fontWeight: 'bold',
+        color: '#002F34',
+    },
+    loginRegisterSubtitle: {
+        fontSize: 14,
+        color: '#757575',
+        marginTop: 2,
     },
 });
 

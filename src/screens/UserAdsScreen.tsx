@@ -12,7 +12,8 @@ import {
 import Icon from 'react-native-vector-icons/Ionicons';
 import axios from 'axios';
 import { useRoute, useNavigation } from '@react-navigation/native';
-import { SCREEN_WIDTH, getGridColumns } from '../utils/responsive';
+import { SCREEN_WIDTH } from '../utils/responsive';
+import AdListItem from '../components/AdListItem';
 
 const width = SCREEN_WIDTH;
 
@@ -116,23 +117,7 @@ const UserAdsScreen = () => {
     };
 
     const renderAdItem = ({ item }: { item: AdItem }) => (
-        <TouchableOpacity
-            style={[styles.adCard, { width: (width - (16 * (getGridColumns() + 1))) / getGridColumns() }]}
-            onPress={() => navigation.navigate('AdDetail', { adId: item.id })}>
-            <Image
-                source={{ uri: JSON.parse(item.images)[0] }}
-                style={styles.adImage}
-                resizeMode="cover"
-            />
-            <View style={styles.adContent}>
-                <Text style={styles.priceText}>{formatPrice(item.price)}</Text>
-                <Text style={styles.titleText} numberOfLines={2}>{item.title}</Text>
-                <View style={styles.locationContainer}>
-                    <Icon name="location-outline" size={12} color="#757575" />
-                    <Text style={styles.locationText}>{item.city_name}, {item.province_name}</Text>
-                </View>
-            </View>
-        </TouchableOpacity>
+        <AdListItem item={item} />
     );
 
     return (
@@ -157,9 +142,8 @@ const UserAdsScreen = () => {
                     data={ads}
                     renderItem={renderAdItem}
                     keyExtractor={(item) => item.id.toString()}
-                    numColumns={getGridColumns()}
+                    numColumns={1}
                     contentContainerStyle={styles.listContainer}
-                    columnWrapperStyle={getGridColumns() > 1 ? styles.columnWrapper : null}
                     refreshControl={
                         <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
                     }
@@ -219,45 +203,7 @@ const styles = StyleSheet.create({
         alignItems: 'center',
     },
     listContainer: {
-        padding: 16,
-    },
-    columnWrapper: {
-        justifyContent: 'space-between',
-    },
-    adCard: {
-        backgroundColor: '#fff',
-        borderRadius: 8,
-        borderWidth: 1,
-        borderColor: '#F2F4F5',
-        overflow: 'hidden',
-        marginBottom: 16,
-    },
-    adImage: {
-        width: '100%',
-        height: 150,
-    },
-    adContent: {
-        padding: 8,
-    },
-    priceText: {
-        fontSize: 16,
-        fontWeight: 'bold',
-        color: '#002F34',
-    },
-    titleText: {
-        fontSize: 14,
-        color: '#002F34',
-        marginVertical: 4,
-    },
-    locationContainer: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        marginTop: 4,
-    },
-    locationText: {
-        fontSize: 12,
-        color: '#757575',
-        marginLeft: 4,
+        paddingVertical: 16,
     },
     footerLoader: {
         paddingVertical: 20,

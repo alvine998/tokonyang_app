@@ -164,7 +164,7 @@ const HomeScreen = () => {
                                 data={[...categories.slice(0, getCategoryColumns() - 1), { id: -1, name: 'Lihat Semua', icon: '' }]}
                                 renderItem={({ item }) => (
                                     item.id === -1 ? (
-                                        <TouchableOpacity style={[styles.categoryItem, { width: (width - 32) / getCategoryColumns() }]}>
+                                        <TouchableOpacity onPress={() => navigation.navigate('Menu')} style={[styles.categoryItem, { width: (width - 32) / getCategoryColumns() }]}>
                                             <View style={styles.viewAllContainer}>
                                                 <Text style={styles.viewAllText}>LIHAT SEMUA</Text>
                                                 <Text style={styles.viewAllText}>KATEGORI</Text>

@@ -13,37 +13,29 @@ import {
     KeyboardAvoidingView,
     Platform,
 } from 'react-native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import Icon from 'react-native-vector-icons/Ionicons';
-import { useNavigation, useRoute } from '@react-navigation/native';
+import { useAuth } from '../context/AuthContext';
+import { useNavigation } from '@react-navigation/native';
 import axios from 'axios';
-import { launchImageLibrary, Asset } from 'react-native-image-picker';
-
-interface UserProfile {
-    id: number;
-    name: string;
-    email: string;
-    phone: string;
-    address: string;
-    avatar: string;
-    bio: string;
-}
+import { launchImageLibrary } from 'react-native-image-picker';
 
 const EditProfileScreen = () => {
     const navigation = useNavigation<any>();
-    const route = useRoute<any>();
-    const { userId } = route.params || {};
+    const { user, setUser } = useAuth();
+    const userId = user?.id;
 
     const [loading, setLoading] = useState(true);
     const [saving, setSaving] = useState(false);
     const [uploadingAvatar, setUploadingAvatar] = useState(false);
 
-    const [profile, setProfile] = useState<UserProfile>({
+    const [profile, setProfile] = useState<any>({
         id: 0,
         name: '',
         email: '',
         phone: '',
         address: '',
-        avatar: '',
+        image: '',
         bio: '',
     });
 
@@ -54,36 +46,36 @@ const EditProfileScreen = () => {
         'x-partner-code': 'id.marketplace.tokotitoh'
     };
 
-    useEffect(() => {
-        fetchProfile();
-    }, []);
-
-    const fetchProfile = async () => {
+    const fetchProfile = async (id: number) => {
+        if (!id) return;
         setLoading(true);
         try {
             const response = await axios.get(
-                `https://api.tokotitoh.co.id/users/${userId || 1}`,
+                `https://api.tokotitoh.co.id/users?id=${id}`,
                 { headers: API_HEADERS }
             );
-            if (response.data?.items) {
-                const data = response.data.items;
+            if (response.data?.items?.rows && response.data.items.rows.length > 0) {
+                const data = response.data.items.rows[0];
                 setProfile({
                     id: data.id || 0,
                     name: data.name || '',
                     email: data.email || '',
                     phone: data.phone || '',
-                    address: data.address || '',
-                    avatar: data.avatar || '',
-                    bio: data.bio || '',
+                    image: data.image || '',
                 });
             }
         } catch (error) {
             console.error('Error fetching profile:', error);
-            // Use default values if fetch fails
         } finally {
             setLoading(false);
         }
     };
+
+    useEffect(() => {
+        if (userId) {
+            fetchProfile(Number(userId));
+        }
+    }, [userId]);
 
     const handleChangeAvatar = async () => {
         try {
@@ -127,23 +119,28 @@ const EditProfileScreen = () => {
                         });
 
                         const uploadResult = await uploadResponse.json();
+                        console.log('image upload response:', uploadResult);
 
-                        if (uploadResult.status === 'success' && uploadResult.url) {
-                            setProfile({ ...profile, avatar: uploadResult.url });
+                        // If the API returns a URL, use it (typically firebasestorage.googleapis.com)
+                        if (uploadResult.url) {
+                            setProfile({ ...profile, image: uploadResult.url });
+                        } else if (uploadResult.data?.url) {
+                            setProfile({ ...profile, image: uploadResult.data.url });
                         } else {
-                            // Use local URI as fallback
-                            setProfile({ ...profile, avatar: asset.uri });
+                            throw new Error('Upload success but no URL returned');
                         }
-                    } catch (uploadError) {
-                        console.error('Avatar upload error:', uploadError);
-                        setProfile({ ...profile, avatar: asset.uri });
+                    } catch (uploadError: any) {
+                        console.error('image upload error:', uploadError);
+                        // Fallback to local URI so user sees the image, but warn them
+                        setProfile({ ...profile, image: asset.uri });
+                        Alert.alert('Info', 'Gagal mengunggah ke server. Menggunakan gambar lokal (mungkin tidak tersimpan secara permanen).');
                     } finally {
                         setUploadingAvatar(false);
                     }
                 }
             }
         } catch (error) {
-            console.error('Error picking avatar:', error);
+            console.error('Error picking image:', error);
             Alert.alert('Error', 'Gagal memilih foto');
         }
     };
@@ -161,16 +158,21 @@ const EditProfileScreen = () => {
                 name: profile.name,
                 email: profile.email,
                 phone: profile.phone,
-                address: profile.address,
-                avatar: profile.avatar,
-                bio: profile.bio,
+                image: profile.image,
             };
 
             await axios.patch(
-                'https://api.tokotitoh.co.id/users',
+                'https://api.tokotitoh.co.id/user',
                 payload,
                 { headers: API_HEADERS }
             );
+
+            // Update local storage and global state
+            if (user && setUser) {
+                const updatedUser = { ...user, ...payload } as any;
+                await AsyncStorage.setItem('user_session', JSON.stringify(updatedUser));
+                setUser(updatedUser);
+            }
 
             Alert.alert(
                 'Berhasil',
@@ -218,12 +220,12 @@ const EditProfileScreen = () => {
                 </View>
 
                 <ScrollView style={styles.content} showsVerticalScrollIndicator={false}>
-                    {/* Avatar Section */}
+                    {/* image Section */}
                     <View style={styles.avatarSection}>
                         <View style={styles.avatarContainer}>
-                            {profile.avatar ? (
+                            {profile.image ? (
                                 <Image
-                                    source={{ uri: profile.avatar }}
+                                    source={{ uri: profile.image }}
                                     style={styles.avatar}
                                 />
                             ) : (
@@ -283,36 +285,6 @@ const EditProfileScreen = () => {
                                 keyboardType="phone-pad"
                                 maxLength={15}
                             />
-                        </View>
-
-                        <View style={styles.inputGroup}>
-                            <Text style={styles.inputLabel}>Alamat</Text>
-                            <TextInput
-                                style={[styles.textInput, styles.textArea]}
-                                placeholder="Masukkan alamat"
-                                placeholderTextColor="#9E9E9E"
-                                value={profile.address}
-                                onChangeText={(text) => setProfile({ ...profile, address: text })}
-                                multiline
-                                numberOfLines={3}
-                                textAlignVertical="top"
-                            />
-                        </View>
-
-                        <View style={styles.inputGroup}>
-                            <Text style={styles.inputLabel}>Bio</Text>
-                            <TextInput
-                                style={[styles.textInput, styles.textArea]}
-                                placeholder="Ceritakan tentang dirimu"
-                                placeholderTextColor="#9E9E9E"
-                                value={profile.bio}
-                                onChangeText={(text) => setProfile({ ...profile, bio: text })}
-                                multiline
-                                numberOfLines={4}
-                                textAlignVertical="top"
-                                maxLength={500}
-                            />
-                            <Text style={styles.charCount}>{profile.bio.length}/500</Text>
                         </View>
                     </View>
 

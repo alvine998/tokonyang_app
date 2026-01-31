@@ -1,191 +1,143 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
     View,
     Text,
     StyleSheet,
-    FlatList,
-    Image,
     TouchableOpacity,
-    ActivityIndicator,
-    Dimensions,
-    Modal
+    SafeAreaView,
+    Modal,
+    ScrollView,
 } from 'react-native';
-import axios from 'axios';
 import { useNavigation } from '@react-navigation/native';
-import Icon from 'react-native-vector-icons/Ionicons';
-import { SCREEN_WIDTH, getCategoryColumns, isTablet } from '../utils/responsive';
-
-const { width } = { width: SCREEN_WIDTH };
-
-interface Category {
-    id: number;
-    name: string;
-    icon: string;
-}
-
-interface Subcategory {
-    id: number;
-    name: string;
-    category_id: number;
-    category_name: string;
-}
 
 const MenuScreen = () => {
     const navigation = useNavigation<any>();
-    const [categories, setCategories] = useState<Category[]>([]);
-    const [loading, setLoading] = useState(true);
-
-    const [isModalVisible, setIsModalVisible] = useState(false);
-    const [subcategories, setSubcategories] = useState<Subcategory[]>([]);
-    const [loadingSub, setLoadingSub] = useState(false);
-    const [selectedCategory, setSelectedCategory] = useState<Category | null>(null);
+    const [isTipsModalVisible, setIsTipsModalVisible] = useState(false);
+    const [isAdsModalVisible, setIsAdsModalVisible] = useState(false);
 
     useEffect(() => {
-        fetchCategories();
-    }, []);
-
-    const fetchCategories = async () => {
-        try {
-            const response = await axios.get('https://api.tokotitoh.co.id/categories', {
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Accept': 'application/json',
-                    'bearer-token': 'tokotitohapi',
-                    'x-partner-code': 'id.marketplace.tokotitoh'
-                },
-            });
-            if (response.data && response.data.items && response.data.items.rows) {
-                setCategories(response.data.items.rows);
+        const parent = navigation.getParent();
+        if (parent) {
+            if (isTipsModalVisible || isAdsModalVisible) {
+                parent.setOptions({
+                    tabBarStyle: { display: 'none' }
+                });
+            } else {
+                parent.setOptions({
+                    tabBarStyle: {
+                        height: 70,
+                        paddingBottom: 10,
+                        paddingTop: 10,
+                        display: 'flex'
+                    }
+                });
             }
-        } catch (error) {
-            console.error('Error fetching categories:', error);
-            // Fallback data if API fails
-            setCategories([
-                { id: 1, name: 'MOBIL', icon: 'https://images.topgear.com.ph/topgear/images/2021/11/08/2022-suzuki-celerio-1636357416.jpg' },
-                { id: 2, name: 'MOTOR', icon: 'https://via.placeholder.com/150' },
-                { id: 3, name: 'PROPERTI', icon: 'https://img.iproperty.com.my/ss-static/my/property/house-for-sale/h-1000x750.jpg' },
-                { id: 4, name: 'ELEKTRONIK', icon: 'https://upload.wikimedia.org/wikipedia/commons/4/4c/Vintage_Radio.jpg' },
-                { id: 5, name: 'HP & GADGET', icon: 'https://m.media-amazon.com/images/I/71vw8Ic593L._AC_SL1500_.jpg' },
-                { id: 6, name: 'HOBI', icon: 'https://via.placeholder.com/150' },
-                { id: 7, name: 'FASHION', icon: 'https://via.placeholder.com/150' },
-                { id: 8, name: 'OLAHRAGA', icon: 'https://via.placeholder.com/150' },
-                { id: 9, name: 'LAINNYA', icon: 'https://via.placeholder.com/150' },
-            ]);
-        } finally {
-            setLoading(false);
         }
-    };
-
-    const fetchSubcategories = async (category: Category) => {
-        setSelectedCategory(category);
-        setIsModalVisible(true);
-        setLoadingSub(true);
-        setSubcategories([]);
-
-        try {
-            const response = await axios.get(`https://api.tokotitoh.co.id/subcategories?category_id=${category.id}`, {
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Accept': 'application/json',
-                    'bearer-token': 'tokotitohapi',
-                    'x-partner-code': 'id.marketplace.tokotitoh'
-                },
-            });
-            if (response.data && response.data.items && response.data.items.rows) {
-                setSubcategories(response.data.items.rows);
-            }
-        } catch (error) {
-            console.error('Error fetching subcategories:', error);
-        } finally {
-            setLoadingSub(false);
-        }
-    };
-
-    const renderCategoryItem = ({ item }: { item: Category }) => (
-        <TouchableOpacity
-            style={styles.gridItem}
-            onPress={() => fetchSubcategories(item)}
-        >
-            <View style={styles.iconWrapper}>
-                <Image
-                    source={{
-                        uri: item.icon.includes('localhost')
-                            ? 'https://via.placeholder.com/150'
-                            : item.icon,
-                    }}
-                    style={styles.gridIcon}
-                    resizeMode="contain"
-                />
-            </View>
-            <Text style={styles.gridText} numberOfLines={2}>{item.name}</Text>
-        </TouchableOpacity>
-    );
+    }, [isTipsModalVisible, isAdsModalVisible, navigation]);
 
     return (
         <View style={styles.container}>
-            <View style={styles.header}>
-                <Text style={styles.headerTitle}>Kategori</Text>
-            </View>
-
-            {loading ? (
-                <View style={styles.centered}>
-                    <ActivityIndicator size="large" color="#2196F3" />
+            <SafeAreaView style={styles.safeArea}>
+                <View style={styles.header}>
+                    <Text style={styles.headerTitle}>Menu</Text>
                 </View>
-            ) : (
-                <FlatList
-                    data={categories}
-                    renderItem={renderCategoryItem}
-                    keyExtractor={(item) => item.id.toString()}
-                    numColumns={getCategoryColumns()}
-                    contentContainerStyle={styles.gridContent}
-                    showsVerticalScrollIndicator={false}
-                />
-            )}
 
-            {/* Subcategory Modal */}
+                <View style={styles.content}>
+                    <TouchableOpacity
+                        style={styles.menuButton}
+                        onPress={() => setIsTipsModalVisible(true)}
+                    >
+                        <Text style={styles.menuButtonText}>Tips Hindari Penipuan</Text>
+                    </TouchableOpacity>
+
+                    <TouchableOpacity
+                        style={styles.menuButton}
+                        onPress={() => setIsAdsModalVisible(true)}
+                    >
+                        <Text style={styles.menuButtonText}>Cara Beriklan</Text>
+                    </TouchableOpacity>
+                </View>
+            </SafeAreaView>
+
             <Modal
-                visible={isModalVisible}
+                visible={isTipsModalVisible}
                 animationType="slide"
                 transparent={true}
-                onRequestClose={() => setIsModalVisible(false)}>
+                statusBarTranslucent={true}
+                onRequestClose={() => setIsTipsModalVisible(false)}
+            >
                 <View style={styles.modalOverlay}>
                     <View style={styles.modalContent}>
                         <View style={styles.modalHeader}>
-                            <Text style={styles.modalTitle}>
-                                {selectedCategory ? selectedCategory.name : 'Subkategori'}
-                            </Text>
-                            <TouchableOpacity onPress={() => setIsModalVisible(false)}>
-                                <Icon name="close" size={28} color="#000" />
-                            </TouchableOpacity>
+                            <Text style={styles.modalTitle}>Tips Hindari Penipuan</Text>
                         </View>
+                        <ScrollView contentContainerStyle={styles.modalBody}>
+                            <View style={styles.tipItem}>
+                                <Text style={styles.tipText}>• Hindari pembelian Non COD</Text>
+                            </View>
+                            <View style={styles.tipItem}>
+                                <Text style={styles.tipText}>• Hindari DP transfer sebelum bertemu langsung dengan penjual. Periksa surat surat dan kelengkapan barang</Text>
+                            </View>
+                            <View style={styles.tipItem}>
+                                <Text style={styles.tipText}>• Untuk pembelian properti, Cek surat surat dan kondisi situasi tanah dengan teliti sesuai ketentuan yg berlaku</Text>
+                            </View>
 
-                        {loadingSub ? (
-                            <ActivityIndicator size="large" color="#2196F3" style={{ marginTop: 20 }} />
-                        ) : (
-                            <FlatList
-                                data={subcategories}
-                                keyExtractor={(item) => item.id.toString()}
-                                renderItem={({ item }) => (
-                                    <TouchableOpacity
-                                        style={styles.subcategoryRow}
-                                        onPress={() => {
-                                            setIsModalVisible(false);
-                                            navigation.navigate('AdsList', {
-                                                category: selectedCategory,
-                                                subcategory: item
-                                            });
-                                        }}>
-                                        <Text style={styles.subcategoryLabel}>{item.name}</Text>
-                                        <Icon name="chevron-forward" size={20} color="#757575" />
-                                    </TouchableOpacity>
-                                )}
-                                ListEmptyComponent={
-                                    <Text style={styles.emptyLabel}>Tidak ada subkategori ditemukan</Text>
-                                }
-                                contentContainerStyle={{ paddingBottom: 40 }}
-                                showsVerticalScrollIndicator={false}
-                            />
-                        )}
+                            <View style={styles.warningContainer}>
+                                <Text style={styles.warningTitle}>Awas Waspada Penipuan Segitiga</Text>
+                                <Text style={styles.warningDescription}>
+                                    adalah penipuan di mana si pelaku penipuan tidak pernah bertemu dengan korban nya si penipu menawarkan barang / bisa berupa kendaraan atau lainnya dengan harga murah dimana penipu berpura pura sebagai pemilik atau calo yg menawarkan barang yg dijual oleh seseorang di internet dan penipuan mengiklankan sendiri barang orang penjual dengan harga murah and si penjual diatur untuk mengikuti permainan nya sedemikian rupa dan calon pembeli ketika bertemu penjual dan merasa cocok dengan barang tersebut kemudian pembeli disuruh transfer ke rekening penipu yg hanya dihubungi oleh whatsapp atau telepon dan jika pembeli mentransfer uang ke rekening penipu maka uang nya akan hilang diambil penipu Jadi untuk menghindari penipuan jenis ini maka pembeli harus menegaskan dan mengkonfirmasi kepada orang yang kita temui secara langsung untuk masalah pembayaran ke rekening yg harus disetujui oleh orang yg kita temui secara langsung karena orang yg kita temui secara langsung adalah orang yg diberi / mempunyai kuasa atas barang kendaraan tersebut.
+                                </Text>
+                            </View>
+                        </ScrollView>
+                        <SafeAreaView style={styles.modalFooter}>
+                            <TouchableOpacity
+                                style={styles.closeButton}
+                                onPress={() => setIsTipsModalVisible(false)}
+                            >
+                                <Text style={styles.closeButtonText}>Tutup</Text>
+                            </TouchableOpacity>
+                        </SafeAreaView>
+                    </View>
+                </View>
+            </Modal>
+
+            <Modal
+                visible={isAdsModalVisible}
+                animationType="slide"
+                transparent={true}
+                statusBarTranslucent={true}
+                onRequestClose={() => setIsAdsModalVisible(false)}
+            >
+                <View style={styles.modalOverlay}>
+                    <View style={styles.modalContent}>
+                        <View style={styles.modalHeader}>
+                            <Text style={styles.modalTitle}>Cara Beriklan</Text>
+                        </View>
+                        <ScrollView contentContainerStyle={styles.modalBody}>
+                            <View style={styles.tipItem}>
+                                <Text style={styles.tipText}>1. Buat judul iklan yang baik</Text>
+                            </View>
+                            <View style={styles.tipItem}>
+                                <Text style={styles.tipText}>2. Cantumkan nomor kontak telepon dan WA yang aktif</Text>
+                            </View>
+                            <View style={styles.tipItem}>
+                                <Text style={styles.tipText}>3. Pilih kategori yang sesuai</Text>
+                            </View>
+                            <View style={styles.tipItem}>
+                                <Text style={styles.tipText}>4. Pasang foto yang berkualitas</Text>
+                            </View>
+                            <View style={styles.tipItem}>
+                                <Text style={styles.tipText}>5. Memberikan detail informasi barang dengan lengkap dan akurat</Text>
+                            </View>
+                        </ScrollView>
+                        <SafeAreaView style={styles.modalFooter}>
+                            <TouchableOpacity
+                                style={styles.closeButton}
+                                onPress={() => setIsAdsModalVisible(false)}
+                            >
+                                <Text style={styles.closeButtonText}>Tutup</Text>
+                            </TouchableOpacity>
+                        </SafeAreaView>
                     </View>
                 </View>
             </Modal>
@@ -198,95 +150,103 @@ const styles = StyleSheet.create({
         flex: 1,
         backgroundColor: '#fff',
     },
+    safeArea: {
+        flex: 1,
+    },
     header: {
-        paddingHorizontal: 16,
-        paddingVertical: 16,
-        backgroundColor: '#fff',
-        borderBottomWidth: 1,
-        borderBottomColor: '#F0F0F0',
+        paddingVertical: 20,
+        alignItems: 'center',
     },
     headerTitle: {
-        fontSize: 20,
-        fontWeight: '800',
-        color: '#002F34',
+        fontSize: 24,
+        fontWeight: 'bold',
+        color: '#000',
     },
-    centered: {
-        flex: 1,
+    content: {
+        paddingHorizontal: 20,
+        gap: 12,
+    },
+    menuButton: {
+        paddingVertical: 15,
+        borderWidth: 1,
+        borderColor: '#D1D5DB',
+        borderRadius: 4,
+        alignItems: 'center',
         justifyContent: 'center',
-        alignItems: 'center',
     },
-    gridContent: {
-        padding: 8,
-    },
-    gridItem: {
-        width: (width - 16) / getCategoryColumns(),
-        alignItems: 'center',
-        paddingVertical: 16,
-    },
-    iconWrapper: {
-        width: isTablet ? 100 : 64,
-        height: isTablet ? 100 : 64,
-        backgroundColor: '#F7F8F9',
-        borderRadius: isTablet ? 50 : 32,
-        justifyContent: 'center',
-        alignItems: 'center',
-        marginBottom: 8,
-    },
-    gridIcon: {
-        width: isTablet ? 60 : 40,
-        height: isTablet ? 60 : 40,
-    },
-    gridText: {
-        fontSize: isTablet ? 14 : 12,
-        fontWeight: '700',
-        color: '#002F34',
-        textAlign: 'center',
-        paddingHorizontal: 4,
-        textTransform: 'uppercase',
+    menuButtonText: {
+        fontSize: 18,
+        color: '#000',
+        fontWeight: '500',
     },
     modalOverlay: {
         flex: 1,
-        justifyContent: 'flex-end',
         backgroundColor: 'rgba(0,0,0,0.5)',
     },
     modalContent: {
+        flex: 1,
+        marginTop: '20%',
         backgroundColor: '#fff',
-        borderTopLeftRadius: 24,
-        borderTopRightRadius: 24,
-        height: '80%',
-        paddingHorizontal: 20,
+        borderTopLeftRadius: 20,
+        borderTopRightRadius: 20,
     },
     modalHeader: {
-        flexDirection: 'row',
-        justifyContent: 'space-between',
-        alignItems: 'center',
         paddingVertical: 20,
         borderBottomWidth: 1,
         borderBottomColor: '#F0F0F0',
+        alignItems: 'center',
     },
     modalTitle: {
+        fontSize: 20,
+        fontWeight: 'bold',
+        color: '#000',
+    },
+    modalBody: {
+        padding: 20,
+    },
+    tipItem: {
+        marginBottom: 12,
+    },
+    tipText: {
+        fontSize: 16,
+        color: '#333',
+        lineHeight: 24,
+    },
+    warningContainer: {
+        marginTop: 20,
+        padding: 15,
+        backgroundColor: '#FEF2F2',
+        borderRadius: 8,
+        borderWidth: 1,
+        borderColor: '#FECACA',
+    },
+    warningTitle: {
         fontSize: 18,
-        fontWeight: '800',
-        color: '#002F34',
+        fontWeight: 'bold',
+        color: '#B91C1C',
+        marginBottom: 10,
     },
-    subcategoryRow: {
-        flexDirection: 'row',
-        justifyContent: 'space-between',
+    warningDescription: {
+        fontSize: 14,
+        color: '#7F1D1D',
+        lineHeight: 20,
+        textAlign: 'justify',
+    },
+    modalFooter: {
+        paddingBottom: 20,
+    },
+    closeButton: {
+        marginHorizontal: 20,
+        marginTop: 10,
+        backgroundColor: '#000',
+        paddingVertical: 15,
+        borderRadius: 8,
         alignItems: 'center',
-        paddingVertical: 16,
-        borderBottomWidth: 1,
-        borderBottomColor: '#F0F0F0',
     },
-    subcategoryLabel: {
+    closeButtonText: {
+        color: '#FFF',
         fontSize: 16,
-        color: '#002F34',
-        fontWeight: '500',
-    },
-    emptyLabel: {
-        textAlign: 'center',
-        marginTop: 40,
-        fontSize: 16,
-        color: '#757575',
+        fontWeight: 'bold',
     },
 });
 
