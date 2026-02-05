@@ -13,9 +13,10 @@ import {
     Alert,
     ActivityIndicator,
 } from 'react-native';
-import { useNavigation } from '@react-navigation/native';
+import { useNavigation, useFocusEffect } from '@react-navigation/native';
 import Icon from 'react-native-vector-icons/Ionicons';
 import { useAuth } from '../context/AuthContext';
+import { BackHandler } from 'react-native';
 
 const LoginScreen = () => {
     const navigation = useNavigation<any>();
@@ -24,6 +25,20 @@ const LoginScreen = () => {
     const [password, setPassword] = useState('');
     const [showPassword, setShowPassword] = useState(false);
     const [loading, setLoading] = useState(false);
+
+    // Handle device back button to go to Home tab
+    useFocusEffect(
+        React.useCallback(() => {
+            const onBackPress = () => {
+                navigation.navigate('Main', { screen: 'Home' });
+                return true;
+            };
+
+            const subscription = BackHandler.addEventListener('hardwareBackPress', onBackPress);
+
+            return () => subscription.remove();
+        }, [navigation])
+    );
 
     const handleLogin = async () => {
         if (!phone || !password) {
@@ -34,7 +49,7 @@ const LoginScreen = () => {
         setLoading(true);
         try {
             await login(phone, password);
-            navigation.navigate('Main');
+            navigation.navigate('Home');
         } catch (error: any) {
             Alert.alert('Login Gagal', error.message);
         } finally {
@@ -44,6 +59,8 @@ const LoginScreen = () => {
 
     return (
         <SafeAreaView style={styles.container}>
+            {/* Header with Back Button */}
+
             <KeyboardAvoidingView
                 behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
                 style={{ flex: 1 }}
@@ -156,9 +173,24 @@ const styles = StyleSheet.create({
         flex: 1,
         backgroundColor: '#fff',
     },
+    header: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        paddingHorizontal: 16,
+        paddingVertical: 12,
+    },
+    backButton: {
+        flexDirection: 'row',
+        alignItems: 'center',
+    },
+    backText: {
+        fontSize: 16,
+        color: '#000',
+        marginLeft: 4,
+    },
     scrollContent: {
         paddingHorizontal: 25,
-        paddingTop: 40,
+        paddingTop: 20,
         paddingBottom: 20,
         alignItems: 'center',
     },

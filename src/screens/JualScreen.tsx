@@ -15,7 +15,8 @@ import {
     Platform,
 } from 'react-native';
 import Icon from 'react-native-vector-icons/Ionicons';
-import { useNavigation, useRoute } from '@react-navigation/native';
+import { useNavigation, useRoute, useFocusEffect } from '@react-navigation/native';
+import { useAuth } from '../context/AuthContext';
 import axios from 'axios';
 import { launchImageLibrary, Asset } from 'react-native-image-picker';
 import { uploadMultipleImagesToApi } from '../config/firebase';
@@ -77,6 +78,7 @@ const CONDITION_TYPES = [
 const JualScreen = () => {
     const navigation = useNavigation<any>();
     const route = useRoute<any>();
+    const { user } = useAuth();
     const { editId, accountId } = route.params || {};
 
     // Step state (0-4: Category, Subcategory, Images, Form, Location)
@@ -132,6 +134,15 @@ const JualScreen = () => {
     const isAnyModalVisible = showBrandModal || showTypeModal || showFuelModal ||
         showTransmissionModal || showConditionModal || showProvinceModal ||
         showCityModal || showDistrictModal;
+
+    // Redirect to Login if user is not signed in
+    useFocusEffect(
+        React.useCallback(() => {
+            if (!user) {
+                navigation.navigate('Login');
+            }
+        }, [user, navigation])
+    );
 
     // Hide bottom tabs when modal is visible
     useEffect(() => {

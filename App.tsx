@@ -28,6 +28,8 @@ import KebijakanPrivasiScreen from './src/screens/KebijakanPrivasiScreen';
 import PusatBantuanScreen from './src/screens/PusatBantuanScreen';
 import TentangTokotitohScreen from './src/screens/TentangTokotitohScreen';
 import HapusAkunScreen from './src/screens/HapusAkunScreen';
+import CategoryListScreen from './src/screens/CategoryListScreen';
+import HubungiKamiScreen from './src/screens/HubungiKamiScreen';
 
 import { AuthProvider, useAuth } from './src/context/AuthContext';
 import LoginScreen from './src/screens/LoginScreen';
@@ -89,6 +91,8 @@ function HomeTabs() {
             iconName = focused ? 'heart' : 'heart-outline';
           } else if (route.name === 'Akun Saya') {
             iconName = focused ? 'person' : 'person-outline';
+          } else if (route.name === 'Login') {
+            iconName = focused ? 'person' : 'person-outline';
           }
 
           if (route.name === 'Jual') return null;
@@ -98,7 +102,7 @@ function HomeTabs() {
         tabBarActiveTintColor: '#000',
         tabBarInactiveTintColor: '#757575',
         tabBarLabelStyle: {
-          fontSize: 12,
+          fontSize: 10,
           fontWeight: '800',
         },
         tabBarStyle: {
@@ -117,8 +121,8 @@ function HomeTabs() {
           tabBarButton: (props) => <JualButton {...props} />,
         }}
       />
-      <Tab.Screen name="Iklan Saya" component={IklanSayaScreen} />
-      <Tab.Screen name="Akun Saya" component={AkunSayaScreen} />
+      <Tab.Screen name="Iklan Saya" component={IklanSayaScreen} options={{ tabBarLabel: 'Iklan Saya' }} />
+      <Tab.Screen name="Akun Saya" component={AkunSayaScreen} options={{ tabBarLabel: 'Akun Saya' }} />
     </Tab.Navigator>
   );
 }
@@ -131,8 +135,6 @@ function App() {
           <NavigationContainer>
             <Stack.Navigator screenOptions={{ headerShown: false }}>
               <Stack.Screen name="Splash" component={SplashScreen} options={{ animationTypeForReplace: 'pop' }} />
-              <Stack.Screen name="Login" component={LoginScreen} />
-              <Stack.Screen name="Register" component={RegisterScreen} />
               <Stack.Screen name="Main" component={HomeTabs} />
               <Stack.Screen name="AdsList" component={AdsListScreen} />
               <Stack.Screen name="AdDetail" component={AdDetailScreen} />
@@ -146,6 +148,16 @@ function App() {
               <Stack.Screen name="PusatBantuan" component={PusatBantuanScreen} />
               <Stack.Screen name="TentangTokotitoh" component={TentangTokotitohScreen} />
               <Stack.Screen name="HapusAkun" component={HapusAkunScreen} />
+              <Stack.Screen name="Categories" component={CategoryListScreen} />
+              <Stack.Screen name="HubungiKami" component={HubungiKamiScreen} />
+              <Stack.Screen
+                name="Login"
+                component={LoginScreen}
+              />
+              <Stack.Screen
+                name="Register"
+                component={RegisterScreen}
+              />
             </Stack.Navigator>
           </NavigationContainer>
         </View>

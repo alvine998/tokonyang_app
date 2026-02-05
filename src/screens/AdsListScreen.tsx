@@ -56,33 +56,68 @@ const AdsListScreen = () => {
     const [isFilterVisible, setIsFilterVisible] = useState(false);
     const [activeFilterTab, setActiveFilterTab] = useState('MEREK');
     const [filters, setFilters] = useState({
-        brand_id: '',
-        type_id: '',
+        subcategory_id: subcategory?.id || '',
+        status: '1',
+        search: search || '',
+        pagination: true,
+        page: 0,
+        size: 8,
+        brand_id: [] as any[],
+        type_id: [] as any[],
         province_id: '',
         city_id: '',
         district_id: '',
-        km: '',
         transmission: '',
-        year: '',
-        color: '',
-        ownership: '',
-        status: '',
-        min_price: '',
-        max_price: '',
-        area: '',
-        building: '',
+        min: '5',
+        max: '1000000000000',
+        minArea: '',
+        maxArea: '',
+        minBuilding: '',
+        maxBuilding: '',
+        sort: '',
+        year_start: '',
+        year_end: '',
+        fuel_type: '',
+        condition: '',
     });
+
+    const createQueryString = (params: any) => {
+        return Object.keys(params)
+            .filter(key => {
+                const val = params[key];
+                return val !== '' && val !== null && val !== undefined && !(Array.isArray(val) && val.length === 0);
+            })
+            .map(key => {
+                const val = params[key];
+                const valueToEncode = Array.isArray(val) ? val.join(',') : val;
+                return `${encodeURIComponent(key)}=${encodeURIComponent(valueToEncode)}`;
+            })
+            .join('&');
+    };
+
+    const safeParseInt = (value: any, defaultValue: number) => {
+        const parsed = parseInt(value);
+        return isNaN(parsed) ? defaultValue : parsed;
+    };
 
     const [provinces, setProvinces] = useState<any[]>([]);
     const [cities, setCities] = useState<any[]>([]);
+    const [districts, setDistricts] = useState<any[]>([]);
     const [loadingProvinces, setLoadingProvinces] = useState(false);
     const [loadingCities, setLoadingCities] = useState(false);
+    const [loadingDistricts, setLoadingDistricts] = useState(false);
+
+    const [apiBrands, setApiBrands] = useState<any[]>([]);
+    const [types, setTypes] = useState<any[]>([]);
+    const [categories, setCategories] = useState<any[]>([]);
+    const [subcategories, setSubcategories] = useState<any[]>([]);
+    const [loadingFilterData, setLoadingFilterData] = useState(false);
 
     const [currentNavSet, setCurrentNavSet] = useState<any[]>(navsDefault);
 
     useEffect(() => {
         fetchAds(0, true);
-        fetchProvinces();
+        fetchFilterData();
         determineNavSet();
     }, []);
 
@@ -108,23 +143,92 @@ const AdsListScreen = () => {
         }
     };
 
-    const fetchProvinces = async () => {
-        setLoadingProvinces(true);
+    const fetchFilterData = async () => {
+        setLoadingFilterData(true);
         try {
-            const response = await axios.get('https://api.tokotitoh.co.id/provinces', {
-                headers: {
-                    'bearer-token': 'tokotitohapi',
-                    'x-partner-code': 'id.marketplace.tokotitoh'
-                }
-            });
-            if (response.data && response.data.items) {
-                setProvinces(response.data.items);
+            const [brandsRes, provincesRes, categoriesRes] = await Promise.all([
+                axios.get(`https://api.tokotitoh.co.id/brands?category_id=${subcategory?.category_id || category?.id}`, {
+                    headers: {
+                        "bearer-token": "tokotitohapi",
+                        "x-partner-code": "id.marketplace.tokotitoh",
+                    },
+                }),
+                axios.get(`https://api.tokotitoh.co.id/provinces`, {
+                    headers: {
+                        "bearer-token": "tokotitohapi",
+                        "x-partner-code": "id.marketplace.tokotitoh",
+                    },
+                }),
+                axios.get(`https://api.tokotitoh.co.id/categories`, {
+                    headers: {
+                        "bearer-token": "tokotitohapi",
+                        "x-partner-code": "id.marketplace.tokotitoh",
+                    },
+                }),
+            ]);
+
+            if (brandsRes.data && brandsRes.data.items) {
+                setApiBrands(brandsRes.data.items.rows);
+            }
+            if (provincesRes.data && provincesRes.data.items) {
+                setProvinces(provincesRes.data.items.rows);
+            }
+            if (categoriesRes.data && categoriesRes.data.items) {
+                setCategories(categoriesRes.data.items.rows);
             }
         } catch (error) {
-            console.error('Error fetching provinces:', error);
+            console.error('Error fetching filter data:', error);
         } finally {
-            setLoadingProvinces(false);
+            setLoadingFilterData(false);
         }
+    };
+
+    const fetchTypes = async (brandIds: any[]) => {
+        if (brandIds.length === 0) {
+            setTypes([]);
+            return;
+        }
+        try {
+            // Join brand IDs with comma as requested for the API
+            const brandIdsQuery = brandIds.join(',');
+            const response = await axios.get(`https://api.tokotitoh.co.id/types?brand_ids=${brandIdsQuery}`, {
+                headers: {
+                    "bearer-token": "tokotitohapi",
+                    "x-partner-code": "id.marketplace.tokotitoh",
+                },
+            });
+            if (response.data && response.data.items) {
+                setTypes(response.data.items.rows);
+            }
+        } catch (error) {
+            console.error('Error fetching types:', error);
+        }
+    };
+
+    const toggleBrand = (brandId: any) => {
+        setFilters(prev => {
+            const newBrands = prev.brand_id.includes(brandId)
+                ? prev.brand_id.filter(id => id !== brandId)
+                : [...prev.brand_id, brandId];
+
+            // Re-fetch types for all new brands
+            fetchTypes(newBrands);
+
+            // If brand is removed, we might want to clean up types that no longer belong to selected brands
+            // but the API fetchTypes(newBrands) should handle it if it returns models for for all brands.
+            // However, we should also clear type_id selections that are no longer valid if we want to be strict.
+            // For now, let's just update brands.
+            return { ...prev, brand_id: newBrands, type_id: [] }; // Reset types when brand changes for simplicity
+        });
+    };
+
+    const toggleType = (typeId: any) => {
+        setFilters(prev => {
+            const newTypes = prev.type_id.includes(typeId)
+                ? prev.type_id.filter(id => id !== typeId)
+                : [...prev.type_id, typeId];
+            return { ...prev, type_id: newTypes };
+        });
     };
 
     const fetchCities = async (provinceId: string) => {
@@ -137,12 +241,47 @@ const AdsListScreen = () => {
                 }
             });
             if (response.data && response.data.items) {
-                setCities(response.data.items);
+                setCities(response.data.items.rows);
             }
         } catch (error) {
             console.error('Error fetching cities:', error);
         } finally {
             setLoadingCities(false);
+        }
+    };
+
+    const fetchDistricts = async (cityId: string) => {
+        setLoadingDistricts(true);
+        try {
+            const response = await axios.get(`https://api.tokotitoh.co.id/districts?city_id=${cityId}`, {
+                headers: {
+                    'bearer-token': 'tokotitohapi',
+                    'x-partner-code': 'id.marketplace.tokotitoh'
+                }
+            });
+            if (response.data && response.data.items) {
+                setDistricts(response.data.items.rows);
+            }
+        } catch (error) {
+            console.error('Error fetching districts:', error);
+        } finally {
+            setLoadingDistricts(false);
+        }
+    };
+
+    const fetchSubcategories = async (categoryId: string) => {
+        try {
+            const response = await axios.get(`https://api.tokotitoh.co.id/subcategories?category_id=${categoryId}`, {
+                headers: {
+                    'bearer-token': 'tokotitohapi',
+                    'x-partner-code': 'id.marketplace.tokotitoh'
+                }
+            });
+            if (response.data && response.data.items) {
+                setSubcategories(response.data.items.rows);
+            }
+        } catch (error) {
+            console.error('Error fetching subcategories:', error);
         }
     };
 
@@ -176,32 +315,30 @@ const AdsListScreen = () => {
         }
 
         try {
-            const response = await axios.get('https://api.tokotitoh.co.id/ads', {
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Accept': 'application/json',
-                    'bearer-token': 'tokotitohapi',
-                    'x-partner-code': 'id.marketplace.tokotitoh'
-                },
-                params: {
-                    pagination: 'true',
+            const result = await axios.get(
+                `https://api.tokotitoh.co.id/ads?${createQueryString({
+                    ...filters,
+                    subcategory_id: filters.subcategory_id === 0 ? "" : filters.subcategory_id,
                     page: pageNumber,
                     size: PAGE_SIZE,
-                    subcategory_id: subcategory?.id,
-                    search: searchQuery,
-                    ...filters
+                    search: searchQuery || filters.search
+                })}`,
+                {
+                    headers: {
+                        "bearer-token": "tokotitohapi",
+                        "x-partner-code": "id.marketplace.tokotitoh",
+                    },
                 }
-            });
+            );
 
-            if (response.data && response.data.items && response.data.items.rows) {
-                const newAds = response.data.items.rows;
+            if (result.data && result.data.items && result.data.items.rows) {
+                const newAds = result.data.items.rows;
                 if (pageNumber === 0) {
                     setAds(newAds);
                 } else {
                     setAds(prev => [...prev, ...newAds]);
                 }
 
-                // If we got fewer items than requested, we've reached the end
                 if (newAds.length < PAGE_SIZE) {
                     setHasMore(false);
                 } else {
@@ -350,22 +487,33 @@ const AdsListScreen = () => {
                                     style={styles.resetHeaderBtn}
                                     onPress={() => {
                                         setFilters({
-                                            brand_id: '',
-                                            type_id: '',
+                                            subcategory_id: subcategory?.id || '',
+                                            status: '1',
+                                            search: search || '',
+                                            pagination: true,
+                                            page: 0,
+                                            size: 8,
+                                            brand_id: [],
+                                            type_id: [],
                                             province_id: '',
                                             city_id: '',
                                             district_id: '',
-                                            km: '',
                                             transmission: '',
-                                            year: '',
-                                            color: '',
-                                            ownership: '',
-                                            status: '',
-                                            min_price: '',
-                                            max_price: '',
-                                            area: '',
-                                            building: '',
+                                            min: '5',
+                                            max: '1000000000000',
+                                            minArea: '',
+                                            maxArea: '',
+                                            minBuilding: '',
+                                            maxBuilding: '',
+                                            sort: '',
+                                            year_start: '',
+                                            year_end: '',
+                                            fuel_type: '',
+                                            condition: '',
                                         });
+                                        setCities([]);
+                                        setDistricts([]);
+                                        setTypes([]);
                                     }}>
                                     <Text style={styles.resetHeaderText}>Reset</Text>
                                 </TouchableOpacity>
@@ -420,7 +568,9 @@ const AdsListScreen = () => {
                                                             filters.province_id === p.id && styles.activeChip
                                                         ]}
                                                         onPress={() => {
-                                                            setFilters({ ...filters, province_id: p.id, city_id: '' });
+                                                            setFilters({ ...filters, province_id: p.id, city_id: '', district_id: '' });
+                                                            setCities([]);
+                                                            setDistricts([]);
                                                             fetchCities(p.id);
                                                         }}>
                                                         <Text style={[
@@ -443,7 +593,11 @@ const AdsListScreen = () => {
                                                                 styles.chip,
                                                                 filters.city_id === c.id && styles.activeChip
                                                             ]}
-                                                            onPress={() => setFilters({ ...filters, city_id: c.id })}>
+                                                            onPress={() => {
+                                                                setFilters({ ...filters, city_id: c.id, district_id: '' });
+                                                                setDistricts([]);
+                                                                fetchDistricts(c.id);
+                                                            }}>
                                                             <Text style={[
                                                                 styles.chipText,
                                                                 filters.city_id === c.id && styles.activeChipText
@@ -451,6 +605,27 @@ const AdsListScreen = () => {
                                                         </TouchableOpacity>
                                                     ))}
                                                 </View>
+                                                {filters.city_id !== '' && (
+                                                    <>
+                                                        <Text style={[styles.newSectionLabel, { marginTop: 20 }]}>Pilih Kecamatan</Text>
+                                                        <View style={styles.chipContainer}>
+                                                            {districts.map((d) => (
+                                                                <TouchableOpacity
+                                                                    key={d.id}
+                                                                    style={[
+                                                                        styles.chip,
+                                                                        filters.district_id === d.id && styles.activeChip
+                                                                    ]}
+                                                                    onPress={() => setFilters({ ...filters, district_id: d.id })}>
+                                                                    <Text style={[
+                                                                        styles.chipText,
+                                                                        filters.district_id === d.id && styles.activeChipText
+                                                                    ]}>{d.name}</Text>
+                                                                </TouchableOpacity>
+                                                            ))}
+                                                        </View>
+                                                    </>
+                                                )}
                                             </>
                                         )}
                                     </View>
@@ -459,39 +634,67 @@ const AdsListScreen = () => {
                                 {activeFilterTab === 'MEREK' && (
                                     <View style={styles.brandContainer}>
                                         <View style={styles.logoGrid}>
-                                            {brands.map((brand) => (
+                                            {(apiBrands.length > 0 ? apiBrands.filter((brand) => brand.image !== null).slice(0, 9) : brands).map((brand) => (
                                                 <TouchableOpacity
                                                     key={brand.id}
                                                     style={[
                                                         styles.logoItem,
-                                                        filters.brand_id === brand.id && styles.activeLogoItem
+                                                        filters.brand_id.includes(brand.id) && styles.activeLogoItem
                                                     ]}
-                                                    onPress={() => setFilters({ ...filters, brand_id: brand.id })}>
+                                                    onPress={() => toggleBrand(brand.id)}>
                                                     <Image
-                                                        source={{ uri: brand.logo }}
+                                                        source={{ uri: brand.image }}
                                                         style={styles.brandLogo}
                                                         resizeMode="contain"
                                                     />
-                                                    <Text style={styles.brandLogoName}>{brand.name}</Text>
+                                                    {/* <Text style={styles.brandLogoName}>{brand.name}</Text> */}
                                                 </TouchableOpacity>
                                             ))}
                                         </View>
 
                                         <View style={styles.brandList}>
-                                            {otherBrands.map((name) => (
-                                                <TouchableOpacity
-                                                    key={name}
-                                                    style={styles.brandListItem}
-                                                    onPress={() => setFilters({ ...filters, brand_id: name })}>
-                                                    <Icon
-                                                        name={filters.brand_id === name ? "checkbox" : "square-outline"}
-                                                        size={24}
-                                                        color={filters.brand_id === name ? "#2D5BD6" : "#000"}
-                                                    />
-                                                    <Text style={styles.brandListText}>{name}</Text>
-                                                </TouchableOpacity>
-                                            ))}
+                                            {(apiBrands.length > 9 ? apiBrands.slice(9) : otherBrands).map((brandOrName: any) => {
+                                                const brandName = typeof brandOrName === 'string' ? brandOrName : brandOrName.name;
+                                                const brandId = typeof brandOrName === 'string' ? brandOrName : brandOrName.id;
+                                                return (
+                                                    <TouchableOpacity
+                                                        key={brandId}
+                                                        style={styles.brandListItem}
+                                                        onPress={() => toggleBrand(brandId)}>
+                                                        <Icon
+                                                            name={filters.brand_id.includes(brandId) ? "checkbox" : "square-outline"}
+                                                            size={24}
+                                                            color={filters.brand_id.includes(brandId) ? "#2D5BD6" : "#000"}
+                                                        />
+                                                        <Text style={styles.brandListText}>{brandName}</Text>
+                                                    </TouchableOpacity>
+                                                );
+                                            })}
                                         </View>
+                                    </View>
+                                )}
+
+                                {activeFilterTab === 'MODEL' && (
+                                    <View style={styles.brandList}>
+                                        {types.length > 0 ? (
+                                            types.map((type) => (
+                                                <TouchableOpacity
+                                                    key={type.id}
+                                                    style={styles.brandListItem}
+                                                    onPress={() => toggleType(type.id)}>
+                                                    <Icon
+                                                        name={filters.type_id.includes(type.id) ? "checkbox" : "square-outline"}
+                                                        size={24}
+                                                        color={filters.type_id.includes(type.id) ? "#2D5BD6" : "#000"}
+                                                    />
+                                                    <Text style={styles.brandListText}>{type.name}</Text>
+                                                </TouchableOpacity>
+                                            ))
+                                        ) : (
+                                            <View style={styles.placeholderTab}>
+                                                <Text style={styles.placeholderTabText}>Pilih Merek terlebih dahulu</Text>
+                                            </View>
+                                        )}
                                     </View>
                                 )}
 
@@ -502,16 +705,16 @@ const AdsListScreen = () => {
                                             style={styles.newFilterInput}
                                             placeholder="Harga Minimum"
                                             keyboardType="numeric"
-                                            value={filters.min_price}
-                                            onChangeText={(text) => setFilters({ ...filters, min_price: text })}
+                                            value={filters.min}
+                                            onChangeText={(text) => setFilters({ ...filters, min: text })}
                                         />
                                         <View style={{ height: 10 }} />
                                         <TextInput
                                             style={styles.newFilterInput}
                                             placeholder="Harga Maksimum"
                                             keyboardType="numeric"
-                                            value={filters.max_price}
-                                            onChangeText={(text) => setFilters({ ...filters, max_price: text })}
+                                            value={filters.max}
+                                            onChangeText={(text) => setFilters({ ...filters, max: text })}
                                         />
                                     </View>
                                 )}
@@ -523,8 +726,8 @@ const AdsListScreen = () => {
                                             style={styles.newFilterInput}
                                             placeholder="Gunakan angka saja"
                                             keyboardType="numeric"
-                                            value={filters.area}
-                                            onChangeText={(text) => setFilters({ ...filters, area: text })}
+                                            value={filters.minArea}
+                                            onChangeText={(text) => setFilters({ ...filters, minArea: text })}
                                         />
                                     </View>
                                 )}
@@ -536,8 +739,8 @@ const AdsListScreen = () => {
                                             style={styles.newFilterInput}
                                             placeholder="Gunakan angka saja"
                                             keyboardType="numeric"
-                                            value={filters.building}
-                                            onChangeText={(text) => setFilters({ ...filters, building: text })}
+                                            value={filters.minBuilding}
+                                            onChangeText={(text) => setFilters({ ...filters, minBuilding: text })}
                                         />
                                     </View>
                                 )}
@@ -545,32 +748,73 @@ const AdsListScreen = () => {
                                 {activeFilterTab === 'TAHUN' && (
                                     <View style={styles.newFilterSection}>
                                         <Text style={styles.newSectionLabel}>Tahun Kendaraan</Text>
-                                        <TextInput
-                                            style={styles.newFilterInput}
-                                            placeholder="Contoh: 2020"
-                                            keyboardType="numeric"
-                                            value={filters.year}
-                                            onChangeText={(text) => setFilters({ ...filters, year: text })}
-                                        />
+                                        <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+                                            <TextInput
+                                                style={[styles.newFilterInput, { flex: 1, textAlign: 'center' }]}
+                                                placeholder="1945"
+                                                keyboardType="numeric"
+                                                maxLength={4}
+                                                value={filters.year_start}
+                                                onChangeText={(text) => setFilters({ ...filters, year_start: text })}
+                                            />
+                                            <Text style={{ marginHorizontal: 10 }}>-</Text>
+                                            <TextInput
+                                                style={[styles.newFilterInput, { flex: 1, textAlign: 'center' }]}
+                                                placeholder={`${new Date().getFullYear()}`}
+                                                keyboardType="numeric"
+                                                maxLength={4}
+                                                value={filters.year_end}
+                                                onChangeText={(text) => setFilters({ ...filters, year_end: text })}
+                                            />
+                                        </View>
                                     </View>
                                 )}
 
                                 {activeFilterTab === 'TRANSMISI' && (
                                     <View style={styles.newFilterSection}>
                                         <Text style={styles.newSectionLabel}>Transmisi</Text>
-                                        <View style={styles.chipContainer}>
-                                            {['Manual', 'Automatic'].map((t) => (
+                                        <View style={styles.brandList}>
+                                            {[
+                                                { value: "", label: "Semua Transmisi" },
+                                                { value: "MT", label: "Manual" },
+                                                { value: "AT", label: "Automatic" },
+                                                { value: "CVT", label: "CVT" },
+                                            ].map((opt) => (
                                                 <TouchableOpacity
-                                                    key={t}
-                                                    style={[
-                                                        styles.chip,
-                                                        filters.transmission === t && styles.activeChip
-                                                    ]}
-                                                    onPress={() => setFilters({ ...filters, transmission: t })}>
-                                                    <Text style={[
-                                                        styles.chipText,
-                                                        filters.transmission === t && styles.activeChipText
-                                                    ]}>{t}</Text>
+                                                    key={opt.value}
+                                                    style={styles.brandListItem}
+                                                    onPress={() => setFilters({ ...filters, transmission: opt.value })}>
+                                                    <Icon
+                                                        name={filters.transmission === opt.value ? "radio-button-on" : "radio-button-off"}
+                                                        size={24}
+                                                        color={filters.transmission === opt.value ? "#2D5BD6" : "#000"}
+                                                    />
+                                                    <Text style={styles.brandListText}>{opt.label}</Text>
+                                                </TouchableOpacity>
+                                            ))}
+                                        </View>
+                                    </View>
+                                )}
+
+                                {activeFilterTab === 'KONDISI' && (
+                                    <View style={styles.newFilterSection}>
+                                        <Text style={styles.newSectionLabel}>Kondisi</Text>
+                                        <View style={styles.brandList}>
+                                            {[
+                                                { value: "", label: "Semua Kondisi" },
+                                                { value: "new", label: "Baru" },
+                                                { value: "second", label: "Bekas" },
+                                            ].map((opt) => (
+                                                <TouchableOpacity
+                                                    key={opt.value}
+                                                    style={styles.brandListItem}
+                                                    onPress={() => setFilters({ ...filters, condition: opt.value })}>
+                                                    <Icon
+                                                        name={filters.condition === opt.value ? "radio-button-on" : "radio-button-off"}
+                                                        size={24}
+                                                        color={filters.condition === opt.value ? "#2D5BD6" : "#000"}
+                                                    />
+                                                    <Text style={styles.brandListText}>{opt.label}</Text>
                                                 </TouchableOpacity>
                                             ))}
                                         </View>
@@ -579,27 +823,104 @@ const AdsListScreen = () => {
 
                                 {activeFilterTab === 'URUTKAN' && (
                                     <View style={styles.brandList}>
-                                        {['Terbaru', 'Harga Terendah', 'Harga Tertinggi', 'KM Terendah'].map((sort) => (
+                                        {[
+                                            { label: 'Iklan Terbaru', value: 'newest' },
+                                            { label: 'Iklan Paling Murah', value: 'minprice' },
+                                            { label: 'Iklan Paling Mahal', value: 'maxprice' }
+                                        ].map((sortItem) => (
                                             <TouchableOpacity
-                                                key={sort}
+                                                key={sortItem.value}
                                                 style={styles.brandListItem}
-                                                onPress={() => { }}>
+                                                onPress={() => setFilters({ ...filters, sort: sortItem.value })}>
                                                 <Icon
-                                                    name="radio-button-off"
+                                                    name={filters.sort === sortItem.value ? "radio-button-on" : "radio-button-off"}
                                                     size={24}
-                                                    color="#000"
+                                                    color={filters.sort === sortItem.value ? "#2D5BD6" : "#000"}
                                                 />
-                                                <Text style={styles.brandListText}>{sort}</Text>
+                                                <Text style={styles.brandListText}>{sortItem.label}</Text>
                                             </TouchableOpacity>
                                         ))}
                                     </View>
                                 )}
 
-                                {['MODEL', 'BAHAN BAKAR', 'KATEGORI'].includes(activeFilterTab) && (
+                                {activeFilterTab === 'BAHAN BAKAR' && (
+                                    <View style={styles.newFilterSection}>
+                                        <Text style={styles.newSectionLabel}>Pilih Bahan Bakar</Text>
+                                        <View style={styles.brandList}>
+                                            {[
+                                                { value: "", label: "Semua Bahan Bakar" },
+                                                { value: "bensin", label: "Bensin" },
+                                                { value: "diesel", label: "Solar" },
+                                                { value: "hybrid", label: "Hybrid" },
+                                                { value: "ev", label: "Listrik" },
+                                            ].map((opt) => (
+                                                <TouchableOpacity
+                                                    key={opt.value}
+                                                    style={styles.brandListItem}
+                                                    onPress={() => setFilters({ ...filters, fuel_type: opt.value })}>
+                                                    <Icon
+                                                        name={filters.fuel_type === opt.value ? "radio-button-on" : "radio-button-off"}
+                                                        size={24}
+                                                        color={filters.fuel_type === opt.value ? "#2D5BD6" : "#000"}
+                                                    />
+                                                    <Text style={styles.brandListText}>{opt.label}</Text>
+                                                </TouchableOpacity>
+                                            ))}
+                                        </View>
+                                    </View>
+                                )}
+
+                                {activeFilterTab === 'KATEGORI' && (
+                                    <View style={styles.newFilterSection}>
+                                        <Text style={styles.newSectionLabel}>Pilih Kategori</Text>
+                                        <View style={styles.chipContainer}>
+                                            {categories.map((c) => (
+                                                <TouchableOpacity
+                                                    key={c.id}
+                                                    style={[
+                                                        styles.chip,
+                                                        // Check if the current filter subcategory belongs to this category (simplified check)
+                                                        // Ideally we should have category_id in filters or check fetching logic
+                                                        // For now let's just highlight if we select it to fetch subcategories
+                                                    ]}
+                                                    onPress={() => {
+                                                        setSubcategories([]);
+                                                        fetchSubcategories(c.id);
+                                                    }}>
+                                                    <Text style={styles.chipText}>{c.name}</Text>
+                                                </TouchableOpacity>
+                                            ))}
+                                        </View>
+
+                                        {subcategories.length > 0 && (
+                                            <>
+                                                <Text style={[styles.newSectionLabel, { marginTop: 20 }]}>Pilih Subkategori</Text>
+                                                <View style={styles.chipContainer}>
+                                                    {subcategories.map((sc) => (
+                                                        <TouchableOpacity
+                                                            key={sc.id}
+                                                            style={[
+                                                                styles.chip,
+                                                                filters.subcategory_id === sc.id && styles.activeChip
+                                                            ]}
+                                                            onPress={() => setFilters({ ...filters, subcategory_id: sc.id })}>
+                                                            <Text style={[
+                                                                styles.chipText,
+                                                                filters.subcategory_id === sc.id && styles.activeChipText
+                                                            ]}>{sc.name}</Text>
+                                                        </TouchableOpacity>
+                                                    ))}
+                                                </View>
+                                            </>
+                                        )}
+                                    </View>
+                                )}
+
+                                {/* {['MODEL', 'BAHAN BAKAR', 'KATEGORI'].includes(activeFilterTab) && (
                                     <View style={styles.placeholderTab}>
                                         <Text style={styles.placeholderTabText}>Filter {activeFilterTab} akan tersedia segera</Text>
                                     </View>
-                                )}
+                                )} */}
                             </ScrollView>
                         </View>
 
@@ -797,7 +1118,7 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         flexWrap: 'wrap',
         justifyContent: 'space-between',
-        marginBottom: 20,
+        marginBottom: 0,
     },
     logoItem: {
         width: '31%',
@@ -825,7 +1146,7 @@ const styles = StyleSheet.create({
         textAlign: 'center',
     },
     brandList: {
-        marginTop: 10,
+        marginTop: 0,
     },
     brandListItem: {
         flexDirection: 'row',

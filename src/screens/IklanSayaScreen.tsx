@@ -11,7 +11,8 @@ import {
     ActivityIndicator
 } from 'react-native';
 import Icon from 'react-native-vector-icons/Ionicons';
-import { useNavigation } from '@react-navigation/native';
+import { useNavigation, useFocusEffect } from '@react-navigation/native';
+import { useAuth } from '../context/AuthContext';
 
 const { width } = Dimensions.get('window');
 
@@ -28,9 +29,19 @@ interface AdItem {
 
 const IklanSayaScreen = () => {
     const navigation = useNavigation<any>();
+    const { user } = useAuth();
     const [activeTab, setActiveTab] = useState<'AKTIF' | 'NONAKTIF' | 'DITOLAK'>('AKTIF');
     const [loading, setLoading] = useState(true);
     const [ads, setAds] = useState<AdItem[]>([]);
+
+    // Redirect to Login if user is not signed in
+    useFocusEffect(
+        React.useCallback(() => {
+            if (!user) {
+                navigation.navigate('Login');
+            }
+        }, [user, navigation])
+    );
 
     useEffect(() => {
         // Simulate fetching user's ads
