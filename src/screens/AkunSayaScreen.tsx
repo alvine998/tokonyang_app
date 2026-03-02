@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useCallback } from 'react';
 import {
     View,
     StyleSheet,
@@ -8,12 +8,20 @@ import {
 } from 'react-native';
 import AppText from '../components/AppText';
 import Icon from 'react-native-vector-icons/Ionicons';
-import { useNavigation } from '@react-navigation/native';
+import { useNavigation, useFocusEffect } from '@react-navigation/native';
 import { useAuth } from '../context/AuthContext';
 
 const AkunSayaScreen = () => {
     const navigation = useNavigation<any>();
     const { user, logout } = useAuth();
+
+    useFocusEffect(
+        useCallback(() => {
+            if (!user) {
+                navigation.navigate('Login');
+            }
+        }, [user, navigation])
+    );
 
     const handleLogout = async () => {
         await logout();

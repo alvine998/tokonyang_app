@@ -34,6 +34,7 @@ import HubungiKamiScreen from './src/screens/HubungiKamiScreen';
 import { AuthProvider, useAuth } from './src/context/AuthContext';
 import LoginScreen from './src/screens/LoginScreen';
 import RegisterScreen from './src/screens/RegisterScreen';
+import normalize from 'react-native-normalize';
 
 const Tab = createBottomTabNavigator();
 const Stack = createNativeStackNavigator();
@@ -69,9 +70,9 @@ const JualButton = ({ children, onPress }: any) => {
           justifyContent: 'center',
           alignItems: 'center',
         }}>
-        <Icon name="add" size={32} color="#000" />
+        <Icon name="add" size={normalize(32)} color="#000" />
       </View>
-      <Text style={{ fontSize: 12, marginTop: 4, color: '#000', fontWeight: '800' }}>JUAL</Text>
+      <Text maxFontSizeMultiplier={1.2} style={{ fontSize: normalize(12), marginTop: 4, color: '#000', fontWeight: '800' }}>JUAL</Text>
     </TouchableOpacity>
   );
 };
