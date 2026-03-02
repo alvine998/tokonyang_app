@@ -14,6 +14,7 @@ import {
 import AppText from '../components/AppText';
 import AppTextInput from '../components/AppTextInput';
 import Icon from 'react-native-vector-icons/Ionicons';
+import IconFA from 'react-native-vector-icons/FontAwesome5';
 import axios from 'axios';
 import { useNavigation } from '@react-navigation/native';
 import { SCREEN_WIDTH, getCategoryColumns, isTablet } from '../utils/responsive';
@@ -233,12 +234,12 @@ const HomeScreen = () => {
                 <View style={styles.modalContainer}>
                     <View style={styles.modalContent}>
                         <View style={styles.modalHeader}>
+                            <TouchableOpacity onPress={() => setIsModalVisible(false)}>
+                                <IconFA name="chevron-left" size={20} color="#000" />
+                            </TouchableOpacity>
                             <AppText style={styles.modalTitle}>
                                 {selectedCategory ? selectedCategory.name : 'Subkategori'}
                             </AppText>
-                            <TouchableOpacity onPress={() => setIsModalVisible(false)}>
-                                <Icon name="close" size={28} color="#000" />
-                            </TouchableOpacity>
                         </View>
 
                         {loadingSub ? (
@@ -258,7 +259,7 @@ const HomeScreen = () => {
                                             });
                                         }}>
                                         <AppText style={styles.subcategoryText}>{item.name}</AppText>
-                                        <Icon name="chevron-forward" size={20} color="#757575" />
+                                        {/* <Icon name="chevron-forward" size={20} color="#757575" /> */}
                                     </TouchableOpacity>
                                 )}
                                 ListEmptyComponent={
@@ -371,11 +372,12 @@ const styles = StyleSheet.create({
     },
     modalHeader: {
         flexDirection: 'row',
-        justifyContent: 'space-between',
+        justifyContent: 'flex-start',
         alignItems: 'center',
         paddingVertical: 20,
         borderBottomWidth: 1,
         borderBottomColor: '#F2F4F5',
+        gap: 10,
     },
     modalTitle: {
         fontSize: 18,
@@ -384,7 +386,7 @@ const styles = StyleSheet.create({
     },
     subcategoryItem: {
         flexDirection: 'row',
-        justifyContent: 'space-between',
+        justifyContent: 'center',
         alignItems: 'center',
         paddingVertical: 16,
         borderBottomWidth: 1,

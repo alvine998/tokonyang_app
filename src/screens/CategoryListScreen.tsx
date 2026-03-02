@@ -12,6 +12,7 @@ import {
 } from 'react-native';
 import AppText from '../components/AppText';
 import Icon from 'react-native-vector-icons/Ionicons';
+import IconFA from 'react-native-vector-icons/FontAwesome5';
 import { useNavigation } from '@react-navigation/native';
 import axios from 'axios';
 import normalize from 'react-native-normalize';
@@ -163,21 +164,20 @@ const CategoryListScreen = () => {
                 visible={isModalVisible}
                 animationType="slide"
                 transparent={true}
-                onRequestClose={() => setIsModalVisible(false)}
-            >
+                onRequestClose={() => setIsModalVisible(false)}>
                 <View style={styles.modalContainer}>
                     <View style={styles.modalContent}>
                         <View style={styles.modalHeader}>
-                            <AppText style={styles.modalTitle}>
-                                {selectedCategory?.name || 'Subkategori'}
-                            </AppText>
                             <TouchableOpacity onPress={() => setIsModalVisible(false)}>
-                                <Icon name="close" size={28} color="#000" />
+                                <IconFA name="chevron-left" size={20} color="#000" />
                             </TouchableOpacity>
+                            <AppText style={styles.modalTitle}>
+                                {selectedCategory ? selectedCategory.name : 'Subkategori'}
+                            </AppText>
                         </View>
 
                         {loadingSub ? (
-                            <ActivityIndicator size="large" color="#002F34" style={{ marginTop: 40 }} />
+                            <ActivityIndicator size="large" color="#2196F3" style={{ marginTop: 20 }} />
                         ) : (
                             <FlatList
                                 data={subcategories}
@@ -185,14 +185,19 @@ const CategoryListScreen = () => {
                                 renderItem={({ item }) => (
                                     <TouchableOpacity
                                         style={styles.subcategoryItem}
-                                        onPress={() => handleSubcategoryPress(item)}
-                                    >
+                                        onPress={() => {
+                                            setIsModalVisible(false);
+                                            navigation.navigate('AdsList', {
+                                                category: selectedCategory,
+                                                subcategory: item
+                                            });
+                                        }}>
                                         <AppText style={styles.subcategoryText}>{item.name}</AppText>
-                                        <Icon name="chevron-forward" size={20} color="#757575" />
+                                        {/* <Icon name="chevron-forward" size={20} color="#757575" /> */}
                                     </TouchableOpacity>
                                 )}
                                 ListEmptyComponent={
-                                    <AppText style={styles.emptySubText}>Tidak ada subkategori ditemukan</AppText>
+                                    <AppText style={styles.emptyText}>Tidak ada subkategori ditemukan</AppText>
                                 }
                                 contentContainerStyle={{ paddingBottom: 20 }}
                             />
@@ -283,11 +288,12 @@ const styles = StyleSheet.create({
     },
     modalHeader: {
         flexDirection: 'row',
-        justifyContent: 'space-between',
+        justifyContent: 'flex-start',
         alignItems: 'center',
         paddingVertical: 20,
         borderBottomWidth: 1,
         borderBottomColor: '#F2F4F5',
+        gap: 10,
     },
     modalTitle: {
         fontSize: 18,
@@ -296,7 +302,7 @@ const styles = StyleSheet.create({
     },
     subcategoryItem: {
         flexDirection: 'row',
-        justifyContent: 'space-between',
+        justifyContent: 'center',
         alignItems: 'center',
         paddingVertical: 16,
         borderBottomWidth: 1,
