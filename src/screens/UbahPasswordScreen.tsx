@@ -1,9 +1,7 @@
 import React, { useState } from 'react';
 import {
     View,
-    Text,
     StyleSheet,
-    TextInput,
     TouchableOpacity,
     ScrollView,
     SafeAreaView,
@@ -12,6 +10,8 @@ import {
     KeyboardAvoidingView,
     Platform,
 } from 'react-native';
+import AppText from '../components/AppText';
+import AppTextInput from '../components/AppTextInput';
 import Icon from 'react-native-vector-icons/Ionicons';
 import { useNavigation } from '@react-navigation/native';
 import { useAuth } from '../context/AuthContext';
@@ -116,9 +116,9 @@ const UbahPasswordScreen = () => {
         placeholder: string
     ) => (
         <View style={styles.inputGroup}>
-            <Text style={styles.inputLabel}>{label}</Text>
+            <AppText style={styles.inputLabel}>{label}</AppText>
             <View style={styles.passwordContainer}>
-                <TextInput
+                <AppTextInput
                     style={styles.passwordInput}
                     placeholder={placeholder}
                     placeholderTextColor="#9E9E9E"
@@ -152,7 +152,7 @@ const UbahPasswordScreen = () => {
                     <TouchableOpacity onPress={() => navigation.goBack()}>
                         <Icon name="arrow-back" size={28} color="#002F34" />
                     </TouchableOpacity>
-                    <Text style={styles.headerTitle}>Ubah Password</Text>
+                    <AppText style={styles.headerTitle}>Ubah Password</AppText>
                     <View style={{ width: 28 }} />
                 </View>
 
@@ -160,9 +160,9 @@ const UbahPasswordScreen = () => {
                     {/* Info Card */}
                     <View style={styles.infoCard}>
                         <Icon name="shield-checkmark-outline" size={24} color="#007A7C" />
-                        <Text style={styles.infoText}>
+                        <AppText style={styles.infoText}>
                             Untuk keamanan akun Anda, gunakan password yang kuat dengan kombinasi huruf, angka, dan simbol.
-                        </Text>
+                        </AppText>
                     </View>
 
                     {/* Form Section */}
@@ -187,7 +187,7 @@ const UbahPasswordScreen = () => {
 
                         <View style={styles.passwordHint}>
                             <Icon name="information-circle-outline" size={16} color="#757575" />
-                            <Text style={styles.passwordHintText}>Minimal 6 karakter</Text>
+                            <AppText style={styles.passwordHintText}>Minimal 6 karakter</AppText>
                         </View>
 
                         {renderPasswordInput(
@@ -207,12 +207,12 @@ const UbahPasswordScreen = () => {
                                     size={18}
                                     color={newPassword === confirmPassword ? '#4CAF50' : '#F44336'}
                                 />
-                                <Text style={[
+                                <AppText style={[
                                     styles.matchText,
                                     { color: newPassword === confirmPassword ? '#4CAF50' : '#F44336' }
                                 ]}>
                                     {newPassword === confirmPassword ? 'Password cocok' : 'Password tidak cocok'}
-                                </Text>
+                                </AppText>
                             </View>
                         )}
                     </View>
@@ -226,13 +226,13 @@ const UbahPasswordScreen = () => {
                         {saving ? (
                             <ActivityIndicator size="small" color="#fff" />
                         ) : (
-                            <Text style={styles.saveButtonText}>Ubah Password</Text>
+                            <AppText style={styles.saveButtonText}>Ubah Password</AppText>
                         )}
                     </TouchableOpacity>
 
                     {/* Forgot Password Link */}
                     <TouchableOpacity style={styles.forgotPasswordLink}>
-                        <Text style={styles.forgotPasswordText}>Lupa password saat ini?</Text>
+                        <AppText style={styles.forgotPasswordText}>Lupa password saat ini?</AppText>
                     </TouchableOpacity>
 
                     <View style={{ height: 40 }} />

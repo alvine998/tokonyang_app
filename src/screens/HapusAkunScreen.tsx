@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import {
     View,
-    Text,
     StyleSheet,
     TouchableOpacity,
     SafeAreaView,
@@ -9,6 +8,7 @@ import {
     Alert,
     ActivityIndicator,
 } from 'react-native';
+import AppText from '../components/AppText';
 import Icon from 'react-native-vector-icons/Ionicons';
 import { useNavigation } from '@react-navigation/native';
 import { useAuth } from '../context/AuthContext';
@@ -86,7 +86,7 @@ const HapusAkunScreen = () => {
                 <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backButton}>
                     <Icon name="arrow-back" size={24} color="#000" />
                 </TouchableOpacity>
-                <Text style={styles.headerTitle}>Hapus Akun</Text>
+                <AppText style={styles.headerTitle}>Hapus Akun</AppText>
                 <View style={{ width: 40 }} />
             </View>
 
@@ -95,27 +95,27 @@ const HapusAkunScreen = () => {
                     <Icon name="warning-outline" size={80} color="#FF3B30" />
                 </View>
 
-                <Text style={styles.title}>Hapus Akun Anda?</Text>
+                <AppText style={styles.title}>Hapus Akun Anda?</AppText>
 
                 <View style={styles.infoBox}>
-                    <Text style={styles.infoTitle}>Apa yang akan terjadi:</Text>
+                    <AppText style={styles.infoTitle}>Apa yang akan terjadi:</AppText>
                     <View style={styles.infoItem}>
                         <Icon name="close-circle-outline" size={20} color="#666" />
-                        <Text style={styles.infoText}>Anda akan kehilangan akses ke akun dan semua data Anda.</Text>
+                        <AppText style={styles.infoText}>Anda akan kehilangan akses ke akun dan semua data Anda.</AppText>
                     </View>
                     <View style={styles.infoItem}>
                         <Icon name="close-circle-outline" size={20} color="#666" />
-                        <Text style={styles.infoText}>Iklan Anda yang sedang tayang akan dihapus.</Text>
+                        <AppText style={styles.infoText}>Iklan Anda yang sedang tayang akan dihapus.</AppText>
                     </View>
                     <View style={styles.infoItem}>
                         <Icon name="close-circle-outline" size={20} color="#666" />
-                        <Text style={styles.infoText}>Riwayat transaksi dan pesan akan hilang.</Text>
+                        <AppText style={styles.infoText}>Riwayat transaksi dan pesan akan hilang.</AppText>
                     </View>
                 </View>
 
-                <Text style={styles.warningText}>
+                <AppText style={styles.warningText}>
                     Tindakan ini permanen dan tidak dapat dipulihkan. Mohon pertimbangkan kembali sebelum melanjutkan.
-                </Text>
+                </AppText>
 
                 <TouchableOpacity
                     style={[styles.deleteButton, loading && styles.disabledButton]}
@@ -125,7 +125,7 @@ const HapusAkunScreen = () => {
                     {loading ? (
                         <ActivityIndicator color="#fff" />
                     ) : (
-                        <Text style={styles.deleteButtonText}>Hapus Akun Saya</Text>
+                        <AppText style={styles.deleteButtonText}>Hapus Akun Saya</AppText>
                     )}
                 </TouchableOpacity>
 
@@ -134,7 +134,7 @@ const HapusAkunScreen = () => {
                     onPress={() => navigation.goBack()}
                     disabled={loading}
                 >
-                    <Text style={styles.cancelButtonText}>Batalkan</Text>
+                    <AppText style={styles.cancelButtonText}>Batalkan</AppText>
                 </TouchableOpacity>
             </ScrollView>
         </SafeAreaView>

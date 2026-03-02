@@ -111,6 +111,7 @@ function HomeTabs() {
           paddingTop: 10,
         },
         headerShown: false,
+        tabBarAllowFontScaling: false,
       })}>
       <Tab.Screen name="Home" component={HomeScreen} />
       <Tab.Screen name="Menu" component={MenuScreen} />

@@ -1,9 +1,7 @@
 import React, { useState } from 'react';
 import {
     View,
-    Text,
     StyleSheet,
-    TextInput,
     TouchableOpacity,
     Image,
     SafeAreaView,
@@ -13,10 +11,13 @@ import {
     Alert,
     ActivityIndicator,
 } from 'react-native';
+import AppText from '../components/AppText';
+import AppTextInput from '../components/AppTextInput';
 import { useNavigation, useFocusEffect } from '@react-navigation/native';
 import Icon from 'react-native-vector-icons/Ionicons';
 import { useAuth } from '../context/AuthContext';
 import { BackHandler } from 'react-native';
+import normalize from 'react-native-normalize';
 
 const LoginScreen = () => {
     const navigation = useNavigation<any>();
@@ -72,11 +73,11 @@ const LoginScreen = () => {
                             style={styles.logo}
                             resizeMode="contain"
                         />
-                        <Text style={styles.title}>Login Tokotitoh</Text>
+                        <AppText style={styles.title}>Login Tokotitoh</AppText>
                     </View>
 
                     <View style={styles.inputContainer}>
-                        <TextInput
+                        <AppTextInput
                             style={styles.input}
                             placeholder="No Telepon"
                             value={phone}
@@ -84,7 +85,7 @@ const LoginScreen = () => {
                             keyboardType="phone-pad"
                         />
                         <View style={styles.passwordWrapper}>
-                            <TextInput
+                            <AppTextInput
                                 style={[styles.input, { flex: 1, borderWidth: 0, marginBottom: 0 }]}
                                 placeholder="Password"
                                 value={password}
@@ -112,10 +113,10 @@ const LoginScreen = () => {
                             <View style={[styles.checkbox, showPassword && styles.checkboxActive]}>
                                 {showPassword && <Icon name="checkmark" size={12} color="#fff" />}
                             </View>
-                            <Text style={styles.checkboxLabel}>Tampilkan password</Text>
+                            <AppText style={styles.checkboxLabel}>Tampilkan password</AppText>
                         </TouchableOpacity> */}
                         <TouchableOpacity>
-                            <Text style={styles.linkText}>Lupa Password</Text>
+                            <AppText style={styles.linkText}>Lupa Password</AppText>
                         </TouchableOpacity>
                     </View>
 
@@ -127,41 +128,41 @@ const LoginScreen = () => {
                         {loading ? (
                             <ActivityIndicator color="#fff" />
                         ) : (
-                            <Text style={styles.loginButtonText}>Masuk</Text>
+                            <AppText style={styles.loginButtonText}>Masuk</AppText>
                         )}
                     </TouchableOpacity>
 
-                    <Text style={styles.orText}>Atau</Text>
+                    <AppText style={styles.orText}>Atau</AppText>
 
                     <TouchableOpacity
                         style={styles.registerButton}
                         onPress={() => navigation.navigate('Register')}
                     >
-                        <Text style={styles.registerButtonText}>Daftar</Text>
+                        <AppText style={styles.registerButtonText}>Daftar</AppText>
                     </TouchableOpacity>
 
                     <TouchableOpacity style={styles.googleButton}>
                         <View style={styles.googleIconContainer}>
                             <Icon name="logo-google" size={20} color="#EA4335" />
                         </View>
-                        <Text style={styles.googleButtonText}>Login Dengan Google</Text>
+                        <AppText style={styles.googleButtonText}>Login Dengan Google</AppText>
                     </TouchableOpacity>
 
-                    <Text style={styles.footerText}>
+                    <AppText style={styles.footerText}>
                         Dengan mendaftar atau login anda menyetujui{' '}
-                        <Text
+                        <AppText
                             style={styles.footerLink}
                             onPress={() => navigation.navigate('SyaratKetentuan')}
                         >
                             syarat & ketentuan
-                        </Text> dan{' '}
-                        <Text
+                        </AppText> dan{' '}
+                        <AppText
                             style={styles.footerLink}
                             onPress={() => navigation.navigate('KebijakanPrivasi')}
                         >
                             kebijakan privasi tokotitoh
-                        </Text>
-                    </Text>
+                        </AppText>
+                    </AppText>
                 </ScrollView>
             </KeyboardAvoidingView>
         </SafeAreaView>
@@ -219,7 +220,7 @@ const styles = StyleSheet.create({
         borderRadius: 8,
         paddingHorizontal: 15,
         marginBottom: 15,
-        fontSize: 16,
+        fontSize: normalize(16),
     },
     passwordWrapper: {
         width: '100%',

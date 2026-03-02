@@ -1,9 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import {
     View,
-    Text,
     StyleSheet,
-    TextInput,
     ScrollView,
     TouchableOpacity,
     Dimensions,
@@ -13,10 +11,13 @@ import {
     FlatList,
     RefreshControl,
 } from 'react-native';
+import AppText from '../components/AppText';
+import AppTextInput from '../components/AppTextInput';
 import Icon from 'react-native-vector-icons/Ionicons';
 import axios from 'axios';
 import { useNavigation } from '@react-navigation/native';
 import { SCREEN_WIDTH, getCategoryColumns, isTablet } from '../utils/responsive';
+import normalize from 'react-native-normalize';
 
 const width = SCREEN_WIDTH;
 
@@ -134,8 +135,9 @@ const HomeScreen = () => {
                         <Image source={require('../assets/images/tokotitoh.png')} style={{ width: 40, height: 40 }} />
                     </View>
                     <View style={styles.searchBar}>
-                        <TextInput
+                        <AppTextInput
                             placeholder="Cari disini"
+                            maxFontSizeMultiplier={1.2}
                             style={styles.searchInput}
                             placeholderTextColor="#9E9E9E"
                             value={homeSearch}
@@ -164,10 +166,10 @@ const HomeScreen = () => {
                                 data={[...categories.slice(0, getCategoryColumns() - 1), { id: -1, name: 'Lihat Semua', icon: '' }]}
                                 renderItem={({ item }) => (
                                     item.id === -1 ? (
-                                        <TouchableOpacity onPress={() => navigation.navigate('Categories')} style={[styles.categoryItem, { width: (width - 32) / getCategoryColumns() }]}>
+                                        <TouchableOpacity onPress={() => navigation.navigate('Categories')} style={[styles.categoryItem, { width: (width - 32) / getCategoryColumns(), marginTop: normalize(10) }]}>
                                             <View style={styles.viewAllContainer}>
-                                                <Text style={styles.viewAllText}>LIHAT SEMUA</Text>
-                                                <Text style={styles.viewAllText}>KATEGORI</Text>
+                                                <AppText style={styles.viewAllText}>LIHAT SEMUA</AppText>
+                                                <AppText style={styles.viewAllText}>KATEGORI</AppText>
                                             </View>
                                         </TouchableOpacity>
                                     ) : (
@@ -183,7 +185,7 @@ const HomeScreen = () => {
                                                 style={[styles.categoryImage, isTablet && { width: 100, height: 100 }]}
                                                 resizeMode="contain"
                                             />
-                                            <Text style={styles.categoryText}>{item.name.toUpperCase()}</Text>
+                                            <AppText style={styles.categoryText}>{item.name.toUpperCase()}</AppText>
                                         </TouchableOpacity>
                                     )
                                 )}
@@ -207,7 +209,7 @@ const HomeScreen = () => {
                                                 style={[styles.categoryImage, isTablet && { width: 100, height: 100 }]}
                                                 resizeMode="contain"
                                             />
-                                            <Text style={styles.categoryText}>{item.name.toUpperCase()}</Text>
+                                            <AppText style={styles.categoryText}>{item.name.toUpperCase()}</AppText>
                                         </TouchableOpacity>
                                     )
                                 )}
@@ -231,9 +233,9 @@ const HomeScreen = () => {
                 <View style={styles.modalContainer}>
                     <View style={styles.modalContent}>
                         <View style={styles.modalHeader}>
-                            <Text style={styles.modalTitle}>
+                            <AppText style={styles.modalTitle}>
                                 {selectedCategory ? selectedCategory.name : 'Subkategori'}
-                            </Text>
+                            </AppText>
                             <TouchableOpacity onPress={() => setIsModalVisible(false)}>
                                 <Icon name="close" size={28} color="#000" />
                             </TouchableOpacity>
@@ -255,12 +257,12 @@ const HomeScreen = () => {
                                                 subcategory: item
                                             });
                                         }}>
-                                        <Text style={styles.subcategoryText}>{item.name}</Text>
+                                        <AppText style={styles.subcategoryText}>{item.name}</AppText>
                                         <Icon name="chevron-forward" size={20} color="#757575" />
                                     </TouchableOpacity>
                                 )}
                                 ListEmptyComponent={
-                                    <Text style={styles.emptyText}>Tidak ada subkategori ditemukan</Text>
+                                    <AppText style={styles.emptyText}>Tidak ada subkategori ditemukan</AppText>
                                 }
                                 contentContainerStyle={{ paddingBottom: 20 }}
                             />
@@ -306,7 +308,7 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
     },
     searchInput: {
-        fontSize: 16,
+        fontSize: normalize(16),
         color: '#000',
         padding: 0,
     },
@@ -325,19 +327,19 @@ const styles = StyleSheet.create({
     },
     categoryItem: {
         alignItems: 'center',
-        marginBottom: 32,
+        marginBottom: normalize(10),
     },
     categoryImage: {
         width: 80,
         height: 80,
-        marginBottom: 12,
+        marginBottom: normalize(0),
     },
     categoryText: {
-        fontSize: 14,
+        fontSize: normalize(14),
         fontWeight: '700',
         color: '#000',
         textAlign: 'center',
-        lineHeight: 18,
+        // lineHeight: normalize(18),
     },
     viewAllContainer: {
         width: 80,
@@ -346,7 +348,7 @@ const styles = StyleSheet.create({
         alignItems: 'center',
     },
     viewAllText: {
-        fontSize: 12,
+        fontSize: normalize(12),
         fontWeight: '800',
         color: '#2152FF',
         textAlign: 'center',

@@ -1,13 +1,13 @@
 import React from 'react';
 import {
     View,
-    Text,
     StyleSheet,
     ScrollView,
     SafeAreaView,
     TouchableOpacity,
     Image,
 } from 'react-native';
+import AppText from '../components/AppText';
 import Icon from 'react-native-vector-icons/Ionicons';
 import { useNavigation } from '@react-navigation/native';
 
@@ -20,7 +20,7 @@ const TentangTokotitohScreen = () => {
                 <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backButton}>
                     <Icon name="arrow-back" size={24} color="#000" />
                 </TouchableOpacity>
-                <Text style={styles.headerTitle}>Tentang Kami</Text>
+                <AppText style={styles.headerTitle}>Tentang Kami</AppText>
                 <View style={{ width: 40 }} />
             </View>
 
@@ -34,15 +34,15 @@ const TentangTokotitohScreen = () => {
                 </View>
 
                 <View style={styles.contentSection}>
-                    <Text style={styles.title}>Tokotitoh</Text>
-                    <Text style={styles.description}>
+                    <AppText style={styles.title}>Tokotitoh</AppText>
+                    <AppText style={styles.description}>
                         Tokotitoh adalah merupakan layanan online untuk masyarakat khususnya pengguna di Indonesia dalam transaksi jual beli barang atau jasa. Tototitoh berusaha sebaik mungkin membangun transaksi di antara para pengguna untuk lebih saling menguntungkan cepat aman dan jujur. Sebagai website dan aplikasi online Tokotitoh berharap para pengguna dapat menggunakan dan menikmati layanan kami sebaik mungkin.
-                    </Text>
+                    </AppText>
                 </View>
 
                 <View style={styles.footer}>
-                    <Text style={styles.footerText}>© 2026 Tokotitoh. All rights reserved.</Text>
-                    <Text style={styles.versionText}>Versi 1.0.0</Text>
+                    <AppText style={styles.footerText}>© 2026 Tokotitoh. All rights reserved.</AppText>
+                    <AppText style={styles.versionText}>Versi 1.0.0</AppText>
                 </View>
             </ScrollView>
         </SafeAreaView>

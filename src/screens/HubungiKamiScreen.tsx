@@ -1,13 +1,13 @@
 import React from 'react';
 import {
     View,
-    Text,
     StyleSheet,
     TouchableOpacity,
     SafeAreaView,
     Linking,
     Image,
 } from 'react-native';
+import AppText from '../components/AppText';
 import Icon from 'react-native-vector-icons/Ionicons';
 import { useNavigation } from '@react-navigation/native';
 
@@ -31,7 +31,7 @@ const HubungiKamiScreen = () => {
                     onPress={() => navigation.goBack()}
                 >
                     <Icon name="chevron-back" size={24} color="#000" />
-                    <Text style={styles.backText}>Kembali</Text>
+                    <AppText style={styles.backText}>Kembali</AppText>
                 </TouchableOpacity>
             </View>
 
@@ -44,33 +44,33 @@ const HubungiKamiScreen = () => {
             </View>
 
             {/* Title */}
-            <Text style={styles.title}>Hubungi Kami</Text>
+            <AppText style={styles.title}>Hubungi Kami</AppText>
 
             {/* Content */}
             <View style={styles.content}>
-                <Text style={styles.description}>
+                <AppText style={styles.description}>
                     Jika Anda menemukan kendala dalam penggunaan aplikasi kami. Silahkan hubungi customer service kami melalui :
-                </Text>
+                </AppText>
 
                 <TouchableOpacity style={styles.contactItem} onPress={handleEmailPress}>
                     <Icon name="mail-outline" size={24} color="#3B82F6" />
                     <View style={styles.contactInfo}>
-                        <Text style={styles.contactLabel}>Email:</Text>
-                        <Text style={styles.contactValue}>cs@tokotitoh.co.id</Text>
+                        <AppText style={styles.contactLabel}>Email:</AppText>
+                        <AppText style={styles.contactValue}>cs@tokotitoh.co.id</AppText>
                     </View>
                 </TouchableOpacity>
 
                 <TouchableOpacity style={styles.contactItem} onPress={handleWhatsappPress}>
                     <Icon name="logo-whatsapp" size={24} color="#25D366" />
                     <View style={styles.contactInfo}>
-                        <Text style={styles.contactLabel}>Whatsapp:</Text>
-                        <Text style={styles.contactValue}>(+62) 852-1302-6262</Text>
+                        <AppText style={styles.contactLabel}>Whatsapp:</AppText>
+                        <AppText style={styles.contactValue}>(+62) 852-1302-6262</AppText>
                     </View>
                 </TouchableOpacity>
 
-                <Text style={styles.footerText}>
+                <AppText style={styles.footerText}>
                     Kritik, saran, dan masukan Anda sangat berharga bagi kami.
-                </Text>
+                </AppText>
             </View>
         </SafeAreaView>
     );

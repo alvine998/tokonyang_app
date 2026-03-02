@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import {
     View,
-    Text,
     StyleSheet,
     Image,
     ScrollView,
@@ -14,8 +13,9 @@ import {
     StatusBar,
     Share,
     Alert,
-    TextInput,
 } from 'react-native';
+import AppText from '../components/AppText';
+import AppTextInput from '../components/AppTextInput';
 import Icon from 'react-native-vector-icons/Ionicons';
 import axios from 'axios';
 import { useRoute, useNavigation } from '@react-navigation/native';
@@ -171,9 +171,9 @@ const AdDetailScreen = () => {
     if (!ad) {
         return (
             <View style={styles.errorContainer}>
-                <Text style={styles.errorText}>Iklan tidak ditemukan</Text>
+                <AppText style={styles.errorText}>Iklan tidak ditemukan</AppText>
                 <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backButton}>
-                    <Text style={styles.backButtonText}>Kembali</Text>
+                    <AppText style={styles.backButtonText}>Kembali</AppText>
                 </TouchableOpacity>
             </View>
         );
@@ -185,8 +185,8 @@ const AdDetailScreen = () => {
         <View style={styles.specItem}>
             <Icon name={icon} size={20} color="#757575" />
             <View style={styles.specTextContent}>
-                <Text style={styles.specLabel}>{label}</Text>
-                <Text style={styles.specValue}>{value || '-'}</Text>
+                <AppText style={styles.specLabel}>{label}</AppText>
+                <AppText style={styles.specValue}>{value || '-'}</AppText>
             </View>
         </View>
     );
@@ -232,25 +232,25 @@ const AdDetailScreen = () => {
                     />
                     {adImages.length > 1 && (
                         <View style={styles.pagination}>
-                            <Text style={styles.paginationText}>{activeImageIndex + 1}/{adImages.length}</Text>
+                            <AppText style={styles.paginationText}>{activeImageIndex + 1}/{adImages.length}</AppText>
                         </View>
                     )}
                 </View>
 
                 {/* Content */}
                 <View style={styles.contentSection}>
-                    <Text style={styles.price}>{formatPrice(ad.price)}</Text>
-                    <Text style={styles.title}>{ad.title}</Text>
+                    <AppText style={styles.price}>{formatPrice(ad.price)}</AppText>
+                    <AppText style={styles.title}>{ad.title}</AppText>
                     <View style={styles.locationRow}>
                         <Icon name="location-outline" size={14} color="#757575" />
-                        <Text style={styles.locationText}>{ad.district_name}, {ad.city_name}</Text>
-                        <Text style={styles.dateText}> • {new Date(ad.created_on).toLocaleDateString('id-ID')}</Text>
+                        <AppText style={styles.locationText}>{ad.district_name}, {ad.city_name}</AppText>
+                        <AppText style={styles.dateText}> • {new Date(ad.created_on).toLocaleDateString('id-ID')}</AppText>
                     </View>
                 </View>
 
                 {/* Detail Section */}
                 <View style={styles.sectionHeader}>
-                    <Text style={styles.sectionTitle}>Detail</Text>
+                    <AppText style={styles.sectionTitle}>Detail</AppText>
                 </View>
 
                 {/* Categories Logic from Web */}
@@ -291,44 +291,44 @@ const AdDetailScreen = () => {
                 <View style={styles.actionRow}>
                     <TouchableOpacity style={styles.actionBtn} onPress={handleShare}>
                         <Icon name="share-social-outline" size={18} color="#000" />
-                        <Text style={styles.actionBtnText}>Bagikan</Text>
+                        <AppText style={styles.actionBtnText}>Bagikan</AppText>
                     </TouchableOpacity>
                     <TouchableOpacity style={styles.actionBtn} onPress={() => setIsReportModalVisible(true)}>
                         <Icon name="flag-outline" size={18} color="#000" />
-                        <Text style={styles.actionBtnText}>Laporkan</Text>
+                        <AppText style={styles.actionBtnText}>Laporkan</AppText>
                     </TouchableOpacity>
                     <TouchableOpacity
                         style={[styles.actionBtn, isSaved && styles.savedBtn]}
                         onPress={handleSave}
                     >
                         <Icon name={isSaved ? "heart" : "heart-outline"} size={18} color={isSaved ? "#fff" : "#000"} />
-                        <Text style={[styles.actionBtnText, isSaved && styles.savedBtnText]}>
+                        <AppText style={[styles.actionBtnText, isSaved && styles.savedBtnText]}>
                             {isSaved ? "Tersimpan" : "Simpan"}
-                        </Text>
+                        </AppText>
                     </TouchableOpacity>
                 </View>
 
                 {/* Description Section */}
                 <View style={styles.sectionHeader}>
-                    <Text style={styles.sectionTitle}>Deskripsi</Text>
+                    <AppText style={styles.sectionTitle}>Deskripsi</AppText>
                 </View>
                 <View style={styles.descriptionContent}>
-                    <Text style={styles.descriptionText}>{ad.description}</Text>
+                    <AppText style={styles.descriptionText}>{ad.description}</AppText>
                 </View>
 
                 {/* Seller Info */}
                 <View style={styles.sectionHeader}>
-                    <Text style={styles.sectionTitle}>Profil Penjual</Text>
+                    <AppText style={styles.sectionTitle}>Profil Penjual</AppText>
                 </View>
                 <View style={styles.sellerRow}>
                     <View style={styles.sellerAvatar}>
                         <Icon name="person" size={30} color="#757575" />
                     </View>
                     <View style={styles.sellerInfo}>
-                        <Text style={styles.sellerName}>{ad.user_name}</Text>
-                        <Text style={styles.memberText}>
+                        <AppText style={styles.sellerName}>{ad.user_name}</AppText>
+                        <AppText style={styles.memberText}>
                             Bergabung sejak {new Date(ad.created_on).getFullYear()}
-                        </Text>
+                        </AppText>
                     </View>
                     <TouchableOpacity
                         style={styles.viewProfileBtn}
@@ -338,8 +338,8 @@ const AdDetailScreen = () => {
                 </View>
 
                 <View style={styles.adIdFooter}>
-                    <Text style={styles.adIdLabel}>ID Iklan: </Text>
-                    <Text style={styles.adIdValue}>{ad.id}</Text>
+                    <AppText style={styles.adIdLabel}>ID Iklan: </AppText>
+                    <AppText style={styles.adIdValue}>{ad.id}</AppText>
                 </View>
 
                 <View style={styles.bottomPadding} />
@@ -384,9 +384,9 @@ const AdDetailScreen = () => {
                     />
 
                     <View style={styles.fullPagination}>
-                        <Text style={styles.fullPaginationText}>
+                        <AppText style={styles.fullPaginationText}>
                             {fullImageIndex + 1} / {adImages.length}
-                        </Text>
+                        </AppText>
                     </View>
                 </View>
             </Modal>
@@ -395,7 +395,7 @@ const AdDetailScreen = () => {
             <View style={styles.bottomActions}>
                 <TouchableOpacity style={styles.waBtn} onPress={handleWhatsApp}>
                     <Icon name="logo-whatsapp" size={20} color="#fff" />
-                    <Text style={styles.waBtnText}>Whatsapp Now</Text>
+                    <AppText style={styles.waBtnText}>Whatsapp Now</AppText>
                 </TouchableOpacity>
             </View>
 
@@ -408,16 +408,16 @@ const AdDetailScreen = () => {
                 <View style={styles.modalOverlay}>
                     <View style={styles.reportModalContainer}>
                         <View style={styles.modalHeader}>
-                            <Text style={styles.modalTitleText}>Laporkan Iklan Ini</Text>
+                            <AppText style={styles.modalTitleText}>Laporkan Iklan Ini</AppText>
                             <TouchableOpacity onPress={() => setIsReportModalVisible(false)}>
                                 <Icon name="close-circle" size={28} color="#757575" />
                             </TouchableOpacity>
                         </View>
 
                         <ScrollView style={styles.reportFormScroll}>
-                            <Text style={styles.inputLabel}>Apa yang ingin kamu laporkan?</Text>
+                            <AppText style={styles.inputLabel}>Apa yang ingin kamu laporkan?</AppText>
                             <View style={styles.inputWrapper}>
-                                <TextInput
+                                <AppTextInput
                                     style={styles.textInput}
                                     placeholder="Judul laporan"
                                     value={reportForm.title}
@@ -425,9 +425,9 @@ const AdDetailScreen = () => {
                                 />
                             </View>
 
-                            <Text style={styles.inputLabel}>Deskripsi</Text>
+                            <AppText style={styles.inputLabel}>Deskripsi</AppText>
                             <View style={[styles.inputWrapper, styles.textAreaWrapper]}>
-                                <TextInput
+                                <AppTextInput
                                     style={[styles.textInput, styles.textArea]}
                                     placeholder="Ketik deskripsi disini..."
                                     multiline
@@ -437,7 +437,7 @@ const AdDetailScreen = () => {
                                 />
                             </View>
 
-                            <Text style={styles.inputLabel}>Jenis Laporan:</Text>
+                            <AppText style={styles.inputLabel}>Jenis Laporan:</AppText>
                             {[
                                 "Penipuan",
                                 "Produk Terjual",
@@ -455,7 +455,7 @@ const AdDetailScreen = () => {
                                         size={20}
                                         color={reportForm.type === type ? "#002F34" : "#757575"}
                                     />
-                                    <Text style={styles.radioText}>{type}</Text>
+                                    <AppText style={styles.radioText}>{type}</AppText>
                                 </TouchableOpacity>
                             ))}
                         </ScrollView>
@@ -467,7 +467,7 @@ const AdDetailScreen = () => {
                             {isReporting ? (
                                 <ActivityIndicator color="#fff" />
                             ) : (
-                                <Text style={styles.submitReportBtnText}>Kirim Laporan</Text>
+                                <AppText style={styles.submitReportBtnText}>Kirim Laporan</AppText>
                             )}
                         </TouchableOpacity>
                     </View>

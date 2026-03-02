@@ -1,9 +1,7 @@
 import React, { useState } from 'react';
 import {
     View,
-    Text,
     StyleSheet,
-    TextInput,
     TouchableOpacity,
     Image,
     SafeAreaView,
@@ -13,6 +11,8 @@ import {
     Alert,
     ActivityIndicator,
 } from 'react-native';
+import AppText from '../components/AppText';
+import AppTextInput from '../components/AppTextInput';
 import { useNavigation } from '@react-navigation/native';
 import Icon from 'react-native-vector-icons/Ionicons';
 
@@ -73,24 +73,24 @@ const RegisterScreen = () => {
                             style={styles.logo}
                             resizeMode="contain"
                         />
-                        <Text style={styles.title}>Daftar Tokotitoh</Text>
+                        <AppText style={styles.title}>Daftar Tokotitoh</AppText>
                     </View>
 
                     <View style={styles.inputContainer}>
-                        <TextInput
+                        <AppTextInput
                             style={styles.input}
                             placeholder="Nama"
                             value={name}
                             onChangeText={setName}
                         />
-                        <TextInput
+                        <AppTextInput
                             style={styles.input}
                             placeholder="No Telepon"
                             value={phone}
                             onChangeText={setPhone}
                             keyboardType="phone-pad"
                         />
-                        <TextInput
+                        <AppTextInput
                             style={styles.input}
                             placeholder="Email"
                             value={email}
@@ -98,14 +98,14 @@ const RegisterScreen = () => {
                             autoCapitalize="none"
                             keyboardType="email-address"
                         />
-                        <TextInput
+                        <AppTextInput
                             style={styles.input}
                             placeholder="Password"
                             value={password}
                             onChangeText={setPassword}
                             secureTextEntry={!showPassword}
                         />
-                        <TextInput
+                        <AppTextInput
                             style={styles.input}
                             placeholder="Konfirmasi Password"
                             value={confirmPassword}
@@ -120,7 +120,7 @@ const RegisterScreen = () => {
                         <View style={[styles.checkbox, showPassword && styles.checkboxActive]}>
                             {showPassword && <Icon name="checkmark" size={12} color="#fff" />}
                         </View>
-                        <Text style={styles.checkboxLabel}>Tampilkan password</Text>
+                        <AppText style={styles.checkboxLabel}>Tampilkan password</AppText>
                     </TouchableOpacity>
 
                     <TouchableOpacity
@@ -131,34 +131,34 @@ const RegisterScreen = () => {
                         {loading ? (
                             <ActivityIndicator color="#fff" />
                         ) : (
-                            <Text style={styles.registerButtonText}>Daftar</Text>
+                            <AppText style={styles.registerButtonText}>Daftar</AppText>
                         )}
                     </TouchableOpacity>
 
-                    <Text style={styles.orText}>Atau</Text>
+                    <AppText style={styles.orText}>Atau</AppText>
 
                     <TouchableOpacity
                         style={styles.loginButton}
                         onPress={() => navigation.navigate('Login')}
                     >
-                        <Text style={styles.loginButtonText}>Login</Text>
+                        <AppText style={styles.loginButtonText}>Login</AppText>
                     </TouchableOpacity>
 
-                    <Text style={styles.footerText}>
+                    <AppText style={styles.footerText}>
                         Dengan mendaftar atau login anda menyetujui{' '}
-                        <Text
+                        <AppText
                             style={styles.footerLink}
                             onPress={() => navigation.navigate('SyaratKetentuan')}
                         >
                             syarat & ketentuan
-                        </Text> dan{' '}
-                        <Text
+                        </AppText> dan{' '}
+                        <AppText
                             style={styles.footerLink}
                             onPress={() => navigation.navigate('KebijakanPrivasi')}
                         >
                             kebijakan privasi tokotitoh
-                        </Text>
-                    </Text>
+                        </AppText>
+                    </AppText>
                 </ScrollView>
             </KeyboardAvoidingView>
         </SafeAreaView>

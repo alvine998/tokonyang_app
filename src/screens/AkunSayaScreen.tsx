@@ -1,12 +1,12 @@
 import React from 'react';
 import {
     View,
-    Text,
     StyleSheet,
     TouchableOpacity,
     ScrollView,
     SafeAreaView,
 } from 'react-native';
+import AppText from '../components/AppText';
 import Icon from 'react-native-vector-icons/Ionicons';
 import { useNavigation } from '@react-navigation/native';
 import { useAuth } from '../context/AuthContext';
@@ -22,7 +22,7 @@ const AkunSayaScreen = () => {
 
     const MenuItem = ({ label, onPress }: { label: string; onPress?: () => void }) => (
         <TouchableOpacity style={styles.menuItem} onPress={onPress}>
-            <Text style={styles.menuItemText}>{label}</Text>
+            <AppText style={styles.menuItemText}>{label}</AppText>
         </TouchableOpacity>
     );
 
@@ -36,8 +36,8 @@ const AkunSayaScreen = () => {
                             <Icon name="person-circle-outline" size={70} color="#000" />
                         </View>
                         <View style={styles.profileInfo}>
-                            <Text style={styles.userName}>{user.name}</Text>
-                            <Text style={styles.userEmail}>{user.email}</Text>
+                            <AppText style={styles.userName}>{user.name}</AppText>
+                            <AppText style={styles.userEmail}>{user.email}</AppText>
                         </View>
                     </View>
                 ) : (
@@ -49,8 +49,8 @@ const AkunSayaScreen = () => {
                             <Icon name="person-circle-outline" size={70} color="#000" />
                         </View>
                         <View style={styles.profileInfo}>
-                            <Text style={styles.userName}>Login / Daftar</Text>
-                            <Text style={styles.userEmail}>Masuk ke akun Anda</Text>
+                            <AppText style={styles.userName}>Login / Daftar</AppText>
+                            <AppText style={styles.userEmail}>Masuk ke akun Anda</AppText>
                         </View>
                     </TouchableOpacity>
                 )}
@@ -61,7 +61,7 @@ const AkunSayaScreen = () => {
                         style={styles.editProfileButton}
                         onPress={() => navigation.navigate('EditProfile')}
                     >
-                        <Text style={styles.editProfileButtonText}>Ubah Profil</Text>
+                        <AppText style={styles.editProfileButtonText}>Ubah Profil</AppText>
                     </TouchableOpacity>
                 )}
 
@@ -77,7 +77,7 @@ const AkunSayaScreen = () => {
 
                     {/* Version */}
                     <View style={styles.versionContainer}>
-                        <Text style={styles.versionText}>Versi 1.0.3</Text>
+                        <AppText style={styles.versionText}>Versi 1.0.3</AppText>
                     </View>
                 </View>
 
@@ -87,7 +87,7 @@ const AkunSayaScreen = () => {
                         style={styles.logoutButton}
                         onPress={handleLogout}
                     >
-                        <Text style={styles.logoutButtonText}>Keluar Akun</Text>
+                        <AppText style={styles.logoutButtonText}>Keluar Akun</AppText>
                     </TouchableOpacity>
                 )}
 

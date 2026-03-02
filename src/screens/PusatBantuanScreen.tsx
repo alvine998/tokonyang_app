@@ -1,12 +1,12 @@
 import React from 'react';
 import {
     View,
-    Text,
     StyleSheet,
     ScrollView,
     SafeAreaView,
     TouchableOpacity,
 } from 'react-native';
+import AppText from '../components/AppText';
 import Icon from 'react-native-vector-icons/Ionicons';
 import { useNavigation } from '@react-navigation/native';
 
@@ -81,23 +81,23 @@ const PusatBantuanScreen = () => {
                 <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backButton}>
                     <Icon name="arrow-back" size={24} color="#000" />
                 </TouchableOpacity>
-                <Text style={styles.headerTitle}>Pusat Bantuan</Text>
+                <AppText style={styles.headerTitle}>Pusat Bantuan</AppText>
                 <View style={{ width: 40 }} />
             </View>
 
             <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
                 {sections.map((section, index) => (
                     <View key={index} style={styles.section}>
-                        <Text style={styles.sectionTitle}>{section.title}</Text>
+                        <AppText style={styles.sectionTitle}>{section.title}</AppText>
 
                         {section.content && (
-                            <Text style={styles.sectionContent}>{section.content}</Text>
+                            <AppText style={styles.sectionContent}>{section.content}</AppText>
                         )}
 
                         {section.subsections && section.subsections.map((sub, subIndex) => (
                             <View key={subIndex} style={styles.subsection}>
-                                <Text style={styles.subtitle}>{sub.subtitle}</Text>
-                                <Text style={styles.subtext}>{sub.text}</Text>
+                                <AppText style={styles.subtitle}>{sub.subtitle}</AppText>
+                                <AppText style={styles.subtext}>{sub.text}</AppText>
                             </View>
                         ))}
 
@@ -105,15 +105,15 @@ const PusatBantuanScreen = () => {
                             <View style={styles.listContainer}>
                                 {section.items.map((item, itemIndex) => (
                                     <View key={itemIndex} style={styles.listItem}>
-                                        <Text style={styles.listNumber}>{itemIndex + 1}. </Text>
-                                        <Text style={styles.listText}>{item}</Text>
+                                        <AppText style={styles.listNumber}>{itemIndex + 1}. </AppText>
+                                        <AppText style={styles.listText}>{item}</AppText>
                                     </View>
                                 ))}
                             </View>
                         )}
 
                         {section.footer && (
-                            <Text style={styles.footerText}>{section.footer}</Text>
+                            <AppText style={styles.footerText}>{section.footer}</AppText>
                         )}
                     </View>
                 ))}

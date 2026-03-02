@@ -1,9 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import {
     View,
-    Text,
     StyleSheet,
-    TextInput,
     TouchableOpacity,
     ScrollView,
     SafeAreaView,
@@ -13,6 +11,8 @@ import {
     KeyboardAvoidingView,
     Platform,
 } from 'react-native';
+import AppText from '../components/AppText';
+import AppTextInput from '../components/AppTextInput';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import Icon from 'react-native-vector-icons/Ionicons';
 import { useAuth } from '../context/AuthContext';
@@ -192,7 +192,7 @@ const EditProfileScreen = () => {
             <SafeAreaView style={styles.container}>
                 <View style={styles.loadingContainer}>
                     <ActivityIndicator size="large" color="#002F34" />
-                    <Text style={styles.loadingText}>Memuat profil...</Text>
+                    <AppText style={styles.loadingText}>Memuat profil...</AppText>
                 </View>
             </SafeAreaView>
         );
@@ -209,12 +209,12 @@ const EditProfileScreen = () => {
                     <TouchableOpacity onPress={() => navigation.goBack()}>
                         <Icon name="arrow-back" size={28} color="#002F34" />
                     </TouchableOpacity>
-                    <Text style={styles.headerTitle}>Edit Profil</Text>
+                    <AppText style={styles.headerTitle}>Edit Profil</AppText>
                     <TouchableOpacity onPress={handleSave} disabled={saving}>
                         {saving ? (
                             <ActivityIndicator size="small" color="#007A7C" />
                         ) : (
-                            <Text style={styles.saveButton}>Simpan</Text>
+                            <AppText style={styles.saveButton}>Simpan</AppText>
                         )}
                     </TouchableOpacity>
                 </View>
@@ -243,15 +243,15 @@ const EditProfileScreen = () => {
                             disabled={uploadingAvatar}
                         >
                             <Icon name="camera-outline" size={18} color="#007A7C" />
-                            <Text style={styles.changeAvatarText}>Ubah Foto</Text>
+                            <AppText style={styles.changeAvatarText}>Ubah Foto</AppText>
                         </TouchableOpacity>
                     </View>
 
                     {/* Form Fields */}
                     <View style={styles.formSection}>
                         <View style={styles.inputGroup}>
-                            <Text style={styles.inputLabel}>Nama Lengkap *</Text>
-                            <TextInput
+                            <AppText style={styles.inputLabel}>Nama Lengkap *</AppText>
+                            <AppTextInput
                                 style={styles.textInput}
                                 placeholder="Masukkan nama lengkap"
                                 placeholderTextColor="#9E9E9E"
@@ -262,8 +262,8 @@ const EditProfileScreen = () => {
                         </View>
 
                         <View style={styles.inputGroup}>
-                            <Text style={styles.inputLabel}>Email</Text>
-                            <TextInput
+                            <AppText style={styles.inputLabel}>Email</AppText>
+                            <AppTextInput
                                 style={styles.textInput}
                                 placeholder="Masukkan email"
                                 placeholderTextColor="#9E9E9E"
@@ -275,8 +275,8 @@ const EditProfileScreen = () => {
                         </View>
 
                         <View style={styles.inputGroup}>
-                            <Text style={styles.inputLabel}>Nomor Telepon</Text>
-                            <TextInput
+                            <AppText style={styles.inputLabel}>Nomor Telepon</AppText>
+                            <AppTextInput
                                 style={styles.textInput}
                                 placeholder="Masukkan nomor telepon"
                                 placeholderTextColor="#9E9E9E"
@@ -297,7 +297,7 @@ const EditProfileScreen = () => {
                         {saving ? (
                             <ActivityIndicator size="small" color="#fff" />
                         ) : (
-                            <Text style={styles.saveButtonMobileText}>Simpan Perubahan</Text>
+                            <AppText style={styles.saveButtonMobileText}>Simpan Perubahan</AppText>
                         )}
                     </TouchableOpacity>
 

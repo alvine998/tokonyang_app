@@ -1,5 +1,7 @@
 import { Dimensions, PixelRatio } from 'react-native';
 
+const fontScale = PixelRatio.getFontScale();
+
 const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get('window');
 
 // Guideline sizes are based on standard phone

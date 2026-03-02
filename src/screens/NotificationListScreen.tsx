@@ -1,7 +1,6 @@
 import React, { useState, useCallback, useEffect } from 'react';
 import {
     View,
-    Text,
     StyleSheet,
     TouchableOpacity,
     FlatList,
@@ -9,6 +8,7 @@ import {
     Image,
     ActivityIndicator,
 } from 'react-native';
+import AppText from '../components/AppText';
 import Icon from 'react-native-vector-icons/Ionicons';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import axios from 'axios';
@@ -198,15 +198,15 @@ const NotificationListScreen = () => {
                 </View>
                 <View style={styles.contentContainer}>
                     <View style={styles.titleRow}>
-                        <Text style={styles.notificationTitle} numberOfLines={1}>
+                        <AppText style={styles.notificationTitle} numberOfLines={1}>
                             {item.title}
-                        </Text>
+                        </AppText>
                         {!item.isRead && <View style={styles.unreadDot} />}
                     </View>
-                    <Text style={styles.notificationMessage} numberOfLines={2}>
+                    <AppText style={styles.notificationMessage} numberOfLines={2}>
                         {item.message}
-                    </Text>
-                    <Text style={styles.notificationDate}>{formatDate(item.createdAt)}</Text>
+                    </AppText>
+                    <AppText style={styles.notificationDate}>{formatDate(item.createdAt)}</AppText>
                 </View>
                 <Icon name="chevron-forward" size={20} color="#BDBDBD" />
             </TouchableOpacity>
@@ -216,10 +216,10 @@ const NotificationListScreen = () => {
     const renderEmptyState = () => (
         <View style={styles.emptyContainer}>
             <Icon name="notifications-off-outline" size={80} color="#E0E0E0" />
-            <Text style={styles.emptyTitle}>Tidak Ada Notifikasi</Text>
-            <Text style={styles.emptySubtitle}>
+            <AppText style={styles.emptyTitle}>Tidak Ada Notifikasi</AppText>
+            <AppText style={styles.emptySubtitle}>
                 Notifikasi terbaru akan muncul di sini
-            </Text>
+            </AppText>
         </View>
     );
 
@@ -233,7 +233,7 @@ const NotificationListScreen = () => {
                 >
                     <Icon name="arrow-back" size={24} color="#000" />
                 </TouchableOpacity>
-                <Text style={styles.headerTitle}>Notifikasi</Text>
+                <AppText style={styles.headerTitle}>Notifikasi</AppText>
                 <View style={styles.headerRight} />
             </View>
 
@@ -263,7 +263,7 @@ const NotificationListScreen = () => {
                         loadingMore ? (
                             <View style={styles.footerLoader}>
                                 <ActivityIndicator size="small" color="#002F34" />
-                                <Text style={styles.footerText}>Memuat lebih banyak...</Text>
+                                <AppText style={styles.footerText}>Memuat lebih banyak...</AppText>
                             </View>
                         ) : (
                             <View style={{ height: 20 }} />

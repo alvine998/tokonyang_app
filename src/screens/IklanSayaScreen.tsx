@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import {
     View,
-    Text,
     StyleSheet,
     TouchableOpacity,
     FlatList,
@@ -10,6 +9,7 @@ import {
     Dimensions,
     ActivityIndicator
 } from 'react-native';
+import AppText from '../components/AppText';
 import Icon from 'react-native-vector-icons/Ionicons';
 import { useNavigation, useFocusEffect } from '@react-navigation/native';
 import { useAuth } from '../context/AuthContext';
@@ -58,9 +58,9 @@ const IklanSayaScreen = () => {
             style={[styles.tab, activeTab === type && styles.activeTab]}
             onPress={() => setActiveTab(type)}
         >
-            <Text style={[styles.tabText, activeTab === type && styles.activeTabText]}>
+            <AppText style={[styles.tabText, activeTab === type && styles.activeTabText]}>
                 {label} ({count})
-            </Text>
+            </AppText>
         </TouchableOpacity>
     );
 
@@ -70,18 +70,18 @@ const IklanSayaScreen = () => {
                 <Image source={{ uri: item.image }} style={styles.adImage} />
                 <View style={styles.adInfo}>
                     <View style={styles.statusBadge}>
-                        <Text style={styles.statusText}>{item.status}</Text>
+                        <AppText style={styles.statusText}>{item.status}</AppText>
                     </View>
-                    <Text style={styles.titleText} numberOfLines={2}>{item.title}</Text>
-                    <Text style={styles.priceText}>{item.price}</Text>
+                    <AppText style={styles.titleText} numberOfLines={2}>{item.title}</AppText>
+                    <AppText style={styles.priceText}>{item.price}</AppText>
                     <View style={styles.metricsRow}>
                         <View style={styles.metricItem}>
                             <Icon name="eye-outline" size={14} color="#757575" />
-                            <Text style={styles.metricText}>{item.views}</Text>
+                            <AppText style={styles.metricText}>{item.views}</AppText>
                         </View>
                         <View style={styles.metricItem}>
                             <Icon name="heart-outline" size={14} color="#757575" />
-                            <Text style={styles.metricText}>{item.favorites}</Text>
+                            <AppText style={styles.metricText}>{item.favorites}</AppText>
                         </View>
                     </View>
                 </View>
@@ -91,9 +91,9 @@ const IklanSayaScreen = () => {
             </View>
             <View style={styles.divider} />
             <View style={styles.adFooter}>
-                <Text style={styles.expiryText}>Berakhir pada: {item.expiryDate}</Text>
+                <AppText style={styles.expiryText}>Berakhir pada: {item.expiryDate}</AppText>
                 <TouchableOpacity style={styles.boostButton}>
-                    <Text style={styles.boostButtonText}>TINGKATKAN IKLAN</Text>
+                    <AppText style={styles.boostButtonText}>TINGKATKAN IKLAN</AppText>
                 </TouchableOpacity>
             </View>
         </View>
@@ -102,19 +102,19 @@ const IklanSayaScreen = () => {
     const renderEmptyState = () => (
         <View style={styles.emptyContainer}>
             <Icon name="megaphone-outline" size={80} color="#E0E0E0" />
-            <Text style={styles.emptyTitle}>
+            <AppText style={styles.emptyTitle}>
                 {activeTab === 'AKTIF'
                     ? "Anda tidak memiliki iklan yang aktif"
                     : "Tidak ada iklan di sini"}
-            </Text>
-            <Text style={styles.emptySubtitle}>
+            </AppText>
+            <AppText style={styles.emptySubtitle}>
                 Mulai berjualan barang yang tidak terpakai dan hasilkan uang!
-            </Text>
+            </AppText>
             <TouchableOpacity
                 style={styles.sellButton}
                 onPress={() => navigation.navigate('Jual')}
             >
-                <Text style={styles.sellButtonText}>MULAI BERJUALAN</Text>
+                <AppText style={styles.sellButtonText}>MULAI BERJUALAN</AppText>
             </TouchableOpacity>
         </View>
     );
@@ -123,7 +123,7 @@ const IklanSayaScreen = () => {
         <SafeAreaView style={styles.container}>
             {/* Header */}
             <View style={styles.header}>
-                <Text style={styles.headerTitle}>Iklan Saya</Text>
+                <AppText style={styles.headerTitle}>Iklan Saya</AppText>
             </View>
 
             {/* Tab Bar */}

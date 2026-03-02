@@ -1,11 +1,11 @@
 import React from 'react';
 import {
     View,
-    Text,
     StyleSheet,
     TouchableOpacity,
     ScrollView,
 } from 'react-native';
+import AppText from '../components/AppText';
 import Icon from 'react-native-vector-icons/Ionicons';
 import { useNavigation, useRoute } from '@react-navigation/native';
 
@@ -87,7 +87,7 @@ const NotificationDetailScreen = () => {
                 >
                     <Icon name="arrow-back" size={24} color="#000" />
                 </TouchableOpacity>
-                <Text style={styles.headerTitle}>Detail Notifikasi</Text>
+                <AppText style={styles.headerTitle}>Detail Notifikasi</AppText>
                 <View style={styles.headerRight} />
             </View>
 
@@ -101,19 +101,19 @@ const NotificationDetailScreen = () => {
                         <Icon name={iconConfig.name} size={40} color={iconConfig.color} />
                     </View>
                     <View style={[styles.typeBadge, { backgroundColor: `${iconConfig.color}20` }]}>
-                        <Text style={[styles.typeText, { color: iconConfig.color }]}>
+                        <AppText style={[styles.typeText, { color: iconConfig.color }]}>
                             {getTypeLabel(notification.type)}
-                        </Text>
+                        </AppText>
                     </View>
                 </View>
 
                 {/* Title */}
-                <Text style={styles.title}>{notification.title}</Text>
+                <AppText style={styles.title}>{notification.title}</AppText>
 
                 {/* Date */}
                 <View style={styles.dateContainer}>
                     <Icon name="time-outline" size={16} color="#9E9E9E" />
-                    <Text style={styles.dateText}>{formatDate(notification.createdAt)}</Text>
+                    <AppText style={styles.dateText}>{formatDate(notification.createdAt)}</AppText>
                 </View>
 
                 {/* Divider */}
@@ -121,8 +121,8 @@ const NotificationDetailScreen = () => {
 
                 {/* Message */}
                 <View style={styles.messageContainer}>
-                    <Text style={styles.messageLabel}>Pesan</Text>
-                    <Text style={styles.messageText}>{notification.message}</Text>
+                    <AppText style={styles.messageLabel}>Pesan</AppText>
+                    <AppText style={styles.messageText}>{notification.message}</AppText>
                 </View>
 
                 {/* Action Button */}
@@ -137,17 +137,17 @@ const NotificationDetailScreen = () => {
                             size={20}
                             color="#fff"
                         />
-                        <Text style={styles.actionButtonText}>
+                        <AppText style={styles.actionButtonText}>
                             {notification.actionType === 'viewAd' ? 'Lihat Iklan' : 'Hubungi'}
-                        </Text>
+                        </AppText>
                     </TouchableOpacity>
                 )}
 
                 {/* Additional Info */}
                 {/* <View style={styles.additionalInfo}>
                     <View style={styles.infoRow}>
-                        <Text style={styles.infoLabel}>ID Notifikasi</Text>
-                        <Text style={styles.infoValue}>#{notification.id}</Text>
+                        <AppText style={styles.infoLabel}>ID Notifikasi</AppText>
+                        <AppText style={styles.infoValue}>#{notification.id}</AppText>
                     </View>
                 </View> */}
             </ScrollView>

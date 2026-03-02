@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import {
     View,
-    Text,
     StyleSheet,
     TouchableOpacity,
     FlatList,
@@ -9,6 +8,7 @@ import {
     ActivityIndicator,
     RefreshControl,
 } from 'react-native';
+import AppText from '../components/AppText';
 import Icon from 'react-native-vector-icons/Ionicons';
 import axios from 'axios';
 import { useRoute, useNavigation } from '@react-navigation/native';
@@ -128,8 +128,8 @@ const UserAdsScreen = () => {
                     <Icon name="arrow-back" size={24} color="#000" />
                 </TouchableOpacity>
                 <View style={styles.headerInfo}>
-                    <Text style={styles.headerTitle}>{userName}</Text>
-                    <Text style={styles.headerSubtitle}>Anggota Member</Text>
+                    <AppText style={styles.headerTitle}>{userName}</AppText>
+                    <AppText style={styles.headerSubtitle}>Anggota Member</AppText>
                 </View>
             </View>
 
@@ -159,7 +159,7 @@ const UserAdsScreen = () => {
                     ListEmptyComponent={
                         <View style={styles.emptyContainer}>
                             <Icon name="alert-circle-outline" size={60} color="#E0E0E0" />
-                            <Text style={styles.emptyText}>Tidak ada iklan ditemukan</Text>
+                            <AppText style={styles.emptyText}>Tidak ada iklan ditemukan</AppText>
                         </View>
                     }
                 />

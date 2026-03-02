@@ -1,5 +1,6 @@
 import React from 'react';
-import { View, Text, StyleSheet, Image, TouchableOpacity } from 'react-native';
+import { View, StyleSheet, Image, TouchableOpacity } from 'react-native';
+import AppText from './AppText';
 import { useNavigation } from '@react-navigation/native';
 import { formatAdDate } from '../utils/dateUtils';
 
@@ -49,12 +50,12 @@ const AdListItem: React.FC<AdListItemProps> = ({ item }) => {
             />
             <View style={styles.content}>
                 <View style={styles.topInfo}>
-                    <Text style={styles.price}>{formatPrice(item.price)}</Text>
-                    <Text style={styles.title} numberOfLines={2}>
+                    <AppText style={styles.price}>{formatPrice(item.price)}</AppText>
+                    <AppText style={styles.title} numberOfLines={2}>
                         {item.title}
-                    </Text>
+                    </AppText>
                 </View>
-                <Text style={styles.date}>{formatAdDate(item.created_on)}</Text>
+                <AppText style={styles.date}>{formatAdDate(item.created_on)}</AppText>
             </View>
         </TouchableOpacity>
     );

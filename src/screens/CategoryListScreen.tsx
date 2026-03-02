@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import {
     View,
-    Text,
     StyleSheet,
     TouchableOpacity,
     FlatList,
@@ -11,9 +10,11 @@ import {
     Modal,
     Dimensions,
 } from 'react-native';
+import AppText from '../components/AppText';
 import Icon from 'react-native-vector-icons/Ionicons';
 import { useNavigation } from '@react-navigation/native';
 import axios from 'axios';
+import normalize from 'react-native-normalize';
 
 const { width } = Dimensions.get('window');
 const NUM_COLUMNS = 3;
@@ -113,9 +114,9 @@ const CategoryListScreen = () => {
                 style={styles.categoryImage}
                 resizeMode="contain"
             />
-            <Text style={styles.categoryName} numberOfLines={2}>
+            <AppText style={styles.categoryName} numberOfLines={2}>
                 {item.name.toUpperCase()}
-            </Text>
+            </AppText>
         </TouchableOpacity>
     );
 
@@ -128,12 +129,12 @@ const CategoryListScreen = () => {
                     onPress={() => navigation.goBack()}
                 >
                     <Icon name="chevron-back" size={24} color="#000" />
-                    <Text style={styles.backText}>Kembali</Text>
+                    <AppText style={styles.backText}>Kembali</AppText>
                 </TouchableOpacity>
             </View>
 
             {/* Title */}
-            <Text style={styles.title}>Kategori</Text>
+            <AppText style={styles.title}>Kategori</AppText>
 
             {/* Category Grid */}
             {loading ? (
@@ -151,7 +152,7 @@ const CategoryListScreen = () => {
                     ListEmptyComponent={
                         <View style={styles.emptyContainer}>
                             <Icon name="folder-open-outline" size={64} color="#E0E0E0" />
-                            <Text style={styles.emptyText}>Tidak ada kategori ditemukan</Text>
+                            <AppText style={styles.emptyText}>Tidak ada kategori ditemukan</AppText>
                         </View>
                     }
                 />
@@ -167,9 +168,9 @@ const CategoryListScreen = () => {
                 <View style={styles.modalContainer}>
                     <View style={styles.modalContent}>
                         <View style={styles.modalHeader}>
-                            <Text style={styles.modalTitle}>
+                            <AppText style={styles.modalTitle}>
                                 {selectedCategory?.name || 'Subkategori'}
-                            </Text>
+                            </AppText>
                             <TouchableOpacity onPress={() => setIsModalVisible(false)}>
                                 <Icon name="close" size={28} color="#000" />
                             </TouchableOpacity>
@@ -186,12 +187,12 @@ const CategoryListScreen = () => {
                                         style={styles.subcategoryItem}
                                         onPress={() => handleSubcategoryPress(item)}
                                     >
-                                        <Text style={styles.subcategoryText}>{item.name}</Text>
+                                        <AppText style={styles.subcategoryText}>{item.name}</AppText>
                                         <Icon name="chevron-forward" size={20} color="#757575" />
                                     </TouchableOpacity>
                                 )}
                                 ListEmptyComponent={
-                                    <Text style={styles.emptySubText}>Tidak ada subkategori ditemukan</Text>
+                                    <AppText style={styles.emptySubText}>Tidak ada subkategori ditemukan</AppText>
                                 }
                                 contentContainerStyle={{ paddingBottom: 20 }}
                             />
@@ -242,19 +243,19 @@ const styles = StyleSheet.create({
     categoryItem: {
         width: ITEM_WIDTH,
         alignItems: 'center',
-        marginBottom: 24,
+        marginBottom: normalize(0),
     },
     categoryImage: {
         width: 80,
         height: 80,
-        marginBottom: 8,
+        marginBottom: normalize(0),
     },
     categoryName: {
         fontSize: 12,
         fontWeight: '700',
         color: '#000',
         textAlign: 'center',
-        lineHeight: 16,
+        lineHeight: normalize(10),
     },
     emptyContainer: {
         flex: 1,

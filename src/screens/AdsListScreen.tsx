@@ -1,18 +1,18 @@
 import React, { useEffect, useState } from 'react';
 import {
     View,
-    Text,
     StyleSheet,
     FlatList,
     Image,
     TouchableOpacity,
-    TextInput,
     ActivityIndicator,
     Dimensions,
     RefreshControl,
     Modal,
     ScrollView,
 } from 'react-native';
+import AppText from '../components/AppText';
+import AppTextInput from '../components/AppTextInput';
 import Icon from 'react-native-vector-icons/Ionicons';
 import axios from 'axios';
 import { useRoute, useNavigation } from '@react-navigation/native';
@@ -395,11 +395,11 @@ const AdsListScreen = () => {
                 </TouchableOpacity>
                 <View style={styles.locationInfo}>
                     <Icon name="location-outline" size={18} color="#002F34" />
-                    <Text style={styles.locationTitle}>
+                    <AppText style={styles.locationTitle}>
                         {filters.city_id ? cities.find(c => c.id === filters.city_id)?.name :
                             filters.province_id ? provinces.find(p => p.id === filters.province_id)?.name :
                                 'Lokasi'}
-                    </Text>
+                    </AppText>
                 </View>
                 <View style={styles.logoContainer}>
                     {/* <View style={styles.greenBox}>
@@ -416,7 +416,7 @@ const AdsListScreen = () => {
             <View style={styles.header2}>
                 <View style={styles.searchBar}>
                     <Icon name="search-outline" size={20} color="#757575" style={styles.searchIcon} />
-                    <TextInput
+                    <AppTextInput
                         placeholder="Cari disini"
                         style={styles.searchInput}
                         placeholderTextColor="#9E9E9E"
@@ -429,9 +429,9 @@ const AdsListScreen = () => {
 
             {/* Header 3: Breadcrumb */}
             <View style={styles.header3}>
-                <Text style={styles.breadcrumbText}>
-                    {category?.name || 'Kategori'}  {'>'}  <Text style={styles.activeBreadcrumb}>{subcategory?.name || 'Subkategori'}</Text>
-                </Text>
+                <AppText style={styles.breadcrumbText}>
+                    {category?.name || 'Kategori'}  {'>'}  <AppText style={styles.activeBreadcrumb}>{subcategory?.name || 'Subkategori'}</AppText>
+                </AppText>
             </View>
 
             {/* Body: Ads List */}
@@ -455,7 +455,7 @@ const AdsListScreen = () => {
                         loadingMore ? (
                             <View style={styles.footerLoader}>
                                 <ActivityIndicator size="small" color="#002F34" />
-                                <Text style={styles.footerText}>Memuat lebih banyak...</Text>
+                                <AppText style={styles.footerText}>Memuat lebih banyak...</AppText>
                             </View>
                         ) : (
                             <View style={{ height: 20 }} />
@@ -463,7 +463,7 @@ const AdsListScreen = () => {
                     }
                     ListEmptyComponent={
                         <View style={styles.emptyContainer}>
-                            <Text style={styles.emptyText}>Tidak ada iklan ditemukan</Text>
+                            <AppText style={styles.emptyText}>Tidak ada iklan ditemukan</AppText>
                         </View>
                     }
                 />
@@ -479,9 +479,9 @@ const AdsListScreen = () => {
                     <View style={styles.newModalContent}>
                         {/* Custom Modal Header */}
                         <View style={styles.newModalHeader}>
-                            <Text style={styles.newModalTitle}>
+                            <AppText style={styles.newModalTitle}>
                                 Filter: {category?.name || 'KATEGORI'} {'>'} {subcategory?.name || 'SUBKATEGORI'}
-                            </Text>
+                            </AppText>
                             <View style={styles.headerActionRow}>
                                 <TouchableOpacity
                                     style={styles.resetHeaderBtn}
@@ -515,7 +515,7 @@ const AdsListScreen = () => {
                                         setDistricts([]);
                                         setTypes([]);
                                     }}>
-                                    <Text style={styles.resetHeaderText}>Reset</Text>
+                                    <AppText style={styles.resetHeaderText}>Reset</AppText>
                                 </TouchableOpacity>
                                 <TouchableOpacity onPress={() => setIsFilterVisible(false)}>
                                     <Icon name="close-circle-outline" size={32} color="#000" />
@@ -532,10 +532,10 @@ const AdsListScreen = () => {
                                         activeFilterTab === 'LOKASI' && styles.activeSidebarTab
                                     ]}
                                     onPress={() => setActiveFilterTab('LOKASI')}>
-                                    <Text style={[
+                                    <AppText style={[
                                         styles.sidebarTabText,
                                         activeFilterTab === 'LOKASI' && styles.activeSidebarTabText
-                                    ]}>LOKASI</Text>
+                                    ]}>LOKASI</AppText>
                                 </TouchableOpacity>
                                 {currentNavSet.map((tab: any) => (
                                     <TouchableOpacity
@@ -545,10 +545,10 @@ const AdsListScreen = () => {
                                             activeFilterTab === tab.name && styles.activeSidebarTab
                                         ]}
                                         onPress={() => setActiveFilterTab(tab.name)}>
-                                        <Text style={[
+                                        <AppText style={[
                                             styles.sidebarTabText,
                                             activeFilterTab === tab.name && styles.activeSidebarTabText
-                                        ]}>{tab.name}</Text>
+                                        ]}>{tab.name}</AppText>
                                     </TouchableOpacity>
                                 ))}
                             </View>
@@ -557,7 +557,7 @@ const AdsListScreen = () => {
                             <ScrollView style={styles.filterContentScroll} showsVerticalScrollIndicator={true}>
                                 {activeFilterTab === 'LOKASI' && (
                                     <View style={styles.newFilterSection}>
-                                        <Text style={styles.newSectionLabel}>Pilih Provinsi</Text>
+                                        <AppText style={styles.newSectionLabel}>Pilih Provinsi</AppText>
                                         <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.chipScroll}>
                                             <View style={styles.chipContainer}>
                                                 {provinces.map((p) => (
@@ -573,10 +573,10 @@ const AdsListScreen = () => {
                                                             setDistricts([]);
                                                             fetchCities(p.id);
                                                         }}>
-                                                        <Text style={[
+                                                        <AppText style={[
                                                             styles.chipText,
                                                             filters.province_id === p.id && styles.activeChipText
-                                                        ]}>{p.name}</Text>
+                                                        ]}>{p.name}</AppText>
                                                     </TouchableOpacity>
                                                 ))}
                                             </View>
@@ -584,7 +584,7 @@ const AdsListScreen = () => {
 
                                         {filters.province_id !== '' && (
                                             <>
-                                                <Text style={[styles.newSectionLabel, { marginTop: 20 }]}>Pilih Kota</Text>
+                                                <AppText style={[styles.newSectionLabel, { marginTop: 20 }]}>Pilih Kota</AppText>
                                                 <View style={styles.chipContainer}>
                                                     {cities.map((c) => (
                                                         <TouchableOpacity
@@ -598,16 +598,16 @@ const AdsListScreen = () => {
                                                                 setDistricts([]);
                                                                 fetchDistricts(c.id);
                                                             }}>
-                                                            <Text style={[
+                                                            <AppText style={[
                                                                 styles.chipText,
                                                                 filters.city_id === c.id && styles.activeChipText
-                                                            ]}>{c.name}</Text>
+                                                            ]}>{c.name}</AppText>
                                                         </TouchableOpacity>
                                                     ))}
                                                 </View>
                                                 {filters.city_id !== '' && (
                                                     <>
-                                                        <Text style={[styles.newSectionLabel, { marginTop: 20 }]}>Pilih Kecamatan</Text>
+                                                        <AppText style={[styles.newSectionLabel, { marginTop: 20 }]}>Pilih Kecamatan</AppText>
                                                         <View style={styles.chipContainer}>
                                                             {districts.map((d) => (
                                                                 <TouchableOpacity
@@ -617,10 +617,10 @@ const AdsListScreen = () => {
                                                                         filters.district_id === d.id && styles.activeChip
                                                                     ]}
                                                                     onPress={() => setFilters({ ...filters, district_id: d.id })}>
-                                                                    <Text style={[
+                                                                    <AppText style={[
                                                                         styles.chipText,
                                                                         filters.district_id === d.id && styles.activeChipText
-                                                                    ]}>{d.name}</Text>
+                                                                    ]}>{d.name}</AppText>
                                                                 </TouchableOpacity>
                                                             ))}
                                                         </View>
@@ -647,7 +647,7 @@ const AdsListScreen = () => {
                                                         style={styles.brandLogo}
                                                         resizeMode="contain"
                                                     />
-                                                    {/* <Text style={styles.brandLogoName}>{brand.name}</Text> */}
+                                                    {/* <AppText style={styles.brandLogoName}>{brand.name}</AppText> */}
                                                 </TouchableOpacity>
                                             ))}
                                         </View>
@@ -666,7 +666,7 @@ const AdsListScreen = () => {
                                                             size={24}
                                                             color={filters.brand_id.includes(brandId) ? "#2D5BD6" : "#000"}
                                                         />
-                                                        <Text style={styles.brandListText}>{brandName}</Text>
+                                                        <AppText style={styles.brandListText}>{brandName}</AppText>
                                                     </TouchableOpacity>
                                                 );
                                             })}
@@ -687,12 +687,12 @@ const AdsListScreen = () => {
                                                         size={24}
                                                         color={filters.type_id.includes(type.id) ? "#2D5BD6" : "#000"}
                                                     />
-                                                    <Text style={styles.brandListText}>{type.name}</Text>
+                                                    <AppText style={styles.brandListText}>{type.name}</AppText>
                                                 </TouchableOpacity>
                                             ))
                                         ) : (
                                             <View style={styles.placeholderTab}>
-                                                <Text style={styles.placeholderTabText}>Pilih Merek terlebih dahulu</Text>
+                                                <AppText style={styles.placeholderTabText}>Pilih Merek terlebih dahulu</AppText>
                                             </View>
                                         )}
                                     </View>
@@ -700,8 +700,8 @@ const AdsListScreen = () => {
 
                                 {activeFilterTab === 'HARGA' && (
                                     <View style={styles.newFilterSection}>
-                                        <Text style={styles.newSectionLabel}>Range Harga</Text>
-                                        <TextInput
+                                        <AppText style={styles.newSectionLabel}>Range Harga</AppText>
+                                        <AppTextInput
                                             style={styles.newFilterInput}
                                             placeholder="Harga Minimum"
                                             keyboardType="numeric"
@@ -709,7 +709,7 @@ const AdsListScreen = () => {
                                             onChangeText={(text) => setFilters({ ...filters, min: text })}
                                         />
                                         <View style={{ height: 10 }} />
-                                        <TextInput
+                                        <AppTextInput
                                             style={styles.newFilterInput}
                                             placeholder="Harga Maksimum"
                                             keyboardType="numeric"
@@ -721,8 +721,8 @@ const AdsListScreen = () => {
 
                                 {activeFilterTab === 'LUAS TANAH' && (
                                     <View style={styles.newFilterSection}>
-                                        <Text style={styles.newSectionLabel}>Luas Tanah (m2)</Text>
-                                        <TextInput
+                                        <AppText style={styles.newSectionLabel}>Luas Tanah (m2)</AppText>
+                                        <AppTextInput
                                             style={styles.newFilterInput}
                                             placeholder="Gunakan angka saja"
                                             keyboardType="numeric"
@@ -734,8 +734,8 @@ const AdsListScreen = () => {
 
                                 {activeFilterTab === 'LUAS BANGUNAN' && (
                                     <View style={styles.newFilterSection}>
-                                        <Text style={styles.newSectionLabel}>Luas Bangunan (m2)</Text>
-                                        <TextInput
+                                        <AppText style={styles.newSectionLabel}>Luas Bangunan (m2)</AppText>
+                                        <AppTextInput
                                             style={styles.newFilterInput}
                                             placeholder="Gunakan angka saja"
                                             keyboardType="numeric"
@@ -747,9 +747,9 @@ const AdsListScreen = () => {
 
                                 {activeFilterTab === 'TAHUN' && (
                                     <View style={styles.newFilterSection}>
-                                        <Text style={styles.newSectionLabel}>Tahun Kendaraan</Text>
+                                        <AppText style={styles.newSectionLabel}>Tahun Kendaraan</AppText>
                                         <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-                                            <TextInput
+                                            <AppTextInput
                                                 style={[styles.newFilterInput, { flex: 1, textAlign: 'center' }]}
                                                 placeholder="1945"
                                                 keyboardType="numeric"
@@ -757,8 +757,8 @@ const AdsListScreen = () => {
                                                 value={filters.year_start}
                                                 onChangeText={(text) => setFilters({ ...filters, year_start: text })}
                                             />
-                                            <Text style={{ marginHorizontal: 10 }}>-</Text>
-                                            <TextInput
+                                            <AppText style={{ marginHorizontal: 10 }}>-</AppText>
+                                            <AppTextInput
                                                 style={[styles.newFilterInput, { flex: 1, textAlign: 'center' }]}
                                                 placeholder={`${new Date().getFullYear()}`}
                                                 keyboardType="numeric"
@@ -772,7 +772,7 @@ const AdsListScreen = () => {
 
                                 {activeFilterTab === 'TRANSMISI' && (
                                     <View style={styles.newFilterSection}>
-                                        <Text style={styles.newSectionLabel}>Transmisi</Text>
+                                        <AppText style={styles.newSectionLabel}>Transmisi</AppText>
                                         <View style={styles.brandList}>
                                             {[
                                                 { value: "", label: "Semua Transmisi" },
@@ -789,7 +789,7 @@ const AdsListScreen = () => {
                                                         size={24}
                                                         color={filters.transmission === opt.value ? "#2D5BD6" : "#000"}
                                                     />
-                                                    <Text style={styles.brandListText}>{opt.label}</Text>
+                                                    <AppText style={styles.brandListText}>{opt.label}</AppText>
                                                 </TouchableOpacity>
                                             ))}
                                         </View>
@@ -798,7 +798,7 @@ const AdsListScreen = () => {
 
                                 {activeFilterTab === 'KONDISI' && (
                                     <View style={styles.newFilterSection}>
-                                        <Text style={styles.newSectionLabel}>Kondisi</Text>
+                                        <AppText style={styles.newSectionLabel}>Kondisi</AppText>
                                         <View style={styles.brandList}>
                                             {[
                                                 { value: "", label: "Semua Kondisi" },
@@ -814,7 +814,7 @@ const AdsListScreen = () => {
                                                         size={24}
                                                         color={filters.condition === opt.value ? "#2D5BD6" : "#000"}
                                                     />
-                                                    <Text style={styles.brandListText}>{opt.label}</Text>
+                                                    <AppText style={styles.brandListText}>{opt.label}</AppText>
                                                 </TouchableOpacity>
                                             ))}
                                         </View>
@@ -837,7 +837,7 @@ const AdsListScreen = () => {
                                                     size={24}
                                                     color={filters.sort === sortItem.value ? "#2D5BD6" : "#000"}
                                                 />
-                                                <Text style={styles.brandListText}>{sortItem.label}</Text>
+                                                <AppText style={styles.brandListText}>{sortItem.label}</AppText>
                                             </TouchableOpacity>
                                         ))}
                                     </View>
@@ -845,7 +845,7 @@ const AdsListScreen = () => {
 
                                 {activeFilterTab === 'BAHAN BAKAR' && (
                                     <View style={styles.newFilterSection}>
-                                        <Text style={styles.newSectionLabel}>Pilih Bahan Bakar</Text>
+                                        <AppText style={styles.newSectionLabel}>Pilih Bahan Bakar</AppText>
                                         <View style={styles.brandList}>
                                             {[
                                                 { value: "", label: "Semua Bahan Bakar" },
@@ -863,7 +863,7 @@ const AdsListScreen = () => {
                                                         size={24}
                                                         color={filters.fuel_type === opt.value ? "#2D5BD6" : "#000"}
                                                     />
-                                                    <Text style={styles.brandListText}>{opt.label}</Text>
+                                                    <AppText style={styles.brandListText}>{opt.label}</AppText>
                                                 </TouchableOpacity>
                                             ))}
                                         </View>
@@ -872,7 +872,7 @@ const AdsListScreen = () => {
 
                                 {activeFilterTab === 'KATEGORI' && (
                                     <View style={styles.newFilterSection}>
-                                        <Text style={styles.newSectionLabel}>Pilih Kategori</Text>
+                                        <AppText style={styles.newSectionLabel}>Pilih Kategori</AppText>
                                         <View style={styles.chipContainer}>
                                             {categories.map((c) => (
                                                 <TouchableOpacity
@@ -887,14 +887,14 @@ const AdsListScreen = () => {
                                                         setSubcategories([]);
                                                         fetchSubcategories(c.id);
                                                     }}>
-                                                    <Text style={styles.chipText}>{c.name}</Text>
+                                                    <AppText style={styles.chipText}>{c.name}</AppText>
                                                 </TouchableOpacity>
                                             ))}
                                         </View>
 
                                         {subcategories.length > 0 && (
                                             <>
-                                                <Text style={[styles.newSectionLabel, { marginTop: 20 }]}>Pilih Subkategori</Text>
+                                                <AppText style={[styles.newSectionLabel, { marginTop: 20 }]}>Pilih Subkategori</AppText>
                                                 <View style={styles.chipContainer}>
                                                     {subcategories.map((sc) => (
                                                         <TouchableOpacity
@@ -904,10 +904,10 @@ const AdsListScreen = () => {
                                                                 filters.subcategory_id === sc.id && styles.activeChip
                                                             ]}
                                                             onPress={() => setFilters({ ...filters, subcategory_id: sc.id })}>
-                                                            <Text style={[
+                                                            <AppText style={[
                                                                 styles.chipText,
                                                                 filters.subcategory_id === sc.id && styles.activeChipText
-                                                            ]}>{sc.name}</Text>
+                                                            ]}>{sc.name}</AppText>
                                                         </TouchableOpacity>
                                                     ))}
                                                 </View>
@@ -918,7 +918,7 @@ const AdsListScreen = () => {
 
                                 {/* {['MODEL', 'BAHAN BAKAR', 'KATEGORI'].includes(activeFilterTab) && (
                                     <View style={styles.placeholderTab}>
-                                        <Text style={styles.placeholderTabText}>Filter {activeFilterTab} akan tersedia segera</Text>
+                                        <AppText style={styles.placeholderTabText}>Filter {activeFilterTab} akan tersedia segera</AppText>
                                     </View>
                                 )} */}
                             </ScrollView>
@@ -931,7 +931,7 @@ const AdsListScreen = () => {
                                 setPage(0);
                                 fetchAds(0, true);
                             }}>
-                            <Text style={styles.newApplyButtonText}>Terapkan</Text>
+                            <AppText style={styles.newApplyButtonText}>Terapkan</AppText>
                         </TouchableOpacity>
                     </View>
                 </View>

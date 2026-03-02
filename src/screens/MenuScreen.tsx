@@ -1,13 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import {
     View,
-    Text,
     StyleSheet,
     TouchableOpacity,
     SafeAreaView,
     Modal,
     ScrollView,
 } from 'react-native';
+import AppText from '../components/AppText';
 import { useNavigation } from '@react-navigation/native';
 
 const MenuScreen = () => {
@@ -39,7 +39,7 @@ const MenuScreen = () => {
         <View style={styles.container}>
             <SafeAreaView style={styles.safeArea}>
                 <View style={styles.header}>
-                    <Text style={styles.headerTitle}>Menu</Text>
+                    <AppText style={styles.headerTitle}>Menu</AppText>
                 </View>
 
                 <View style={styles.content}>
@@ -47,14 +47,14 @@ const MenuScreen = () => {
                         style={styles.menuButton}
                         onPress={() => setIsTipsModalVisible(true)}
                     >
-                        <Text style={styles.menuButtonText}>Tips Hindari Penipuan</Text>
+                        <AppText style={styles.menuButtonText}>Tips Hindari Penipuan</AppText>
                     </TouchableOpacity>
 
                     <TouchableOpacity
                         style={styles.menuButton}
                         onPress={() => setIsAdsModalVisible(true)}
                     >
-                        <Text style={styles.menuButtonText}>Cara Beriklan</Text>
+                        <AppText style={styles.menuButtonText}>Cara Beriklan</AppText>
                     </TouchableOpacity>
                 </View>
             </SafeAreaView>
@@ -69,24 +69,24 @@ const MenuScreen = () => {
                 <View style={styles.modalOverlay}>
                     <View style={styles.modalContent}>
                         <View style={styles.modalHeader}>
-                            <Text style={styles.modalTitle}>Tips Hindari Penipuan</Text>
+                            <AppText style={styles.modalTitle}>Tips Hindari Penipuan</AppText>
                         </View>
                         <ScrollView contentContainerStyle={styles.modalBody}>
                             <View style={styles.tipItem}>
-                                <Text style={styles.tipText}>• Hindari pembelian Non COD</Text>
+                                <AppText style={styles.tipText}>• Hindari pembelian Non COD</AppText>
                             </View>
                             <View style={styles.tipItem}>
-                                <Text style={styles.tipText}>• Hindari DP transfer sebelum bertemu langsung dengan penjual. Periksa surat surat dan kelengkapan barang</Text>
+                                <AppText style={styles.tipText}>• Hindari DP transfer sebelum bertemu langsung dengan penjual. Periksa surat surat dan kelengkapan barang</AppText>
                             </View>
                             <View style={styles.tipItem}>
-                                <Text style={styles.tipText}>• Untuk pembelian properti, Cek surat surat dan kondisi situasi tanah dengan teliti sesuai ketentuan yg berlaku</Text>
+                                <AppText style={styles.tipText}>• Untuk pembelian properti, Cek surat surat dan kondisi situasi tanah dengan teliti sesuai ketentuan yg berlaku</AppText>
                             </View>
 
                             <View style={styles.warningContainer}>
-                                <Text style={styles.warningTitle}>Awas Waspada Penipuan Segitiga</Text>
-                                <Text style={styles.warningDescription}>
+                                <AppText style={styles.warningTitle}>Awas Waspada Penipuan Segitiga</AppText>
+                                <AppText style={styles.warningDescription}>
                                     adalah penipuan di mana si pelaku penipuan tidak pernah bertemu dengan korban nya si penipu menawarkan barang / bisa berupa kendaraan atau lainnya dengan harga murah dimana penipu berpura pura sebagai pemilik atau calo yg menawarkan barang yg dijual oleh seseorang di internet dan penipuan mengiklankan sendiri barang orang penjual dengan harga murah and si penjual diatur untuk mengikuti permainan nya sedemikian rupa dan calon pembeli ketika bertemu penjual dan merasa cocok dengan barang tersebut kemudian pembeli disuruh transfer ke rekening penipu yg hanya dihubungi oleh whatsapp atau telepon dan jika pembeli mentransfer uang ke rekening penipu maka uang nya akan hilang diambil penipu Jadi untuk menghindari penipuan jenis ini maka pembeli harus menegaskan dan mengkonfirmasi kepada orang yang kita temui secara langsung untuk masalah pembayaran ke rekening yg harus disetujui oleh orang yg kita temui secara langsung karena orang yg kita temui secara langsung adalah orang yg diberi / mempunyai kuasa atas barang kendaraan tersebut.
-                                </Text>
+                                </AppText>
                             </View>
                         </ScrollView>
                         <SafeAreaView style={styles.modalFooter}>
@@ -94,7 +94,7 @@ const MenuScreen = () => {
                                 style={styles.closeButton}
                                 onPress={() => setIsTipsModalVisible(false)}
                             >
-                                <Text style={styles.closeButtonText}>Tutup</Text>
+                                <AppText style={styles.closeButtonText}>Tutup</AppText>
                             </TouchableOpacity>
                         </SafeAreaView>
                     </View>
@@ -111,23 +111,23 @@ const MenuScreen = () => {
                 <View style={styles.modalOverlay}>
                     <View style={styles.modalContent}>
                         <View style={styles.modalHeader}>
-                            <Text style={styles.modalTitle}>Cara Beriklan</Text>
+                            <AppText style={styles.modalTitle}>Cara Beriklan</AppText>
                         </View>
                         <ScrollView contentContainerStyle={styles.modalBody}>
                             <View style={styles.tipItem}>
-                                <Text style={styles.tipText}>1. Buat judul iklan yang baik</Text>
+                                <AppText style={styles.tipText}>1. Buat judul iklan yang baik</AppText>
                             </View>
                             <View style={styles.tipItem}>
-                                <Text style={styles.tipText}>2. Cantumkan nomor kontak telepon dan WA yang aktif</Text>
+                                <AppText style={styles.tipText}>2. Cantumkan nomor kontak telepon dan WA yang aktif</AppText>
                             </View>
                             <View style={styles.tipItem}>
-                                <Text style={styles.tipText}>3. Pilih kategori yang sesuai</Text>
+                                <AppText style={styles.tipText}>3. Pilih kategori yang sesuai</AppText>
                             </View>
                             <View style={styles.tipItem}>
-                                <Text style={styles.tipText}>4. Pasang foto yang berkualitas</Text>
+                                <AppText style={styles.tipText}>4. Pasang foto yang berkualitas</AppText>
                             </View>
                             <View style={styles.tipItem}>
-                                <Text style={styles.tipText}>5. Memberikan detail informasi barang dengan lengkap dan akurat</Text>
+                                <AppText style={styles.tipText}>5. Memberikan detail informasi barang dengan lengkap dan akurat</AppText>
                             </View>
                         </ScrollView>
                         <SafeAreaView style={styles.modalFooter}>
@@ -135,7 +135,7 @@ const MenuScreen = () => {
                                 style={styles.closeButton}
                                 onPress={() => setIsAdsModalVisible(false)}
                             >
-                                <Text style={styles.closeButtonText}>Tutup</Text>
+                                <AppText style={styles.closeButtonText}>Tutup</AppText>
                             </TouchableOpacity>
                         </SafeAreaView>
                     </View>

@@ -1,9 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import {
     View,
-    Text,
     StyleSheet,
-    TextInput,
     TouchableOpacity,
     ScrollView,
     Image,
@@ -14,6 +12,8 @@ import {
     KeyboardAvoidingView,
     Platform,
 } from 'react-native';
+import AppText from '../components/AppText';
+import AppTextInput from '../components/AppTextInput';
 import Icon from 'react-native-vector-icons/Ionicons';
 import { useNavigation, useRoute, useFocusEffect } from '@react-navigation/native';
 import { useAuth } from '../context/AuthContext';
@@ -611,12 +611,12 @@ const JualScreen = () => {
                         completedSteps.includes(step) && styles.stepDotCompleted
                     ]}
                 >
-                    <Text style={[
+                    <AppText style={[
                         styles.stepNumber,
                         completedSteps.includes(step) && styles.stepNumberCompleted
                     ]}>
                         {step}
-                    </Text>
+                    </AppText>
                 </View>
             ))}
         </View>
@@ -637,7 +637,7 @@ const JualScreen = () => {
             <View style={styles.modalOverlay}>
                 <View style={styles.modalContent}>
                     <View style={styles.modalHeader}>
-                        <Text style={styles.modalTitle}>{title}</Text>
+                        <AppText style={styles.modalTitle}>{title}</AppText>
                         <TouchableOpacity onPress={onClose}>
                             <Icon name="close" size={28} color="#000" />
                         </TouchableOpacity>
@@ -661,16 +661,16 @@ const JualScreen = () => {
                                         ]}
                                         onPress={() => onSelect(item)}
                                     >
-                                        <Text style={styles.modalItemText}>
+                                        <AppText style={styles.modalItemText}>
                                             {displayText}
-                                        </Text>
+                                        </AppText>
                                         {isSelected && (
                                             <Icon name="checkmark" size={24} color="#002F34" />
                                         )}
                                     </TouchableOpacity>
                                 );
                             }}
-                            ListEmptyComponent={<Text style={styles.emptyText}>Tidak ada data</Text>}
+                            ListEmptyComponent={<AppText style={styles.emptyText}>Tidak ada data</AppText>}
                         />
                     )}
                 </View>
@@ -683,9 +683,9 @@ const JualScreen = () => {
         <View style={styles.stepContent}>
             <TouchableOpacity style={styles.backButton} onPress={goBack}>
                 <Icon name="arrow-back" size={24} color="#2152FF" />
-                <Text style={styles.backButtonText}>Kembali</Text>
+                <AppText style={styles.backButtonText}>Kembali</AppText>
             </TouchableOpacity>
-            <Text style={styles.stepTitle}>Apa yang ingin anda jual?</Text>
+            <AppText style={styles.stepTitle}>Apa yang ingin anda jual?</AppText>
             {loadingCategories ? (
                 <ActivityIndicator size="large" color="#002F34" style={{ marginTop: 40 }} />
             ) : (
@@ -696,7 +696,7 @@ const JualScreen = () => {
                             style={styles.categoryItem}
                             onPress={() => handleCategorySelect(cat)}
                         >
-                            <Text style={styles.categoryItemText}>{cat.name}</Text>
+                            <AppText style={styles.categoryItemText}>{cat.name}</AppText>
                             <Icon name="chevron-forward" size={20} color="#757575" />
                         </TouchableOpacity>
                     ))}
@@ -711,7 +711,7 @@ const JualScreen = () => {
             <TouchableOpacity style={styles.backButton} onPress={goBack}>
                 <Icon name="arrow-back" size={24} color="#2152FF" />
             </TouchableOpacity>
-            <Text style={styles.stepTitle}>Pilih Sub Kategori {formData.category_name}:</Text>
+            <AppText style={styles.stepTitle}>Pilih Sub Kategori {formData.category_name}:</AppText>
             {loadingSubcategories ? (
                 <ActivityIndicator size="large" color="#002F34" style={{ marginTop: 40 }} />
             ) : (
@@ -722,7 +722,7 @@ const JualScreen = () => {
                             style={styles.categoryItem}
                             onPress={() => handleSubcategorySelect(sub)}
                         >
-                            <Text style={styles.categoryItemText}>{sub.name}</Text>
+                            <AppText style={styles.categoryItemText}>{sub.name}</AppText>
                             <Icon name="chevron-forward" size={20} color="#757575" />
                         </TouchableOpacity>
                     ))}
@@ -737,7 +737,7 @@ const JualScreen = () => {
             <TouchableOpacity style={styles.backButton} onPress={goBack}>
                 <Icon name="arrow-back" size={24} color="#2152FF" />
             </TouchableOpacity>
-            <Text style={styles.stepTitle}>Pilih Gambar: (Maksimal 10)</Text>
+            <AppText style={styles.stepTitle}>Pilih Gambar: (Maksimal 10)</AppText>
 
             <TouchableOpacity
                 style={[styles.addImageButton, images.length >= 10 && styles.addImageButtonDisabled]}
@@ -745,12 +745,12 @@ const JualScreen = () => {
                 disabled={images.length >= 10 || uploadingImage}
             >
                 <Icon name="add" size={24} color={images.length >= 10 ? '#9E9E9E' : '#002F34'} />
-                <Text style={[styles.addImageText, images.length >= 10 && { color: '#9E9E9E' }]}>
+                <AppText style={[styles.addImageText, images.length >= 10 && { color: '#9E9E9E' }]}>
                     Tambah Gambar
-                </Text>
+                </AppText>
             </TouchableOpacity>
 
-            {uploadingImage && <Text style={styles.uploadingText}>Mengunggah...</Text>}
+            {uploadingImage && <AppText style={styles.uploadingText}>Mengunggah...</AppText>}
 
             <View style={styles.imageGrid}>
                 {images.map((uri, index) => (
@@ -765,7 +765,7 @@ const JualScreen = () => {
                         </View>
                         {index === 0 && (
                             <View style={styles.mainPhotoBadge}>
-                                <Text style={styles.mainPhotoText}>Utama</Text>
+                                <AppText style={styles.mainPhotoText}>Utama</AppText>
                             </View>
                         )}
                     </TouchableOpacity>
@@ -773,7 +773,7 @@ const JualScreen = () => {
             </View>
 
             <TouchableOpacity style={styles.nextButton} onPress={handleImagesNext}>
-                <Text style={styles.nextButtonText}>Selanjutnya</Text>
+                <AppText style={styles.nextButtonText}>Selanjutnya</AppText>
             </TouchableOpacity>
         </View>
     );
@@ -784,14 +784,14 @@ const JualScreen = () => {
             <TouchableOpacity style={styles.backButton} onPress={goBack}>
                 <Icon name="arrow-back" size={24} color="#2152FF" />
             </TouchableOpacity>
-            <Text style={styles.stepTitle}>
+            <AppText style={styles.stepTitle}>
                 {formData.category_name} {'>'} {formData.subcategory_name}
-            </Text>
+            </AppText>
 
             {/* Title */}
             <View style={styles.inputGroup}>
-                <Text style={styles.inputLabel}>Judul *</Text>
-                <TextInput
+                <AppText style={styles.inputLabel}>Judul *</AppText>
+                <AppTextInput
                     style={styles.textInput}
                     placeholder="Masukkan Judul Iklan"
                     placeholderTextColor="#9E9E9E"
@@ -799,68 +799,68 @@ const JualScreen = () => {
                     onChangeText={(text) => setFormData({ ...formData, title: text })}
                     maxLength={40}
                 />
-                <Text style={styles.charCount}>{(formData.title || '').length}/40</Text>
+                <AppText style={styles.charCount}>{(formData.title || '').length}/40</AppText>
             </View>
 
             {/* Brand & Type for vehicles */}
             {isVehicleCategory() && (
                 <>
                     <View style={styles.inputGroup}>
-                        <Text style={styles.inputLabel}>Merek *</Text>
+                        <AppText style={styles.inputLabel}>Merek *</AppText>
                         <TouchableOpacity
                             style={styles.selector}
                             onPress={() => setShowBrandModal(true)}
                         >
-                            <Text style={formData.brand_name ? styles.selectorText : styles.selectorPlaceholder}>
+                            <AppText style={formData.brand_name ? styles.selectorText : styles.selectorPlaceholder}>
                                 {formData.brand_name || 'Pilih Merek'}
-                            </Text>
+                            </AppText>
                             <Icon name="chevron-down" size={20} color="#757575" />
                         </TouchableOpacity>
                     </View>
 
                     <View style={styles.inputGroup}>
-                        <Text style={styles.inputLabel}>Tipe *</Text>
+                        <AppText style={styles.inputLabel}>Tipe *</AppText>
                         <TouchableOpacity
                             style={[styles.selector, types.length === 0 && styles.selectorDisabled]}
                             onPress={() => types.length > 0 && setShowTypeModal(true)}
                             disabled={types.length === 0}
                         >
-                            <Text style={formData.type_name ? styles.selectorText : styles.selectorPlaceholder}>
+                            <AppText style={formData.type_name ? styles.selectorText : styles.selectorPlaceholder}>
                                 {formData.type_name || 'Pilih Tipe'}
-                            </Text>
+                            </AppText>
                             <Icon name="chevron-down" size={20} color="#757575" />
                         </TouchableOpacity>
                     </View>
 
                     <View style={styles.inputGroup}>
-                        <Text style={styles.inputLabel}>Jenis Bahan Bakar *</Text>
+                        <AppText style={styles.inputLabel}>Jenis Bahan Bakar *</AppText>
                         <TouchableOpacity
                             style={styles.selector}
                             onPress={() => setShowFuelModal(true)}
                         >
-                            <Text style={formData.fuel_type ? styles.selectorText : styles.selectorPlaceholder}>
+                            <AppText style={formData.fuel_type ? styles.selectorText : styles.selectorPlaceholder}>
                                 {FUEL_TYPES.find(f => f.value === formData.fuel_type)?.label || 'Pilih Bahan Bakar'}
-                            </Text>
+                            </AppText>
                             <Icon name="chevron-down" size={20} color="#757575" />
                         </TouchableOpacity>
                     </View>
 
                     <View style={styles.inputGroup}>
-                        <Text style={styles.inputLabel}>Transmisi *</Text>
+                        <AppText style={styles.inputLabel}>Transmisi *</AppText>
                         <TouchableOpacity
                             style={styles.selector}
                             onPress={() => setShowTransmissionModal(true)}
                         >
-                            <Text style={formData.transmission ? styles.selectorText : styles.selectorPlaceholder}>
+                            <AppText style={formData.transmission ? styles.selectorText : styles.selectorPlaceholder}>
                                 {TRANSMISSION_TYPES.find(t => t.value === formData.transmission)?.label || 'Pilih Transmisi'}
-                            </Text>
+                            </AppText>
                             <Icon name="chevron-down" size={20} color="#757575" />
                         </TouchableOpacity>
                     </View>
 
                     <View style={styles.inputGroup}>
-                        <Text style={styles.inputLabel}>Tahun *</Text>
-                        <TextInput
+                        <AppText style={styles.inputLabel}>Tahun *</AppText>
+                        <AppTextInput
                             style={styles.textInput}
                             placeholder="Masukkan Tahun"
                             placeholderTextColor="#9E9E9E"
@@ -876,14 +876,14 @@ const JualScreen = () => {
             {/* Condition for applicable categories */}
             {needsConditionField() && (
                 <View style={styles.inputGroup}>
-                    <Text style={styles.inputLabel}>Kondisi</Text>
+                    <AppText style={styles.inputLabel}>Kondisi</AppText>
                     <TouchableOpacity
                         style={styles.selector}
                         onPress={() => setShowConditionModal(true)}
                     >
-                        <Text style={formData.condition ? styles.selectorText : styles.selectorPlaceholder}>
+                        <AppText style={formData.condition ? styles.selectorText : styles.selectorPlaceholder}>
                             {CONDITION_TYPES.find(c => c.value === formData.condition)?.label || 'Pilih Kondisi'}
-                        </Text>
+                        </AppText>
                         <Icon name="chevron-down" size={20} color="#757575" />
                     </TouchableOpacity>
                 </View>
@@ -892,8 +892,8 @@ const JualScreen = () => {
             {/* Year for bus/truck/heavy equipment */}
             {isBusTruckCategory() && !isVehicleCategory() && (
                 <View style={styles.inputGroup}>
-                    <Text style={styles.inputLabel}>Tahun</Text>
-                    <TextInput
+                    <AppText style={styles.inputLabel}>Tahun</AppText>
+                    <AppTextInput
                         style={styles.textInput}
                         placeholder="Masukkan Tahun"
                         placeholderTextColor="#9E9E9E"
@@ -909,8 +909,8 @@ const JualScreen = () => {
             {isPropertyCategory() && (
                 <>
                     <View style={styles.inputGroup}>
-                        <Text style={styles.inputLabel}>Luas Tanah (m²) *</Text>
-                        <TextInput
+                        <AppText style={styles.inputLabel}>Luas Tanah (m²) *</AppText>
+                        <AppTextInput
                             style={styles.textInput}
                             placeholder="Masukkan Luas Tanah"
                             placeholderTextColor="#9E9E9E"
@@ -921,8 +921,8 @@ const JualScreen = () => {
                     </View>
 
                     <View style={styles.inputGroup}>
-                        <Text style={styles.inputLabel}>Luas Bangunan (m²) *</Text>
-                        <TextInput
+                        <AppText style={styles.inputLabel}>Luas Bangunan (m²) *</AppText>
+                        <AppTextInput
                             style={styles.textInput}
                             placeholder="Masukkan Luas Bangunan"
                             placeholderTextColor="#9E9E9E"
@@ -936,10 +936,10 @@ const JualScreen = () => {
 
             {/* Price */}
             <View style={styles.inputGroup}>
-                <Text style={styles.inputLabel}>Harga *</Text>
+                <AppText style={styles.inputLabel}>Harga *</AppText>
                 <View style={styles.priceInputContainer}>
-                    <Text style={styles.pricePrefix}>Rp</Text>
-                    <TextInput
+                    <AppText style={styles.pricePrefix}>Rp</AppText>
+                    <AppTextInput
                         style={styles.priceInput}
                         placeholder="0"
                         placeholderTextColor="#9E9E9E"
@@ -952,8 +952,8 @@ const JualScreen = () => {
 
             {/* Description */}
             <View style={styles.inputGroup}>
-                <Text style={styles.inputLabel}>Deskripsi *</Text>
-                <TextInput
+                <AppText style={styles.inputLabel}>Deskripsi *</AppText>
+                <AppTextInput
                     style={[styles.textInput, styles.textArea]}
                     placeholder="Masukkan Deskripsi"
                     placeholderTextColor="#9E9E9E"
@@ -964,13 +964,13 @@ const JualScreen = () => {
                     textAlignVertical="top"
                     maxLength={1000}
                 />
-                <Text style={styles.charCount}>{(formData.description || '').length}/1000</Text>
+                <AppText style={styles.charCount}>{(formData.description || '').length}/1000</AppText>
             </View>
 
             {/* WhatsApp */}
             <View style={styles.inputGroup}>
-                <Text style={styles.inputLabel}>Nomor WhatsApp *</Text>
-                <TextInput
+                <AppText style={styles.inputLabel}>Nomor WhatsApp *</AppText>
+                <AppTextInput
                     style={styles.textInput}
                     placeholder="Masukkan Nomor WhatsApp"
                     placeholderTextColor="#9E9E9E"
@@ -982,7 +982,7 @@ const JualScreen = () => {
             </View>
 
             <TouchableOpacity style={styles.nextButton} onPress={handleFormNext}>
-                <Text style={styles.nextButtonText}>Selanjutnya</Text>
+                <AppText style={styles.nextButtonText}>Selanjutnya</AppText>
             </TouchableOpacity>
 
             <View style={{ height: 40 }} />
@@ -995,45 +995,45 @@ const JualScreen = () => {
             <TouchableOpacity style={styles.backButton} onPress={goBack}>
                 <Icon name="arrow-back" size={24} color="#2152FF" />
             </TouchableOpacity>
-            <Text style={styles.stepTitle}>Pilih Lokasi:</Text>
+            <AppText style={styles.stepTitle}>Pilih Lokasi:</AppText>
 
             <View style={styles.inputGroup}>
-                <Text style={styles.inputLabel}>Provinsi *</Text>
+                <AppText style={styles.inputLabel}>Provinsi *</AppText>
                 <TouchableOpacity
                     style={styles.selector}
                     onPress={() => setShowProvinceModal(true)}
                 >
-                    <Text style={formData.province_name ? styles.selectorText : styles.selectorPlaceholder}>
+                    <AppText style={formData.province_name ? styles.selectorText : styles.selectorPlaceholder}>
                         {formData.province_name || 'Pilih Provinsi'}
-                    </Text>
+                    </AppText>
                     <Icon name="chevron-down" size={20} color="#757575" />
                 </TouchableOpacity>
             </View>
 
             <View style={styles.inputGroup}>
-                <Text style={styles.inputLabel}>Kota/Kabupaten *</Text>
+                <AppText style={styles.inputLabel}>Kota/Kabupaten *</AppText>
                 <TouchableOpacity
                     style={[styles.selector, cities.length === 0 && styles.selectorDisabled]}
                     onPress={() => cities.length > 0 && setShowCityModal(true)}
                     disabled={cities.length === 0}
                 >
-                    <Text style={formData.city_name ? styles.selectorText : styles.selectorPlaceholder}>
+                    <AppText style={formData.city_name ? styles.selectorText : styles.selectorPlaceholder}>
                         {formData.city_name || 'Pilih Kota/Kabupaten'}
-                    </Text>
+                    </AppText>
                     <Icon name="chevron-down" size={20} color="#757575" />
                 </TouchableOpacity>
             </View>
 
             <View style={styles.inputGroup}>
-                <Text style={styles.inputLabel}>Kecamatan *</Text>
+                <AppText style={styles.inputLabel}>Kecamatan *</AppText>
                 <TouchableOpacity
                     style={[styles.selector, districts.length === 0 && styles.selectorDisabled]}
                     onPress={() => districts.length > 0 && setShowDistrictModal(true)}
                     disabled={districts.length === 0}
                 >
-                    <Text style={formData.district_name ? styles.selectorText : styles.selectorPlaceholder}>
+                    <AppText style={formData.district_name ? styles.selectorText : styles.selectorPlaceholder}>
                         {formData.district_name || 'Pilih Kecamatan'}
-                    </Text>
+                    </AppText>
                     <Icon name="chevron-down" size={20} color="#757575" />
                 </TouchableOpacity>
             </View>
@@ -1046,7 +1046,7 @@ const JualScreen = () => {
                 {submitting ? (
                     <ActivityIndicator color="#fff" />
                 ) : (
-                    <Text style={styles.submitButtonText}>Selesai</Text>
+                    <AppText style={styles.submitButtonText}>Selesai</AppText>
                 )}
             </TouchableOpacity>
         </View>
