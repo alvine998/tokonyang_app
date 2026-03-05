@@ -52,6 +52,22 @@ const AdsListScreen = () => {
     const PAGE_SIZE = 8;
 
     const [searchQuery, setSearchQuery] = useState(search || '');
+    const [brands, setBrands] = useState([]);
+    const fetchBrands = async () => {
+        try {
+            const response = await axios.get(`https://api.tokotitoh.co.id/brands?category_id=${subcategory?.category_id || category?.id}&page=1&size=999`, {
+                headers: {
+                    "bearer-token": "tokotitohapi",
+                    "x-partner-code": "id.marketplace.tokotitoh",
+                },
+            });
+            if (response.data && response.data.items) {
+                setBrands(response.data.items.rows);
+            }
+        } catch (error) {
+            console.error('Error fetching brands:', error);
+        }
+    };
 
     const [isFilterVisible, setIsFilterVisible] = useState(false);
     const [activeFilterTab, setActiveFilterTab] = useState('MEREK');
@@ -119,6 +135,7 @@ const AdsListScreen = () => {
         fetchAds(0, true);
         fetchFilterData();
         determineNavSet();
+        fetchBrands();
     }, []);
 
     const determineNavSet = () => {
@@ -147,19 +164,19 @@ const AdsListScreen = () => {
         setLoadingFilterData(true);
         try {
             const [brandsRes, provincesRes, categoriesRes] = await Promise.all([
-                axios.get(`https://api.tokotitoh.co.id/brands?category_id=${subcategory?.category_id || category?.id}`, {
+                axios.get(`https://api.tokotitoh.co.id/brands?category_id=${subcategory?.category_id || category?.id}&page=1&size=999`, {
                     headers: {
                         "bearer-token": "tokotitohapi",
                         "x-partner-code": "id.marketplace.tokotitoh",
                     },
                 }),
-                axios.get(`https://api.tokotitoh.co.id/provinces`, {
+                axios.get(`https://api.tokotitoh.co.id/provinces?page=1&size=999`, {
                     headers: {
                         "bearer-token": "tokotitohapi",
                         "x-partner-code": "id.marketplace.tokotitoh",
                     },
                 }),
-                axios.get(`https://api.tokotitoh.co.id/categories`, {
+                axios.get(`https://api.tokotitoh.co.id/categories?page=1&size=999`, {
                     headers: {
                         "bearer-token": "tokotitohapi",
                         "x-partner-code": "id.marketplace.tokotitoh",
@@ -191,7 +208,7 @@ const AdsListScreen = () => {
         try {
             // Join brand IDs with comma as requested for the API
             const brandIdsQuery = brandIds.join(',');
-            const response = await axios.get(`https://api.tokotitoh.co.id/types?brand_ids=${brandIdsQuery}`, {
+            const response = await axios.get(`https://api.tokotitoh.co.id/types?brand_ids=${brandIdsQuery}&page=1&size=999`, {
                 headers: {
                     "bearer-token": "tokotitohapi",
                     "x-partner-code": "id.marketplace.tokotitoh",
@@ -285,21 +302,21 @@ const AdsListScreen = () => {
         }
     };
 
-    const brands = [
-        { id: 'daihatsu', name: 'DAIHATSU', logo: 'https://www.carlogos.org/logo/Daihatsu-logo-800x450.png' },
-        { id: 'honda', name: 'HONDA', logo: 'https://www.carlogos.org/logo/Honda-logo-1966-1024x768.png' },
-        { id: 'hyundai', name: 'HYUNDAI', logo: 'https://www.carlogos.org/logo/Hyundai-logo-640x334.png' },
-        { id: 'mercedes', name: 'Mercedes-Benz', logo: 'https://www.carlogos.org/logo/Mercedes-Benz-logo-2011-640x334.png' },
-        { id: 'mitsubishi', name: 'MITSUBISHI', logo: 'https://www.carlogos.org/logo/Mitsubishi-logo-640x554.png' },
-        { id: 'nissan', name: 'NISSAN', logo: 'https://www.carlogos.org/logo/Nissan-logo-2013-640x480.png' },
-        { id: 'suzuki', name: 'SUZUKI', logo: 'https://www.carlogos.org/logo/Suzuki-logo-640x550.png' },
-        { id: 'toyota', name: 'TOYOTA', logo: 'https://www.carlogos.org/logo/Toyota-logo-2005-640x480.png' },
-        { id: 'wuling', name: 'WULING', logo: 'https://manuals.plus/wp-content/uploads/2022/10/WULING-Logo.png' },
-    ];
+    // const brands = [
+    //     { id: 'daihatsu', name: 'DAIHATSU', logo: 'https://www.carlogos.org/logo/Daihatsu-logo-800x450.png' },
+    //     { id: 'honda', name: 'HONDA', logo: 'https://www.carlogos.org/logo/Honda-logo-1966-1024x768.png' },
+    //     { id: 'hyundai', name: 'HYUNDAI', logo: 'https://www.carlogos.org/logo/Hyundai-logo-640x334.png' },
+    //     { id: 'mercedes', name: 'Mercedes-Benz', logo: 'https://www.carlogos.org/logo/Mercedes-Benz-logo-2011-640x334.png' },
+    //     { id: 'mitsubishi', name: 'MITSUBISHI', logo: 'https://www.carlogos.org/logo/Mitsubishi-logo-640x554.png' },
+    //     { id: 'nissan', name: 'NISSAN', logo: 'https://www.carlogos.org/logo/Nissan-logo-2013-640x480.png' },
+    //     { id: 'suzuki', name: 'SUZUKI', logo: 'https://www.carlogos.org/logo/Suzuki-logo-640x550.png' },
+    //     { id: 'toyota', name: 'TOYOTA', logo: 'https://www.carlogos.org/logo/Toyota-logo-2005-640x480.png' },
+    //     { id: 'wuling', name: 'WULING', logo: 'https://manuals.plus/wp-content/uploads/2022/10/WULING-Logo.png' },
+    // ];
 
-    const otherBrands = [
-        'ALFA ROMEO', 'ASTON MARTIN', 'AUDI', 'AUSTIN', 'BENTLEY', 'BIMANTARA', 'BMW', 'BYD', 'CADILLAC'
-    ];
+    // const otherBrands = [
+    //     'ALFA ROMEO', 'ASTON MARTIN', 'AUDI', 'AUSTIN', 'BENTLEY', 'BIMANTARA', 'BMW', 'BYD', 'CADILLAC'
+    // ];
 
     useEffect(() => {
         fetchAds(0, true);
@@ -396,7 +413,7 @@ const AdsListScreen = () => {
                 <View style={styles.locationInfo}>
                     <Icon name="location-outline" size={18} color="#002F34" />
                     <AppText style={styles.locationTitle}>
-                        {filters.city_id ? cities.find(c => c.id === filters.city_id)?.name :
+                        {filters.city_id ? (cities.find(c => c.id === filters.city_id)?.name?.includes('KABUPATEN') ? cities.find(c => c.id === filters.city_id)?.name?.replace('KABUPATEN', 'KAB. ') : cities.find(c => c.id === filters.city_id)?.name) :
                             filters.province_id ? provinces.find(p => p.id === filters.province_id)?.name :
                                 'Lokasi'}
                     </AppText>
@@ -653,7 +670,7 @@ const AdsListScreen = () => {
                                         </View>
 
                                         <View style={styles.brandList}>
-                                            {(apiBrands.length > 9 ? apiBrands.slice(9) : otherBrands).map((brandOrName: any) => {
+                                            {(apiBrands.length > 9 ? apiBrands.slice(9) : brands).map((brandOrName: any) => {
                                                 const brandName = typeof brandOrName === 'string' ? brandOrName : brandOrName.name;
                                                 const brandId = typeof brandOrName === 'string' ? brandOrName : brandOrName.id;
                                                 return (

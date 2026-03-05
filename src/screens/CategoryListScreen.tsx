@@ -163,47 +163,45 @@ const CategoryListScreen = () => {
             <Modal
                 visible={isModalVisible}
                 animationType="slide"
-                transparent={true}
+                transparent={false}
                 onRequestClose={() => setIsModalVisible(false)}>
-                <View style={styles.modalContainer}>
-                    <View style={styles.modalContent}>
-                        <View style={styles.modalHeader}>
-                            <TouchableOpacity onPress={() => setIsModalVisible(false)}>
-                                <IconFA name="chevron-left" size={20} color="#000" />
-                            </TouchableOpacity>
-                            <AppText style={styles.modalTitle}>
-                                {selectedCategory ? selectedCategory.name : 'Subkategori'}
-                            </AppText>
-                        </View>
-
-                        {loadingSub ? (
-                            <ActivityIndicator size="large" color="#2196F3" style={{ marginTop: 20 }} />
-                        ) : (
-                            <FlatList
-                                data={subcategories}
-                                keyExtractor={(item) => item.id.toString()}
-                                renderItem={({ item }) => (
-                                    <TouchableOpacity
-                                        style={styles.subcategoryItem}
-                                        onPress={() => {
-                                            setIsModalVisible(false);
-                                            navigation.navigate('AdsList', {
-                                                category: selectedCategory,
-                                                subcategory: item
-                                            });
-                                        }}>
-                                        <AppText style={styles.subcategoryText}>{item.name}</AppText>
-                                        {/* <Icon name="chevron-forward" size={20} color="#757575" /> */}
-                                    </TouchableOpacity>
-                                )}
-                                ListEmptyComponent={
-                                    <AppText style={styles.emptyText}>Tidak ada subkategori ditemukan</AppText>
-                                }
-                                contentContainerStyle={{ paddingBottom: 20 }}
-                            />
-                        )}
+                <SafeAreaView style={styles.modalSafeArea}>
+                    <View style={styles.modalHeader}>
+                        <TouchableOpacity onPress={() => setIsModalVisible(false)} style={styles.backButtonModal}>
+                            <IconFA name="chevron-left" size={20} color="#000" />
+                        </TouchableOpacity>
+                        <AppText style={styles.modalTitle}>
+                            {selectedCategory ? selectedCategory.name : 'Subkategori'}
+                        </AppText>
                     </View>
-                </View>
+
+                    {loadingSub ? (
+                        <ActivityIndicator size="large" color="#2196F3" style={{ marginTop: 20 }} />
+                    ) : (
+                        <FlatList
+                            data={subcategories}
+                            keyExtractor={(item) => item.id.toString()}
+                            renderItem={({ item }) => (
+                                <TouchableOpacity
+                                    style={styles.subcategoryItem}
+                                    onPress={() => {
+                                        setIsModalVisible(false);
+                                        navigation.navigate('AdsList', {
+                                            category: selectedCategory,
+                                            subcategory: item
+                                        });
+                                    }}>
+                                    <AppText style={styles.subcategoryText}>{item.name}</AppText>
+                                    {/* <Icon name="chevron-forward" size={20} color="#757575" /> */}
+                                </TouchableOpacity>
+                            )}
+                            ListEmptyComponent={
+                                <AppText style={styles.emptyText}>Tidak ada subkategori ditemukan</AppText>
+                            }
+                            contentContainerStyle={{ paddingBottom: 20 }}
+                        />
+                    )}
+                </SafeAreaView>
             </Modal>
         </SafeAreaView>
     );
@@ -274,26 +272,22 @@ const styles = StyleSheet.create({
         marginTop: 16,
     },
     // Modal Styles
-    modalContainer: {
+    modalSafeArea: {
         flex: 1,
-        justifyContent: 'flex-end',
-        backgroundColor: 'rgba(0,0,0,0.5)',
-    },
-    modalContent: {
         backgroundColor: '#fff',
-        borderTopLeftRadius: 20,
-        borderTopRightRadius: 20,
-        height: '70%',
-        paddingHorizontal: 16,
     },
     modalHeader: {
         flexDirection: 'row',
         justifyContent: 'flex-start',
         alignItems: 'center',
-        paddingVertical: 20,
+        paddingVertical: 16,
+        paddingHorizontal: 16,
         borderBottomWidth: 1,
         borderBottomColor: '#F2F4F5',
-        gap: 10,
+    },
+    backButtonModal: {
+        padding: 5,
+        marginRight: 15,
     },
     modalTitle: {
         fontSize: 18,

@@ -24,8 +24,9 @@ export const formatAdDate = (dateString: string): string => {
       'Des',
     ];
     const month = months[date.getMonth()];
+    const year = date.getFullYear();
 
-    return `${day} ${month}`;
+    return `${day} ${month} ${year}`;
   } catch (error) {
     console.error('Error formatting date:', error);
     return '';

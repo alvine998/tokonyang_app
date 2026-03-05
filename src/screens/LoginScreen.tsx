@@ -50,7 +50,7 @@ const LoginScreen = () => {
         setLoading(true);
         try {
             await login(phone, password);
-            navigation.navigate('Home');
+            navigation.navigate('Main');
         } catch (error: any) {
             Alert.alert('Login Gagal', error.message);
         } finally {
@@ -79,10 +79,10 @@ const LoginScreen = () => {
                     <View style={styles.inputContainer}>
                         <AppTextInput
                             style={styles.input}
-                            placeholder="No Telepon"
+                            placeholder="Email"
                             value={phone}
                             onChangeText={setPhone}
-                            keyboardType="phone-pad"
+                            keyboardType="email-address"
                         />
                         <View style={styles.passwordWrapper}>
                             <AppTextInput

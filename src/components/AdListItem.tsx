@@ -70,8 +70,8 @@ const styles = StyleSheet.create({
         borderBottomColor: '#F2F4F5',
     },
     image: {
-        width: 100,
-        height: 100,
+        width: 130,
+        height: 130,
         borderRadius: 8,
         backgroundColor: '#F0F0F0',
     },
