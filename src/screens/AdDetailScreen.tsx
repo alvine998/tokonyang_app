@@ -193,22 +193,23 @@ const AdDetailScreen = () => {
 
     return (
         <View style={styles.container}>
-            {/* Header */}
-            <View style={styles.header}>
-                <TouchableOpacity onPress={() => navigation.goBack()} style={styles.headerBtn}>
-                    <Icon name="arrow-back" size={24} color="#000" />
-                </TouchableOpacity>
-                <View style={styles.headerRight}>
-                    <TouchableOpacity style={styles.headerBtn} onPress={() => setIsReportModalVisible(true)}>
-                        <Icon name="flag-outline" size={24} color="#000" />
-                    </TouchableOpacity>
-                    <TouchableOpacity style={styles.headerBtn}>
-                        <Icon name="heart-outline" size={24} color="#000" />
-                    </TouchableOpacity>
-                </View>
-            </View>
 
             <ScrollView showsVerticalScrollIndicator={false}>
+                {/* Header */}
+                <View style={styles.header}>
+                    <TouchableOpacity onPress={() => navigation.goBack()} style={styles.headerBtn}>
+                        <Icon name="arrow-back" size={24} color="#000" />
+                    </TouchableOpacity>
+                    <View style={styles.headerRight}>
+                        <TouchableOpacity style={styles.headerBtn} onPress={() => setIsReportModalVisible(true)}>
+                            <Icon name="flag-outline" size={24} color="#000" />
+                        </TouchableOpacity>
+                        <TouchableOpacity style={styles.headerBtn}>
+                            <Icon name="heart-outline" size={24} color="#000" />
+                        </TouchableOpacity>
+                    </View>
+                </View>
+
                 {/* Image Carousel */}
                 <View style={styles.imageContainer}>
                     <FlatList
@@ -493,12 +494,9 @@ const styles = StyleSheet.create({
         paddingHorizontal: 8,
         paddingTop: 12,
         paddingBottom: 8,
-        position: 'absolute',
-        top: 0,
-        left: 0,
-        right: 0,
-        zIndex: 10,
-        backgroundColor: 'rgba(255,255,255,0.7)',
+        backgroundColor: '#fff',
+        borderBottomWidth: 1,
+        borderBottomColor: '#F2F4F5',
     },
     headerRight: {
         flexDirection: 'row',

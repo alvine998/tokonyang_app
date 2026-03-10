@@ -10,6 +10,7 @@ import {
     RefreshControl,
     Modal,
     ScrollView,
+    Text,
 } from 'react-native';
 import AppText from '../components/AppText';
 import AppTextInput from '../components/AppTextInput';
@@ -25,6 +26,7 @@ import {
     navsFoodPet,
     navsDefault,
 } from '../utils/constants';
+import normalize from 'react-native-normalize';
 
 const width = SCREEN_WIDTH;
 
@@ -70,6 +72,7 @@ const AdsListScreen = () => {
     };
 
     const [isFilterVisible, setIsFilterVisible] = useState(false);
+    const [isLocationModalVisible, setIsLocationModalVisible] = useState(false);
     const [activeFilterTab, setActiveFilterTab] = useState('MEREK');
     const [filters, setFilters] = useState({
         subcategory_id: subcategory?.id || '',
@@ -405,19 +408,14 @@ const AdsListScreen = () => {
                 <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backButton}>
                     <Icon name="arrow-back" size={24} color="#000" />
                 </TouchableOpacity>
-                <TouchableOpacity
-                    style={styles.filterButton}
-                    onPress={() => setIsFilterVisible(true)}>
-                    <Icon name="filter-outline" size={24} color="#000" />
-                </TouchableOpacity>
-                <View style={styles.locationInfo}>
+                <TouchableOpacity onPress={() => setIsLocationModalVisible(true)} style={styles.locationInfo}>
                     <Icon name="location-outline" size={18} color="#002F34" />
                     <AppText style={styles.locationTitle}>
                         {filters.city_id ? (cities.find(c => c.id === filters.city_id)?.name?.includes('KABUPATEN') ? cities.find(c => c.id === filters.city_id)?.name?.replace('KABUPATEN', 'KAB. ') : cities.find(c => c.id === filters.city_id)?.name) :
                             filters.province_id ? provinces.find(p => p.id === filters.province_id)?.name :
                                 'Lokasi'}
                     </AppText>
-                </View>
+                </TouchableOpacity>
                 <View style={styles.logoContainer}>
                     {/* <View style={styles.greenBox}>
                         <Icon name="happy-outline" size={20} color="#000" />
@@ -442,6 +440,11 @@ const AdsListScreen = () => {
                         onSubmitEditing={() => fetchAds(0, true)}
                     />
                 </View>
+                <TouchableOpacity
+                    style={[styles.filterButton, { backgroundColor: '#F2F4F5', padding: 10, borderRadius: 8, borderWidth: 1, borderColor: '#E0E0E0' }]}
+                    onPress={() => setIsFilterVisible(true)}>
+                    <Text>Filter</Text>
+                </TouchableOpacity>
             </View>
 
             {/* Header 3: Breadcrumb */}
@@ -542,18 +545,7 @@ const AdsListScreen = () => {
 
                         <View style={styles.modalBodyContainer}>
                             {/* Sidebar */}
-                            <View style={styles.sidebar}>
-                                <TouchableOpacity
-                                    style={[
-                                        styles.sidebarTab,
-                                        activeFilterTab === 'LOKASI' && styles.activeSidebarTab
-                                    ]}
-                                    onPress={() => setActiveFilterTab('LOKASI')}>
-                                    <AppText style={[
-                                        styles.sidebarTabText,
-                                        activeFilterTab === 'LOKASI' && styles.activeSidebarTabText
-                                    ]}>LOKASI</AppText>
-                                </TouchableOpacity>
+                            <ScrollView style={styles.sidebar} showsVerticalScrollIndicator={false}>
                                 {currentNavSet.map((tab: any) => (
                                     <TouchableOpacity
                                         key={tab.name}
@@ -568,86 +560,10 @@ const AdsListScreen = () => {
                                         ]}>{tab.name}</AppText>
                                     </TouchableOpacity>
                                 ))}
-                            </View>
+                            </ScrollView>
 
                             {/* Main Content */}
                             <ScrollView style={styles.filterContentScroll} showsVerticalScrollIndicator={true}>
-                                {activeFilterTab === 'LOKASI' && (
-                                    <View style={styles.newFilterSection}>
-                                        <AppText style={styles.newSectionLabel}>Pilih Provinsi</AppText>
-                                        <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.chipScroll}>
-                                            <View style={styles.chipContainer}>
-                                                {provinces.map((p) => (
-                                                    <TouchableOpacity
-                                                        key={p.id}
-                                                        style={[
-                                                            styles.chip,
-                                                            filters.province_id === p.id && styles.activeChip
-                                                        ]}
-                                                        onPress={() => {
-                                                            setFilters({ ...filters, province_id: p.id, city_id: '', district_id: '' });
-                                                            setCities([]);
-                                                            setDistricts([]);
-                                                            fetchCities(p.id);
-                                                        }}>
-                                                        <AppText style={[
-                                                            styles.chipText,
-                                                            filters.province_id === p.id && styles.activeChipText
-                                                        ]}>{p.name}</AppText>
-                                                    </TouchableOpacity>
-                                                ))}
-                                            </View>
-                                        </ScrollView>
-
-                                        {filters.province_id !== '' && (
-                                            <>
-                                                <AppText style={[styles.newSectionLabel, { marginTop: 20 }]}>Pilih Kota</AppText>
-                                                <View style={styles.chipContainer}>
-                                                    {cities.map((c) => (
-                                                        <TouchableOpacity
-                                                            key={c.id}
-                                                            style={[
-                                                                styles.chip,
-                                                                filters.city_id === c.id && styles.activeChip
-                                                            ]}
-                                                            onPress={() => {
-                                                                setFilters({ ...filters, city_id: c.id, district_id: '' });
-                                                                setDistricts([]);
-                                                                fetchDistricts(c.id);
-                                                            }}>
-                                                            <AppText style={[
-                                                                styles.chipText,
-                                                                filters.city_id === c.id && styles.activeChipText
-                                                            ]}>{c.name}</AppText>
-                                                        </TouchableOpacity>
-                                                    ))}
-                                                </View>
-                                                {filters.city_id !== '' && (
-                                                    <>
-                                                        <AppText style={[styles.newSectionLabel, { marginTop: 20 }]}>Pilih Kecamatan</AppText>
-                                                        <View style={styles.chipContainer}>
-                                                            {districts.map((d) => (
-                                                                <TouchableOpacity
-                                                                    key={d.id}
-                                                                    style={[
-                                                                        styles.chip,
-                                                                        filters.district_id === d.id && styles.activeChip
-                                                                    ]}
-                                                                    onPress={() => setFilters({ ...filters, district_id: d.id })}>
-                                                                    <AppText style={[
-                                                                        styles.chipText,
-                                                                        filters.district_id === d.id && styles.activeChipText
-                                                                    ]}>{d.name}</AppText>
-                                                                </TouchableOpacity>
-                                                            ))}
-                                                        </View>
-                                                    </>
-                                                )}
-                                            </>
-                                        )}
-                                    </View>
-                                )}
-
                                 {activeFilterTab === 'MEREK' && (
                                     <View style={styles.brandContainer}>
                                         <View style={styles.logoGrid}>
@@ -795,7 +711,7 @@ const AdsListScreen = () => {
                                                 { value: "", label: "Semua Transmisi" },
                                                 { value: "MT", label: "Manual" },
                                                 { value: "AT", label: "Automatic" },
-                                                { value: "CVT", label: "CVT" },
+                                                // { value: "CVT", label: "CVT" },
                                             ].map((opt) => (
                                                 <TouchableOpacity
                                                     key={opt.value}
@@ -887,7 +803,7 @@ const AdsListScreen = () => {
                                     </View>
                                 )}
 
-                                {activeFilterTab === 'KATEGORI' && (
+                                {/* {activeFilterTab === 'KATEGORI' && (
                                     <View style={styles.newFilterSection}>
                                         <AppText style={styles.newSectionLabel}>Pilih Kategori</AppText>
                                         <View style={styles.chipContainer}>
@@ -931,7 +847,7 @@ const AdsListScreen = () => {
                                             </>
                                         )}
                                     </View>
-                                )}
+                                )} */}
 
                                 {/* {['MODEL', 'BAHAN BAKAR', 'KATEGORI'].includes(activeFilterTab) && (
                                     <View style={styles.placeholderTab}>
@@ -953,7 +869,121 @@ const AdsListScreen = () => {
                     </View>
                 </View>
             </Modal>
-        </View>
+
+            {/* Location Modal */}
+            <Modal
+                visible={isLocationModalVisible}
+                animationType="slide"
+                transparent={true}
+                onRequestClose={() => setIsLocationModalVisible(false)}>
+                <View style={styles.modalOverlay}>
+                    <View style={styles.newModalContent}>
+                        <View style={styles.newModalHeader}>
+                            <AppText style={styles.newModalTitle}>Pilih Lokasi</AppText>
+                            <View style={styles.headerActionRow}>
+                                <TouchableOpacity
+                                    style={styles.resetHeaderBtn}
+                                    onPress={() => {
+                                        setFilters({ ...filters, province_id: '', city_id: '', district_id: '' });
+                                        setCities([]);
+                                        setDistricts([]);
+                                    }}>
+                                    <AppText style={styles.resetHeaderText}>Reset</AppText>
+                                </TouchableOpacity>
+                                <TouchableOpacity onPress={() => setIsLocationModalVisible(false)}>
+                                    <Icon name="close-circle-outline" size={32} color="#000" />
+                                </TouchableOpacity>
+                            </View>
+                        </View>
+
+                        <ScrollView style={styles.filterContentScroll}>
+                            <View style={styles.newFilterSection}>
+                                <AppText style={styles.newSectionLabel}>Pilih Provinsi</AppText>
+                                <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.chipScroll}>
+                                    <View style={styles.chipContainer}>
+                                        {provinces.map((p) => (
+                                            <TouchableOpacity
+                                                key={p.id}
+                                                style={[
+                                                    styles.chip,
+                                                    filters.province_id === p.id && styles.activeChip
+                                                ]}
+                                                onPress={() => {
+                                                    setFilters({ ...filters, province_id: p.id, city_id: '', district_id: '' });
+                                                    setCities([]);
+                                                    setDistricts([]);
+                                                    fetchCities(p.id);
+                                                }}>
+                                                <AppText style={[
+                                                    styles.chipText,
+                                                    filters.province_id === p.id && styles.activeChipText
+                                                ]}>{p.name}</AppText>
+                                            </TouchableOpacity>
+                                        ))}
+                                    </View>
+                                </ScrollView>
+
+                                {filters.province_id !== '' && (
+                                    <>
+                                        <AppText style={[styles.newSectionLabel, { marginTop: 20 }]}>Pilih Kota</AppText>
+                                        <View style={styles.chipContainer}>
+                                            {cities.map((c) => (
+                                                <TouchableOpacity
+                                                    key={c.id}
+                                                    style={[
+                                                        styles.chip,
+                                                        filters.city_id === c.id && styles.activeChip
+                                                    ]}
+                                                    onPress={() => {
+                                                        setFilters({ ...filters, city_id: c.id, district_id: '' });
+                                                        setDistricts([]);
+                                                        fetchDistricts(c.id);
+                                                    }}>
+                                                    <AppText style={[
+                                                        styles.chipText,
+                                                        filters.city_id === c.id && styles.activeChipText
+                                                    ]}>{c.name}</AppText>
+                                                </TouchableOpacity>
+                                            ))}
+                                        </View>
+                                        {filters.city_id !== '' && (
+                                            <>
+                                                <AppText style={[styles.newSectionLabel, { marginTop: 20 }]}>Pilih Kecamatan</AppText>
+                                                <View style={styles.chipContainer}>
+                                                    {districts.map((d) => (
+                                                        <TouchableOpacity
+                                                            key={d.id}
+                                                            style={[
+                                                                styles.chip,
+                                                                filters.district_id === d.id && styles.activeChip
+                                                            ]}
+                                                            onPress={() => setFilters({ ...filters, district_id: d.id })}>
+                                                            <AppText style={[
+                                                                styles.chipText,
+                                                                filters.district_id === d.id && styles.activeChipText
+                                                            ]}>{d.name}</AppText>
+                                                        </TouchableOpacity>
+                                                    ))}
+                                                </View>
+                                            </>
+                                        )}
+                                    </>
+                                )}
+                            </View>
+                        </ScrollView>
+
+                        <TouchableOpacity
+                            style={styles.newApplyButton}
+                            onPress={() => {
+                                setIsLocationModalVisible(false);
+                                fetchAds(0, true);
+                            }}>
+                            <AppText style={styles.newApplyButtonText}>Terapkan Lokasi</AppText>
+                        </TouchableOpacity>
+                    </View>
+                </View>
+            </Modal >
+        </View >
     );
 };
 
@@ -1000,8 +1030,12 @@ const styles = StyleSheet.create({
     header2: {
         paddingHorizontal: 16,
         paddingVertical: 8,
+        flexDirection: 'row',
+        alignItems: 'center',
+        gap: 12,
     },
     searchBar: {
+        flex: 1,
         flexDirection: 'row',
         alignItems: 'center',
         backgroundColor: '#F2F4F5',
@@ -1100,7 +1134,7 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
     },
     sidebar: {
-        width: 100,
+        width: normalize(20),
         backgroundColor: '#fff',
         borderRightWidth: 1,
         borderRightColor: '#F2F4F5',
@@ -1116,7 +1150,7 @@ const styles = StyleSheet.create({
         backgroundColor: '#D1D5DB', // Light grey as per image
     },
     sidebarTabText: {
-        fontSize: 11,
+        fontSize: normalize(16),
         fontWeight: 'bold',
         color: '#000',
         textAlign: 'center',
@@ -1127,6 +1161,7 @@ const styles = StyleSheet.create({
     filterContentScroll: {
         flex: 1,
         padding: 10,
+        width: normalize(200),
     },
     brandContainer: {
         flex: 1,

@@ -21,7 +21,7 @@ import normalize from 'react-native-normalize';
 
 const LoginScreen = () => {
     const navigation = useNavigation<any>();
-    const { login } = useAuth();
+    const { login, loginWithGoogle } = useAuth();
     const [phone, setPhone] = useState('');
     const [password, setPassword] = useState('');
     const [showPassword, setShowPassword] = useState(false);
@@ -53,6 +53,18 @@ const LoginScreen = () => {
             navigation.navigate('Main');
         } catch (error: any) {
             Alert.alert('Login Gagal', error.message);
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    const handleGoogleLogin = async () => {
+        setLoading(true);
+        try {
+            await loginWithGoogle();
+            navigation.navigate('Main');
+        } catch (error: any) {
+            Alert.alert('Login Google Gagal', error.message);
         } finally {
             setLoading(false);
         }
@@ -128,7 +140,7 @@ const LoginScreen = () => {
                         {loading ? (
                             <ActivityIndicator color="#fff" />
                         ) : (
-                            <AppText style={styles.loginButtonText}>Masuk</AppText>
+                            <AppText style={styles.loginButtonText}>Login / daftar dengan email</AppText>
                         )}
                     </TouchableOpacity>
 
@@ -141,7 +153,11 @@ const LoginScreen = () => {
                         <AppText style={styles.registerButtonText}>Daftar</AppText>
                     </TouchableOpacity>
 
-                    <TouchableOpacity style={styles.googleButton}>
+                    <TouchableOpacity
+                        style={styles.googleButton}
+                        onPress={handleGoogleLogin}
+                        disabled={loading}
+                    >
                         <View style={styles.googleIconContainer}>
                             <Icon name="logo-google" size={20} color="#EA4335" />
                         </View>

@@ -1,6 +1,7 @@
 import React, { createContext, useState, useEffect, useContext } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import axios from 'axios';
+import { GoogleSignin, statusCodes } from '@react-native-google-signin/google-signin';
 
 interface User {
     id: number;
@@ -16,6 +17,7 @@ interface AuthContextType {
     user: User | null;
     isLoading: boolean;
     login: (phone: string, password: string) => Promise<void>;
+    loginWithGoogle: () => Promise<void>;
     register: (payload: any) => Promise<void>;
     logout: () => Promise<void>;
     setUser: React.Dispatch<React.SetStateAction<User | null>>;
@@ -37,7 +39,15 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
     React.useEffect(() => {
         checkSession();
+        setupGoogleSignIn();
     }, []);
+
+    const setupGoogleSignIn = () => {
+        GoogleSignin.configure({
+            webClientId: '480874086535-7be0ntidffu72ab6ejothp81p74rt24i.apps.googleusercontent.com',
+            offlineAccess: true,
+        });
+    };
 
     const checkSession = async () => {
         try {
@@ -111,13 +121,56 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         }
     };
 
+    const loginWithGoogle = async () => {
+        try {
+            await GoogleSignin.hasPlayServices();
+            const userInfo = await GoogleSignin.signIn();
+
+            // Send to your backend API
+            // Note: Since I don't have the specific endpoint, I'll assume /user/login-google
+            // or we might need to register them first if they don't exist.
+            const response = await axios.post(`${API_BASE_URL}/user/login-google`, {
+                idToken: userInfo.data?.idToken,
+                email: userInfo.data?.user.email,
+                name: userInfo.data?.user.name,
+                google_id: userInfo.data?.user.id,
+            }, {
+                headers: AUTH_HEADERS
+            });
+
+            if (response.data && response.data.user) {
+                const initialUser = response.data.user;
+                await fetchUserDetails(initialUser.id);
+            } else {
+                throw new Error(response.data.message || 'Login Google gagal');
+            }
+        } catch (error: any) {
+            if (error.code === statusCodes.SIGN_IN_CANCELLED) {
+                // user cancelled the login flow
+            } else if (error.code === statusCodes.IN_PROGRESS) {
+                // operation (e.g. sign in) is in progress already
+            } else if (error.code === statusCodes.PLAY_SERVICES_NOT_AVAILABLE) {
+                // play services not available or outdated
+                throw new Error('Play services tidak tersedia');
+            } else {
+                const errorMessage = error.response?.data?.message || error.message || 'Terjadi kesalahan saat login Google';
+                throw new Error(errorMessage);
+            }
+        }
+    };
+
     const logout = async () => {
+        try {
+            await GoogleSignin.signOut();
+        } catch (error) {
+            console.error('Google SignOut error:', error);
+        }
         await AsyncStorage.removeItem('user_session');
         setUser(null);
     };
 
     return (
-        <AuthContext.Provider value={{ user, isLoading, login, register, logout, setUser }}>
+        <AuthContext.Provider value={{ user, isLoading, login, loginWithGoogle, register, logout, setUser }}>
             {children}
         </AuthContext.Provider>
     );

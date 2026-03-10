@@ -7,7 +7,7 @@ export const navsCar = [
   { name: 'BAHAN BAKAR' },
   { name: 'KONDISI' },
   { name: 'URUTKAN' },
-  { name: 'KATEGORI' },
+  // { name: 'KATEGORI' },
 ];
 
 export const navsProperty = [
@@ -15,7 +15,7 @@ export const navsProperty = [
   { name: 'LUAS TANAH' },
   { name: 'LUAS BANGUNAN' },
   { name: 'URUTKAN' },
-  { name: 'KATEGORI' },
+  // { name: 'KATEGORI' },
 ];
 
 export const navsBusTruck = [
@@ -26,17 +26,17 @@ export const navsBusTruck = [
   { name: 'BAHAN BAKAR' },
   { name: 'KONDISI' },
   { name: 'URUTKAN' },
-  { name: 'KATEGORI' },
+  // { name: 'KATEGORI' },
 ];
 
 export const navsFoodPet = [
   { name: 'HARGA' },
   { name: 'URUTKAN' },
-  { name: 'KATEGORI' },
+  // { name: 'KATEGORI' },
 ];
 
 export const navsDefault = [
   { name: 'HARGA' },
   { name: 'URUTKAN' },
-  { name: 'KATEGORI' },
+  // { name: 'KATEGORI' },
 ];

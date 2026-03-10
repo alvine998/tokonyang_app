@@ -19,7 +19,7 @@ const HubungiKamiScreen = () => {
     };
 
     const handleWhatsappPress = () => {
-        Linking.openURL('https://wa.me/6285213026262');
+        Linking.openURL('https://wa.me/6285212642649');
     };
 
     return (
