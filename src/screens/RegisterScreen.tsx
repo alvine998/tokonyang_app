@@ -20,7 +20,7 @@ import { useAuth } from '../context/AuthContext';
 
 const RegisterScreen = () => {
     const navigation = useNavigation<any>();
-    const { register } = useAuth();
+    const { register, resendOTP } = useAuth();
     const [name, setName] = useState('');
     const [phone, setPhone] = useState('');
     const [email, setEmail] = useState('');
@@ -51,8 +51,14 @@ const RegisterScreen = () => {
                 status: 1
             });
 
-            Alert.alert('Sukses', 'Pendaftaran berhasil. Silakan login.', [
-                { text: 'OK', onPress: () => navigation.navigate('Login') }
+            try {
+                await resendOTP(email); // Ensure OTP gets fired off
+            } catch (e) {
+                console.log("OTP send info:", e);
+            }
+
+            Alert.alert('Sukses', 'Pendaftaran berhasil. Silakan verifikasi email Anda.', [
+                { text: 'OK', onPress: () => navigation.navigate('OTP', { identity: email, reason: 'register' }) }
             ]);
         } catch (error: any) {
             Alert.alert('Pendaftaran Gagal', error.message);

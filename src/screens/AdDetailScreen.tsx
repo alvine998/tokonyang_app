@@ -201,6 +201,9 @@ const AdDetailScreen = () => {
                         <Icon name="arrow-back" size={24} color="#000" />
                     </TouchableOpacity>
                     <View style={styles.headerRight}>
+                        <TouchableOpacity style={styles.headerBtn} onPress={handleShare}>
+                            <Icon name="share-social-outline" size={24} color="#000" />
+                        </TouchableOpacity>
                         <TouchableOpacity style={styles.headerBtn} onPress={() => setIsReportModalVisible(true)}>
                             <Icon name="flag-outline" size={24} color="#000" />
                         </TouchableOpacity>

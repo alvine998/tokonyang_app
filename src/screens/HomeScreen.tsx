@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback, useRef } from 'react';
 import {
     View,
     StyleSheet,
@@ -8,16 +8,19 @@ import {
     Image,
     ActivityIndicator,
     Modal,
+    SafeAreaView,
+    BackHandler,
+    ToastAndroid,
+    Platform,
     FlatList,
     RefreshControl,
-    SafeAreaView,
 } from 'react-native';
 import AppText from '../components/AppText';
 import AppTextInput from '../components/AppTextInput';
 import Icon from 'react-native-vector-icons/Ionicons';
 import IconFA from 'react-native-vector-icons/FontAwesome5';
 import axios from 'axios';
-import { useNavigation } from '@react-navigation/native';
+import { useNavigation, useFocusEffect, useIsFocused } from '@react-navigation/native';
 import { SCREEN_WIDTH, getCategoryColumns, isTablet } from '../utils/responsive';
 import normalize from 'react-native-normalize';
 
@@ -47,6 +50,38 @@ const HomeScreen = () => {
     const [loadingSub, setLoadingSub] = useState(false);
     const [selectedCategory, setSelectedCategory] = useState<Category | null>(null);
     const [homeSearch, setHomeSearch] = useState('');
+
+    const currentBackPressTime = useRef<number>(0);
+    const isFocused = useIsFocused();
+
+    useFocusEffect(
+        useCallback(() => {
+            const onBackPress = () => {
+                if (!isFocused) return false; // Let default back button behavior happen on other screens
+
+                if (isModalVisible) {
+                    setIsModalVisible(false);
+                    return true; // Prevent default behavior
+                }
+
+                const timeNow = new Date().getTime();
+                if (currentBackPressTime.current && timeNow - currentBackPressTime.current < 2000) {
+                    BackHandler.exitApp();
+                    return true;
+                }
+
+                currentBackPressTime.current = timeNow;
+                if (Platform.OS === 'android') {
+                    ToastAndroid.show('Tekan sekali lagi untuk keluar', ToastAndroid.SHORT);
+                }
+                return true;
+            };
+
+            const subscription = BackHandler.addEventListener('hardwareBackPress', onBackPress);
+
+            return () => subscription.remove();
+        }, [isModalVisible, isFocused])
+    );
 
     useEffect(() => {
         navigation.setOptions({

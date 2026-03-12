@@ -13,7 +13,7 @@ import {
 } from 'react-native';
 import AppText from '../components/AppText';
 import AppTextInput from '../components/AppTextInput';
-import { useNavigation, useFocusEffect } from '@react-navigation/native';
+import { useNavigation, useFocusEffect, CommonActions } from '@react-navigation/native';
 import Icon from 'react-native-vector-icons/Ionicons';
 import { useAuth } from '../context/AuthContext';
 import { BackHandler } from 'react-native';
@@ -43,14 +43,14 @@ const LoginScreen = () => {
 
     const handleLogin = async () => {
         if (!phone || !password) {
-            Alert.alert('Peringatan', 'Silakan isi no telepon dan password');
+            Alert.alert('Peringatan', 'Silakan isi email dan password');
             return;
         }
 
         setLoading(true);
         try {
             await login(phone, password);
-            navigation.navigate('Main');
+            navigation.navigate('OTP', { identity: phone });
         } catch (error: any) {
             Alert.alert('Login Gagal', error.message);
         } finally {
@@ -62,7 +62,26 @@ const LoginScreen = () => {
         setLoading(true);
         try {
             await loginWithGoogle();
-            navigation.navigate('Main');
+            navigation.dispatch(
+                CommonActions.reset({
+                    index: 0,
+                    routes: [
+                        {
+                            name: 'Main',
+                            state: {
+                                index: 4,
+                                routes: [
+                                    { name: 'Home' },
+                                    { name: 'Menu' },
+                                    { name: 'Jual' },
+                                    { name: 'Iklan Saya' },
+                                    { name: 'Akun Saya' }
+                                ]
+                            }
+                        }
+                    ]
+                })
+            );
         } catch (error: any) {
             Alert.alert('Login Google Gagal', error.message);
         } finally {
@@ -127,7 +146,7 @@ const LoginScreen = () => {
                             </View>
                             <AppText style={styles.checkboxLabel}>Tampilkan password</AppText>
                         </TouchableOpacity> */}
-                        <TouchableOpacity>
+                        <TouchableOpacity onPress={() => navigation.navigate('ForgotPassword')}>
                             <AppText style={styles.linkText}>Lupa Password</AppText>
                         </TouchableOpacity>
                     </View>
@@ -140,7 +159,7 @@ const LoginScreen = () => {
                         {loading ? (
                             <ActivityIndicator color="#fff" />
                         ) : (
-                            <AppText style={styles.loginButtonText}>Login / daftar dengan email</AppText>
+                            <AppText style={styles.loginButtonText}>Login dengan email</AppText>
                         )}
                     </TouchableOpacity>
 
@@ -150,7 +169,7 @@ const LoginScreen = () => {
                         style={styles.registerButton}
                         onPress={() => navigation.navigate('Register')}
                     >
-                        <AppText style={styles.registerButtonText}>Daftar</AppText>
+                        <AppText style={styles.registerButtonText}>Daftar dengan email</AppText>
                     </TouchableOpacity>
 
                     <TouchableOpacity
@@ -237,6 +256,7 @@ const styles = StyleSheet.create({
         paddingHorizontal: 15,
         marginBottom: 15,
         fontSize: normalize(16),
+        color: '#000',
     },
     passwordWrapper: {
         width: '100%',

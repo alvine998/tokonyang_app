@@ -896,7 +896,7 @@ const AdsListScreen = () => {
                             </View>
                         </View>
 
-                        <ScrollView style={styles.filterContentScroll}>
+                        <ScrollView style={styles.newFilterContentScroll}>
                             <View style={styles.newFilterSection}>
                                 <AppText style={styles.newSectionLabel}>Pilih Provinsi</AppText>
                                 <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.chipScroll}>
@@ -1089,12 +1089,15 @@ const styles = StyleSheet.create({
         flex: 1,
         backgroundColor: 'rgba(0,0,0,0.5)',
         justifyContent: 'flex-end',
+        width: '100%',
+        height: '100%',
     },
     newModalContent: {
         backgroundColor: '#fff',
         borderTopLeftRadius: 20,
         borderTopRightRadius: 20,
         height: '92%',
+        width: '100%',
         paddingBottom: 20,
     },
     newModalHeader: {
@@ -1162,6 +1165,11 @@ const styles = StyleSheet.create({
         flex: 1,
         padding: 10,
         width: normalize(200),
+    },
+    newFilterContentScroll: {
+        flex: 1,
+        padding: 10,
+        width: '100%'
     },
     brandContainer: {
         flex: 1,

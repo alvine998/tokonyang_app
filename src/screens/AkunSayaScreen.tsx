@@ -13,14 +13,22 @@ import { useAuth } from '../context/AuthContext';
 
 const AkunSayaScreen = () => {
     const navigation = useNavigation<any>();
-    const { user, logout } = useAuth();
+    const { user, logout, isLoading } = useAuth();
 
     useFocusEffect(
         useCallback(() => {
-            if (!user) {
-                navigation.navigate('Login');
-            }
-        }, [user, navigation])
+            // Use a slightly longer delay and check isLoading multiple times
+            // to prevent race conditions during state transitions (like after OTP)
+            const checkAuth = setTimeout(() => {
+                console.log('AkunSaya: Redirection check - isLoading:', isLoading, 'user:', !!user);
+                if (!isLoading && !user) {
+                    console.log('AkunSaya: No user found and not loading, redirecting to Login');
+                    navigation.navigate('Login');
+                }
+            }, 1000); // 1s is safer for full state propagation
+
+            return () => clearTimeout(checkAuth);
+        }, [user, isLoading, navigation])
     );
 
     const handleLogout = async () => {
