@@ -6,6 +6,7 @@ const AppTextInput: React.FC<TextInputProps> = ({ style, ...props }) => {
         <TextInput
             {...props}
             style={[styles.defaultInput, style]}
+            placeholderTextColor={'#000'}
             maxFontSizeMultiplier={1.2} // Cap scaling to 1.2x to prevent layout breakage
         />
     );

@@ -294,7 +294,8 @@ const JualScreen = () => {
     const needsConditionField = () => {
         const subName = formData.subcategory_name?.toLowerCase() || '';
         const catName = formData.category_name?.toLowerCase() || '';
-        return subName.includes('sparepart') ||
+        return isVehicleCategory() ||
+            subName.includes('sparepart') ||
             subName.includes('aksesoris') ||
             subName.includes('bengkel') ||
             subName.includes('velg') ||
@@ -399,6 +400,10 @@ const JualScreen = () => {
 
         if (isVehicleCategory()) {
             required.push('brand_id', 'type_id', 'fuel_type', 'transmission', 'year');
+        }
+
+        if (needsConditionField()) {
+            required.push('condition');
         }
 
         if (isPropertyCategory()) {

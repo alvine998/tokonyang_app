@@ -60,8 +60,10 @@ const LoginScreen = () => {
 
     const handleGoogleLogin = async () => {
         setLoading(true);
+        console.log('Starting Google login process...');
         try {
             await loginWithGoogle();
+            console.log('Google login process completed in AuthContext, resetting navigation to Main...');
             navigation.dispatch(
                 CommonActions.reset({
                     index: 0,
@@ -83,6 +85,7 @@ const LoginScreen = () => {
                 })
             );
         } catch (error: any) {
+            console.error('Google login catch block reached:', error.message);
             Alert.alert('Login Google Gagal', error.message);
         } finally {
             setLoading(false);

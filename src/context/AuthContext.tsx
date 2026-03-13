@@ -95,25 +95,28 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
                 headers: AUTH_HEADERS
             });
 
-            console.log('Fetch User Details Response:', JSON.stringify(response.data, null, 2));
+            console.log('[AUTH_DEBUG] Fetch User Details Response:', JSON.stringify(response.data, null, 2));
 
             // Support both { items: { rows: [...] } } and direct object or { data: [...] }
             let fullUserData = null;
             if (response.data?.items?.rows?.[0]) {
                 fullUserData = response.data.items.rows[0];
+                console.log('[AUTH_DEBUG] Found user in response.data.items.rows[0]');
             } else if (Array.isArray(response.data) && response.data.length > 0) {
                 fullUserData = response.data[0];
+                console.log('[AUTH_DEBUG] Found user in response.data[0] (Array)');
             } else if (response.data?.id) {
                 fullUserData = response.data;
+                console.log('[AUTH_DEBUG] Found user in response.data (Object with id)');
             }
 
             if (fullUserData) {
-                console.log('User details found, saving and setting user state');
+                console.log('[AUTH_DEBUG] User details found, saving and setting user state:', fullUserData.id);
                 await AsyncStorage.setItem('user_session', JSON.stringify(fullUserData));
                 setUser(fullUserData);
                 return fullUserData;
             } else {
-                console.log('No user details found in response. Structure might be different.');
+                console.log('[AUTH_DEBUG] No user details found in response. data keys:', Object.keys(response.data || {}));
             }
         } catch (error: any) {
             console.error('Failed to fetch user details:', error.response?.data || error.message);
@@ -273,40 +276,54 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     };
 
     const loginWithGoogle = async () => {
+        setIsLoading(true);
         try {
             await GoogleSignin.hasPlayServices();
             const userInfo = await GoogleSignin.signIn();
 
             // Send to your backend API
-            // Note: Since I don't have the specific endpoint, I'll assume /user/login-google
-            // or we might need to register them first if they don't exist.
-            const response = await axios.post(`${API_BASE_URL}/user/login-google`, {
-                idToken: userInfo.data?.idToken,
+            console.log('[AUTH_DEBUG] Sending Google user info to backend:', userInfo.data?.user.email);
+            const response = await axios.post(`${API_BASE_URL}/user/login/by/google`, {
                 email: userInfo.data?.user.email,
-                name: userInfo.data?.user.name,
-                google_id: userInfo.data?.user.id,
+                uid: userInfo.data?.user.id,
+                displayName: userInfo.data?.user.name,
+                photoURL: userInfo.data?.user.photo,
+                phoneNumber: null,
             }, {
                 headers: AUTH_HEADERS
             });
 
+            console.log('[AUTH_DEBUG] Google login API response status:', response.status);
+            console.log('[AUTH_DEBUG] Google login API response data:', JSON.stringify(response.data, null, 2));
+
             if (response.data && response.data.user) {
                 const initialUser = response.data.user;
-                await fetchUserDetails(initialUser.id);
+                console.log('[AUTH_DEBUG] Google login successful, fetching details for ID:', initialUser.id || 'NO_ID');
+                if (initialUser.id) {
+                    await fetchUserDetails(initialUser.id);
+                } else {
+                    console.log('[AUTH_DEBUG] User object received but missing id, setting user from response data');
+                    await AsyncStorage.setItem('user_session', JSON.stringify(initialUser));
+                    setUser(initialUser);
+                }
             } else {
+                console.log('[AUTH_DEBUG] Google login response missing user object, keys found:', Object.keys(response.data || {}));
                 throw new Error(response.data.message || 'Login Google gagal');
             }
         } catch (error: any) {
+            console.error('[AUTH_DEBUG] loginWithGoogle catch error:', error.response?.data || error.message);
             if (error.code === statusCodes.SIGN_IN_CANCELLED) {
-                // user cancelled the login flow
+                // ... (no changes)
             } else if (error.code === statusCodes.IN_PROGRESS) {
-                // operation (e.g. sign in) is in progress already
+                // ... (no changes)
             } else if (error.code === statusCodes.PLAY_SERVICES_NOT_AVAILABLE) {
-                // play services not available or outdated
                 throw new Error('Play services tidak tersedia');
             } else {
                 const errorMessage = error.response?.data?.message || error.message || 'Terjadi kesalahan saat login Google';
                 throw new Error(errorMessage);
             }
+        } finally {
+            setIsLoading(false);
         }
     };
 
