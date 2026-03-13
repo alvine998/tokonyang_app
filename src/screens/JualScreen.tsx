@@ -135,13 +135,31 @@ const JualScreen = () => {
         showTransmissionModal || showConditionModal || showProvinceModal ||
         showCityModal || showDistrictModal;
 
-    // Redirect to Login if user is not signed in
+    const resetForm = () => {
+        console.log('Resetting Jual screen state...');
+        setCurrentStep(0);
+        setCompletedSteps([1]);
+        setFormData({});
+        setImages([]);
+        setCities([]);
+        setDistricts([]);
+    };
+
+    // Redirect to Login if user is not signed in and handle state reset on focus
     useFocusEffect(
         React.useCallback(() => {
             if (!user) {
                 navigation.navigate('Login');
+                return;
             }
-        }, [user, navigation])
+
+            // Only reset if not editing an existing ad
+            if (!route.params?.editId) {
+                resetForm();
+            } else {
+                console.log('Jual screen focused in edit mode, not resetting.');
+            }
+        }, [user, navigation, route.params?.editId])
     );
 
     // Hide bottom tabs when modal is visible
