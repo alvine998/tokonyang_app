@@ -63,6 +63,7 @@ const AdsListScreen = () => {
                     "x-partner-code": "id.marketplace.tokotitoh",
                 },
             });
+            console.log(response.data.items.rows);
             if (response.data && response.data.items) {
                 setBrands(response.data.items.rows);
             }
@@ -567,7 +568,7 @@ const AdsListScreen = () => {
                                 {activeFilterTab === 'MEREK' && (
                                     <View style={styles.brandContainer}>
                                         <View style={styles.logoGrid}>
-                                            {(apiBrands.length > 0 ? apiBrands.filter((brand) => brand.image !== null).slice(0, 9) : brands).map((brand) => (
+                                            {brands.filter((brand: any) => brand.image !== null).map((brand: any) => (
                                                 <TouchableOpacity
                                                     key={brand.id}
                                                     style={[
@@ -586,7 +587,7 @@ const AdsListScreen = () => {
                                         </View>
 
                                         <View style={styles.brandList}>
-                                            {(apiBrands.length > 9 ? apiBrands.slice(9) : brands).map((brandOrName: any) => {
+                                            {brands.map((brandOrName: any) => {
                                                 const brandName = typeof brandOrName === 'string' ? brandOrName : brandOrName.name;
                                                 const brandId = typeof brandOrName === 'string' ? brandOrName : brandOrName.id;
                                                 return (
@@ -879,106 +880,129 @@ const AdsListScreen = () => {
                 <View style={styles.modalOverlay}>
                     <View style={styles.newModalContent}>
                         <View style={styles.newModalHeader}>
-                            <AppText style={styles.newModalTitle}>Pilih Lokasi</AppText>
-                            <View style={styles.headerActionRow}>
-                                <TouchableOpacity
-                                    style={styles.resetHeaderBtn}
-                                    onPress={() => {
-                                        setFilters({ ...filters, province_id: '', city_id: '', district_id: '' });
-                                        setCities([]);
-                                        setDistricts([]);
-                                    }}>
-                                    <AppText style={styles.resetHeaderText}>Reset</AppText>
-                                </TouchableOpacity>
-                                <TouchableOpacity onPress={() => setIsLocationModalVisible(false)}>
-                                    <Icon name="close-circle-outline" size={32} color="#000" />
-                                </TouchableOpacity>
-                            </View>
+                            <View style={{ width: 32 }} />
+                            <AppText style={[styles.newModalTitle, { textAlign: 'center' }]}>Pilih Lokasi</AppText>
+                            <TouchableOpacity onPress={() => setIsLocationModalVisible(false)}>
+                                <Icon name="close-circle-outline" size={32} color="#000" />
+                            </TouchableOpacity>
                         </View>
 
-                        <ScrollView style={styles.newFilterContentScroll}>
-                            <View style={styles.newFilterSection}>
-                                <AppText style={styles.newSectionLabel}>Pilih Provinsi</AppText>
-                                <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.chipScroll}>
-                                    <View style={styles.chipContainer}>
-                                        {provinces.map((p) => (
+                        <ScrollView style={styles.newFilterContentScroll} showsVerticalScrollIndicator={false}>
+                            {/* Province Selection */}
+                            {filters.province_id === '' ? (
+                                <>
+                                    <TouchableOpacity
+                                        style={styles.locationListItem}
+                                        onPress={() => {
+                                            setFilters({ ...filters, province_id: '', city_id: '', district_id: '' });
+                                            setCities([]);
+                                            setDistricts([]);
+                                        }}>
+                                        <AppText style={styles.locationListText}>Semua Provinsi</AppText>
+                                        <Icon name="chevron-forward" size={20} color="#000" />
+                                    </TouchableOpacity>
+                                    {provinces.map((p) => (
+                                        <TouchableOpacity
+                                            key={p.id}
+                                            style={styles.locationListItem}
+                                            onPress={() => {
+                                                setFilters({ ...filters, province_id: p.id, city_id: '', district_id: '' });
+                                                setCities([]);
+                                                setDistricts([]);
+                                                fetchCities(p.id);
+                                            }}>
+                                            <AppText style={styles.locationListText}>{p.name}</AppText>
+                                            <Icon name="chevron-forward" size={20} color="#000" />
+                                        </TouchableOpacity>
+                                    ))}
+                                </>
+                            ) : filters.city_id === '' ? (
+                                <>
+                                    <TouchableOpacity
+                                        style={[styles.locationListItem, { backgroundColor: '#F9FAFB' }]}
+                                        onPress={() => {
+                                            setFilters({ ...filters, province_id: '', city_id: '', district_id: '' });
+                                            setCities([]);
+                                        }}>
+                                        <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+                                            <Icon name="arrow-back" size={20} color="#2D5BD6" style={{ marginRight: 8 }} />
+                                            <AppText style={[styles.locationListText, { color: '#2D5BD6', fontWeight: 'bold' }]}>
+                                                {provinces.find(p => p.id === filters.province_id)?.name}
+                                            </AppText>
+                                        </View>
+                                    </TouchableOpacity>
+                                    {loadingCities ? (
+                                        <ActivityIndicator style={{ marginTop: 20 }} color="#2D5BD6" />
+                                    ) : (
+                                        cities.map((c) => (
                                             <TouchableOpacity
-                                                key={p.id}
-                                                style={[
-                                                    styles.chip,
-                                                    filters.province_id === p.id && styles.activeChip
-                                                ]}
+                                                key={c.id}
+                                                style={styles.locationListItem}
                                                 onPress={() => {
-                                                    setFilters({ ...filters, province_id: p.id, city_id: '', district_id: '' });
-                                                    setCities([]);
+                                                    setFilters({ ...filters, city_id: c.id, district_id: '' });
                                                     setDistricts([]);
-                                                    fetchCities(p.id);
+                                                    fetchDistricts(c.id);
                                                 }}>
-                                                <AppText style={[
-                                                    styles.chipText,
-                                                    filters.province_id === p.id && styles.activeChipText
-                                                ]}>{p.name}</AppText>
+                                                <AppText style={styles.locationListText}>{c.name}</AppText>
+                                                <Icon name="chevron-forward" size={20} color="#000" />
                                             </TouchableOpacity>
-                                        ))}
-                                    </View>
-                                </ScrollView>
-
-                                {filters.province_id !== '' && (
-                                    <>
-                                        <AppText style={[styles.newSectionLabel, { marginTop: 20 }]}>Pilih Kota</AppText>
-                                        <View style={styles.chipContainer}>
-                                            {cities.map((c) => (
+                                        ))
+                                    )}
+                                </>
+                            ) : (
+                                <>
+                                    <TouchableOpacity
+                                        style={[styles.locationListItem, { backgroundColor: '#F9FAFB' }]}
+                                        onPress={() => {
+                                            setFilters({ ...filters, city_id: '', district_id: '' });
+                                            setDistricts([]);
+                                        }}>
+                                        <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+                                            <Icon name="arrow-back" size={20} color="#2D5BD6" style={{ marginRight: 8 }} />
+                                            <AppText style={[styles.locationListText, { color: '#2D5BD6', fontWeight: 'bold' }]}>
+                                                {cities.find(c => c.id === filters.city_id)?.name}
+                                            </AppText>
+                                        </View>
+                                    </TouchableOpacity>
+                                    {loadingDistricts ? (
+                                        <ActivityIndicator style={{ marginTop: 20 }} color="#2D5BD6" />
+                                    ) : (
+                                        <>
+                                            <TouchableOpacity
+                                                style={styles.locationListItem}
+                                                onPress={() => {
+                                                    setFilters({ ...filters, district_id: '' });
+                                                }}>
+                                                <AppText style={[styles.locationListText, filters.district_id === '' && { color: '#2D5BD6', fontWeight: 'bold' }]}>
+                                                    Semua Kecamatan
+                                                </AppText>
+                                                <Icon name="chevron-forward" size={20} color="#000" />
+                                            </TouchableOpacity>
+                                            {districts.map((d) => (
                                                 <TouchableOpacity
-                                                    key={c.id}
-                                                    style={[
-                                                        styles.chip,
-                                                        filters.city_id === c.id && styles.activeChip
-                                                    ]}
-                                                    onPress={() => {
-                                                        setFilters({ ...filters, city_id: c.id, district_id: '' });
-                                                        setDistricts([]);
-                                                        fetchDistricts(c.id);
-                                                    }}>
-                                                    <AppText style={[
-                                                        styles.chipText,
-                                                        filters.city_id === c.id && styles.activeChipText
-                                                    ]}>{c.name}</AppText>
+                                                    key={d.id}
+                                                    style={styles.locationListItem}
+                                                    onPress={() => setFilters({ ...filters, district_id: d.id })}>
+                                                    <AppText style={[styles.locationListText, filters.district_id === d.id && { color: '#2D5BD6', fontWeight: 'bold' }]}>
+                                                        {d.name}
+                                                    </AppText>
+                                                    <Icon name="chevron-forward" size={20} color="#000" />
                                                 </TouchableOpacity>
                                             ))}
-                                        </View>
-                                        {filters.city_id !== '' && (
-                                            <>
-                                                <AppText style={[styles.newSectionLabel, { marginTop: 20 }]}>Pilih Kecamatan</AppText>
-                                                <View style={styles.chipContainer}>
-                                                    {districts.map((d) => (
-                                                        <TouchableOpacity
-                                                            key={d.id}
-                                                            style={[
-                                                                styles.chip,
-                                                                filters.district_id === d.id && styles.activeChip
-                                                            ]}
-                                                            onPress={() => setFilters({ ...filters, district_id: d.id })}>
-                                                            <AppText style={[
-                                                                styles.chipText,
-                                                                filters.district_id === d.id && styles.activeChipText
-                                                            ]}>{d.name}</AppText>
-                                                        </TouchableOpacity>
-                                                    ))}
-                                                </View>
-                                            </>
-                                        )}
-                                    </>
-                                )}
-                            </View>
+                                        </>
+                                    )}
+                                </>
+                            )}
                         </ScrollView>
 
                         <TouchableOpacity
                             style={styles.newApplyButton}
                             onPress={() => {
                                 setIsLocationModalVisible(false);
+                                setPage(0);
                                 fetchAds(0, true);
                             }}>
-                            <AppText style={styles.newApplyButtonText}>Terapkan Lokasi</AppText>
+                            <AppText style={styles.newApplyButtonText}>Terapkan</AppText>
                         </TouchableOpacity>
                     </View>
                 </View>
@@ -1303,6 +1327,19 @@ const styles = StyleSheet.create({
     logo: {
         width: 30,
         height: 30,
+    },
+    locationListItem: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+        paddingVertical: 14,
+        paddingHorizontal: 16,
+        borderBottomWidth: 1,
+        borderBottomColor: '#F2F4F5',
+    },
+    locationListText: {
+        fontSize: 16,
+        color: '#000',
     },
 });
 

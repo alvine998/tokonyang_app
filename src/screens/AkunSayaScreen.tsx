@@ -83,7 +83,7 @@ const AkunSayaScreen = () => {
 
                 {/* Menu Items */}
                 <View style={styles.menuContainer}>
-                    {user && <MenuItem label="Pengaturan Akun" onPress={() => navigation.navigate('UbahPassword')} />}
+                    {user && <MenuItem label="Pengaturan Akun" onPress={() => navigation.navigate('PengaturanAkun')} />}
                     {/* <MenuItem label="Download Aplikasi" /> */}
                     <MenuItem label="Pusat Bantuan" onPress={() => navigation.navigate('PusatBantuan')} />
                     <MenuItem label="Hubungi Kami" onPress={() => navigation.navigate('HubungiKami')} />
@@ -93,7 +93,7 @@ const AkunSayaScreen = () => {
 
                     {/* Version */}
                     <View style={styles.versionContainer}>
-                        <AppText style={styles.versionText}>Versi 1.0.3</AppText>
+                        <AppText style={styles.versionText}>Versi 1.0.18</AppText>
                     </View>
                 </View>
 

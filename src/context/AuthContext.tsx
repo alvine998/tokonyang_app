@@ -333,7 +333,12 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         } catch (error) {
             console.error('Google SignOut error:', error);
         }
-        await AsyncStorage.removeItem('user_session');
+        try {
+            await AsyncStorage.clear();
+        } catch (error) {
+            console.error('AsyncStorage clear error:', error);
+            await AsyncStorage.removeItem('user_session');
+        }
         setUser(null);
     };
 

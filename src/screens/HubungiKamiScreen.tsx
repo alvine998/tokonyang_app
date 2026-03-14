@@ -64,7 +64,7 @@ const HubungiKamiScreen = () => {
                     <Icon name="logo-whatsapp" size={24} color="#25D366" />
                     <View style={styles.contactInfo}>
                         <AppText style={styles.contactLabel}>Whatsapp:</AppText>
-                        <AppText style={styles.contactValue}>(+62) 852-1302-6262</AppText>
+                        <AppText style={styles.contactValue}>(+62) 852-1264-2649</AppText>
                     </View>
                 </TouchableOpacity>
 

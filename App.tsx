@@ -30,6 +30,7 @@ import TentangTokotitohScreen from './src/screens/TentangTokotitohScreen';
 import HapusAkunScreen from './src/screens/HapusAkunScreen';
 import CategoryListScreen from './src/screens/CategoryListScreen';
 import HubungiKamiScreen from './src/screens/HubungiKamiScreen';
+import PengaturanAkunScreen from './src/screens/PengaturanAkunScreen';
 
 import { AuthProvider, useAuth } from './src/context/AuthContext';
 import LoginScreen from './src/screens/LoginScreen';
@@ -148,6 +149,7 @@ function App() {
               <Stack.Screen name="NotificationDetail" component={NotificationDetailScreen} />
               <Stack.Screen name="EditProfile" component={EditProfileScreen} />
               <Stack.Screen name="UbahPassword" component={UbahPasswordScreen} />
+              <Stack.Screen name="PengaturanAkun" component={PengaturanAkunScreen} />
               <Stack.Screen name="SyaratKetentuan" component={SyaratKetentuanScreen} />
               <Stack.Screen name="KebijakanPrivasi" component={KebijakanPrivasiScreen} />
               <Stack.Screen name="PusatBantuan" component={PusatBantuanScreen} />
