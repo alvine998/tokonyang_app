@@ -5,7 +5,6 @@ export const navsCar = [
   { name: 'TAHUN' },
   { name: 'TRANSMISI' },
   { name: 'BAHAN BAKAR' },
-  { name: 'KONDISI' },
   { name: 'URUTKAN' },
   // { name: 'KATEGORI' },
 ];

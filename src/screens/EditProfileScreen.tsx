@@ -56,12 +56,26 @@ const EditProfileScreen = () => {
             );
             if (response.data?.items?.rows && response.data.items.rows.length > 0) {
                 const data = response.data.items.rows[0];
+
+                // Parse image if it's a JSON string
+                let imageUrl = data.image || '';
+                try {
+                    if (imageUrl && imageUrl.startsWith('[')) {
+                        const parsed = JSON.parse(imageUrl);
+                        if (Array.isArray(parsed) && parsed.length > 0) {
+                            imageUrl = parsed[0];
+                        }
+                    }
+                } catch (e) {
+                    console.log('Failed to parse profile image JSON:', e);
+                }
+
                 setProfile({
                     id: data.id || 0,
                     name: data.name || '',
                     email: data.email || '',
                     phone: data.phone || '',
-                    image: data.image || '',
+                    image: imageUrl,
                 });
             }
         } catch (error) {
@@ -95,6 +109,9 @@ const EditProfileScreen = () => {
             if (result.assets && result.assets.length > 0) {
                 const asset = result.assets[0];
                 if (asset.uri) {
+                    // Set preview immediately
+                    setProfile((prev: any) => ({ ...prev, image: asset.uri }));
+
                     setUploadingAvatar(true);
                     try {
                         // Upload avatar to API
@@ -121,19 +138,18 @@ const EditProfileScreen = () => {
                         const uploadResult = await uploadResponse.json();
                         console.log('image upload response:', uploadResult);
 
-                        // If the API returns a URL, use it (typically firebasestorage.googleapis.com)
+                        // If the API returns a URL, use it
                         if (uploadResult.url) {
-                            setProfile({ ...profile, image: uploadResult.url });
+                            setProfile((prev: any) => ({ ...prev, image: uploadResult.url }));
                         } else if (uploadResult.data?.url) {
-                            setProfile({ ...profile, image: uploadResult.data.url });
+                            setProfile((prev: any) => ({ ...prev, image: uploadResult.data.url }));
                         } else {
                             throw new Error('Upload success but no URL returned');
                         }
                     } catch (uploadError: any) {
                         console.error('image upload error:', uploadError);
-                        // Fallback to local URI so user sees the image, but warn them
-                        setProfile({ ...profile, image: asset.uri });
-                        Alert.alert('Info', 'Gagal mengunggah ke server. Menggunakan gambar lokal (mungkin tidak tersimpan secara permanen).');
+                        // We already have the preview from asset.uri
+                        Alert.alert('Info', 'Gagal mengunggah ke server. Perubahan foto mungkin tidak tersimpan secara permanen.');
                     } finally {
                         setUploadingAvatar(false);
                     }
@@ -197,6 +213,7 @@ const EditProfileScreen = () => {
             </SafeAreaView>
         );
     }
+    console.log(profile, "profile")
 
     return (
         <SafeAreaView style={styles.container}>

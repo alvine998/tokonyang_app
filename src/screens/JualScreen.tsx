@@ -67,7 +67,7 @@ const FUEL_TYPES = [
 const TRANSMISSION_TYPES = [
     { value: 'MT', label: 'Manual' },
     { value: 'AT', label: 'Automatic' },
-    { value: 'CVT', label: 'CVT' },
+    // { value: 'CVT', label: 'CVT' },
 ];
 
 const CONDITION_TYPES = [
@@ -312,8 +312,13 @@ const JualScreen = () => {
     const needsConditionField = () => {
         const subName = formData.subcategory_name?.toLowerCase() || '';
         const catName = formData.category_name?.toLowerCase() || '';
-        return isVehicleCategory() ||
-            subName.includes('sparepart') ||
+
+        // Hide for Mobil & Motor as requested
+        if (catName.includes('mobil') || catName.includes('motor')) {
+            return false;
+        }
+
+        return subName.includes('sparepart') ||
             subName.includes('aksesoris') ||
             subName.includes('bengkel') ||
             subName.includes('velg') ||

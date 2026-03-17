@@ -5,6 +5,7 @@ import {
     TouchableOpacity,
     ScrollView,
     SafeAreaView,
+    Image,
 } from 'react-native';
 import AppText from '../components/AppText';
 import Icon from 'react-native-vector-icons/Ionicons';
@@ -42,6 +43,23 @@ const AkunSayaScreen = () => {
         </TouchableOpacity>
     );
 
+    const getProfileImage = (imageStr: any) => {
+        if (!imageStr) return null;
+        try {
+            if (typeof imageStr === 'string' && imageStr.startsWith('[')) {
+                const parsed = JSON.parse(imageStr);
+                if (Array.isArray(parsed) && parsed.length > 0) {
+                    return parsed[0];
+                }
+            }
+            return imageStr;
+        } catch (e) {
+            return imageStr;
+        }
+    };
+
+    const userImageUrl = getProfileImage((user as any)?.image);
+
     return (
         <SafeAreaView style={styles.container}>
             <ScrollView showsVerticalScrollIndicator={false}>
@@ -49,7 +67,14 @@ const AkunSayaScreen = () => {
                 {user ? (
                     <View style={styles.profileHeader}>
                         <View style={styles.avatarContainer}>
-                            <Icon name="person-circle-outline" size={70} color="#000" />
+                            {userImageUrl ? (
+                                <Image
+                                    source={{ uri: userImageUrl }}
+                                    style={styles.avatar}
+                                />
+                            ) : (
+                                <Icon name="person-circle-outline" size={70} color="#000" />
+                            )}
                         </View>
                         <View style={styles.profileInfo}>
                             <AppText style={styles.userName}>{user.name}</AppText>
@@ -126,6 +151,18 @@ const styles = StyleSheet.create({
     },
     avatarContainer: {
         marginRight: 16,
+        width: 70,
+        height: 70,
+        borderRadius: 35,
+        overflow: 'hidden',
+        backgroundColor: '#F5F5F5',
+        justifyContent: 'center',
+        alignItems: 'center',
+    },
+    avatar: {
+        width: 70,
+        height: 70,
+        borderRadius: 35,
     },
     profileInfo: {
         flex: 1,

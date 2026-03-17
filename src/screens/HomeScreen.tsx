@@ -258,6 +258,15 @@ const HomeScreen = () => {
                     )}
                 </View>
 
+                <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', marginTop: normalize(-50) }}>
+                    <Image source={require('../assets/images/indo_map.jpeg')} style={{ width: normalize(300), height: normalize(300) }} resizeMode="contain" />
+                    <View style={{ flexDirection: 'row', alignItems: 'center', gap: normalize(10), marginTop: normalize(-50) }}>
+                        <AppText style={{ fontSize: normalize(30), fontWeight: 'bold', color: '#000' }}>Halo,</AppText>
+                        <AppText style={{ fontSize: normalize(30), fontWeight: 'bold', color: 'blue' }}>Selamat Datang!</AppText>
+                    </View>
+                    <AppText style={{ fontSize: normalize(24), color: '#000', textAlign: 'center', marginTop: normalize(10), fontWeight: 500 }}>Di Tokotitoh Tempatnya Jual Beli Online Seluruh Indonesia</AppText>
+                </View>
+
                 <View style={styles.contentPadding} />
             </ScrollView>
 
