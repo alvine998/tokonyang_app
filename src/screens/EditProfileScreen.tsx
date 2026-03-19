@@ -170,7 +170,7 @@ const EditProfileScreen = () => {
         setSaving(true);
         try {
             const payload = {
-                id: profile.id || userId || 1,
+                id: profile.id || userId,
                 name: profile.name,
                 email: profile.email,
                 phone: profile.phone,

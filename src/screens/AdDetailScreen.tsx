@@ -151,7 +151,7 @@ const AdDetailScreen = () => {
         try {
             let parsed = JSON.parse(currentSavedAdsStr);
             if (typeof parsed === 'string' && parsed.startsWith('[')) {
-                try { parsed = JSON.parse(parsed); } catch (e) {}
+                try { parsed = JSON.parse(parsed); } catch (e) { }
             }
             if (Array.isArray(parsed)) {
                 savedAds = parsed.map(String);
@@ -194,6 +194,54 @@ const AdDetailScreen = () => {
             console.error('Error saving ad:', error);
             Alert.alert('Error', 'Gagal menyimpan iklan');
         }
+    };
+
+    const handleEdit = () => {
+        if (!ad) return;
+        navigation.navigate('Jual', {
+            editId: ad.id,
+            adData: ad
+        });
+    };
+
+    const handleDelete = () => {
+        if (!ad) return;
+
+        Alert.alert(
+            'Konfirmasi Hapus',
+            'Apakah Anda yakin ingin menghapus iklan ini?',
+            [
+                { text: 'Batal', style: 'cancel' },
+                {
+                    text: 'Hapus',
+                    style: 'destructive',
+                    onPress: async () => {
+                        try {
+                            setLoading(true);
+                            const response = await axios.delete(`https://api.tokotitoh.co.id/ads?id=${ad.id}`, {
+                                headers: {
+                                    'Content-Type': 'application/json',
+                                    'Accept': 'application/json',
+                                    'bearer-token': 'tokotitohapi',
+                                    'x-partner-code': 'id.marketplace.tokotitoh'
+                                },
+                            });
+
+                            if (response.status === 200 || response.status === 204) {
+                                Alert.alert('Sukses', 'Iklan berhasil dihapus');
+                                navigation.goBack();
+                            } else {
+                                throw new Error('Gagal menghapus iklan');
+                            }
+                        } catch (error) {
+                            console.error('Error deleting ad:', error);
+                            Alert.alert('Error', 'Gagal menghapus iklan');
+                            setLoading(false);
+                        }
+                    }
+                }
+            ]
+        );
     };
 
     const uploadImageToApi = async (uri: string) => {
@@ -365,8 +413,11 @@ const AdDetailScreen = () => {
                         <TouchableOpacity style={styles.headerBtn} onPress={() => setIsReportModalVisible(true)}>
                             <Icon name="flag-outline" size={24} color="#000" />
                         </TouchableOpacity>
-                        <TouchableOpacity style={styles.headerBtn}>
-                            <Icon name="heart-outline" size={24} color="#000" />
+                        <TouchableOpacity
+                            style={[styles.headerBtn]}
+                            onPress={handleSave}
+                        >
+                            <Icon name={isSaved ? "heart" : "heart-outline"} size={24} color={isSaved ? "#000" : "#000"} />
                         </TouchableOpacity>
                     </View>
                 </View>
@@ -555,10 +606,23 @@ const AdDetailScreen = () => {
 
             {/* Bottom Actions */}
             <View style={styles.bottomActions}>
-                <TouchableOpacity style={styles.waBtn} onPress={handleWhatsApp}>
-                    <Icon name="logo-whatsapp" size={20} color="#fff" />
-                    <AppText style={styles.waBtnText}>Whatsapp Now</AppText>
-                </TouchableOpacity>
+                {user?.id === ad?.user_id ? (
+                    <>
+                        <TouchableOpacity style={[styles.editBtn, { flex: 1 }]} onPress={handleEdit}>
+                            <Icon name="create-outline" size={20} color="#fff" />
+                            <AppText style={styles.waBtnText}>Edit Iklan</AppText>
+                        </TouchableOpacity>
+                        <TouchableOpacity style={[styles.deleteAdBtn, { flex: 1 }]} onPress={handleDelete}>
+                            <Icon name="trash-outline" size={20} color="#fff" />
+                            <AppText style={styles.waBtnText}>Hapus Iklan</AppText>
+                        </TouchableOpacity>
+                    </>
+                ) : (
+                    <TouchableOpacity style={styles.waBtn} onPress={handleWhatsApp}>
+                        <Icon name="logo-whatsapp" size={20} color="#fff" />
+                        <AppText style={styles.waBtnText}>Whatsapp Now</AppText>
+                    </TouchableOpacity>
+                )}
             </View>
 
             {/* Report Modal */}
@@ -865,6 +929,24 @@ const styles = StyleSheet.create({
         borderTopWidth: 1,
         borderTopColor: '#F2F4F5',
         gap: 12,
+    },
+    editBtn: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'center',
+        backgroundColor: '#002F34',
+        paddingVertical: 14,
+        borderRadius: 8,
+        gap: 8,
+    },
+    deleteAdBtn: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'center',
+        backgroundColor: '#D9534F',
+        paddingVertical: 14,
+        borderRadius: 8,
+        gap: 8,
     },
     modalOverlay: {
         flex: 1,

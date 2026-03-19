@@ -162,7 +162,40 @@ const JualScreen = () => {
         }, [user, navigation, route.params?.editId])
     );
 
-    // Hide bottom tabs when modal is visible
+    useEffect(() => {
+        if (editId && route.params?.adData) {
+            const ad = route.params.adData;
+            console.log('Populating form data for editing:', ad.id);
+            setFormData({
+                ...ad,
+                price: String(ad.price).replace(/\B(?=(\d{3})+(?!\d))/g, '.'),
+            });
+            if (ad.images) {
+                try {
+                    const parsedImages = typeof ad.images === 'string' ? JSON.parse(ad.images) : ad.images;
+                    setImages(parsedImages);
+                } catch (e) {
+                    console.error('Error parsing images in JualScreen:', e);
+                    if (Array.isArray(ad.images)) {
+                        setImages(ad.images);
+                    }
+                }
+            }
+            
+            // Fetch necessary data for dropdowns if needed
+            if (ad.category_id) {
+                fetchSubcategories(ad.category_id);
+                fetchBrands(ad.category_id);
+            }
+            if (ad.province_id) {
+                fetchCities(ad.province_id);
+            }
+            if (ad.city_id) {
+                fetchDistricts(ad.city_id);
+            }
+        }
+    }, [editId, route.params?.adData]);
+
     useEffect(() => {
         navigation.setOptions({
             tabBarStyle: isAnyModalVisible
@@ -558,8 +591,8 @@ const JualScreen = () => {
             // Build payload matching API format
             const payload = {
                 title: formData.title,
-                user_id: formData.user_id || 1, // TODO: Get from auth
-                user_name: formData.user_name || 'User', // TODO: Get from auth
+                user_id: user?.id || formData.user_id || 1,
+                user_name: user?.name || formData.user_name || 'User',
                 brand_id: formData.brand_id || null,
                 brand_name: formData.brand_name || null,
                 type_id: formData.type_id || null,

@@ -75,6 +75,10 @@ const IklanSayaScreen = () => {
                 },
             });
 
+            console.log(user)
+
+            console.log(response.data.items.rows, "response data")
+
             if (response.data && response.data.items && response.data.items.rows) {
                 const mappedAds = response.data.items.rows.map((item: any) => ({
                     id: item.id,
@@ -110,10 +114,10 @@ const IklanSayaScreen = () => {
             let savedIds: string[] = [];
             try {
                 let parsed = JSON.parse(user.save_ads);
-                
+
                 // Handle cases where the backend double-stringified the JSON array
                 if (typeof parsed === 'string' && parsed.startsWith('[')) {
-                    try { parsed = JSON.parse(parsed); } catch (e) {}
+                    try { parsed = JSON.parse(parsed); } catch (e) { }
                 }
 
                 if (Array.isArray(parsed)) {
