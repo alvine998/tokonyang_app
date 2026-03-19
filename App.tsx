@@ -132,13 +132,33 @@ function HomeTabs() {
     </Tab.Navigator>
   );
 }
-
 function App() {
+  const linking: any = {
+    prefixes: [
+      'tokonyang://',
+      'https://tokotitoh.co.id',
+      'http://tokotitoh.co.id',
+    ],
+    config: {
+      screens: {
+        AdDetail: 'category/:subcategory/:adId',
+        Main: {
+          screens: {
+            Home: 'home',
+            Menu: 'menu',
+            'Iklan Saya': 'my-ads',
+            'Akun Saya': 'account',
+          },
+        },
+      },
+    },
+  };
+
   return (
     <SafeAreaProvider>
       <AuthProvider>
         <View style={{ flex: 1, marginTop: 20 }}>
-          <NavigationContainer>
+          <NavigationContainer linking={linking}>
             <Stack.Navigator screenOptions={{ headerShown: false }}>
               <Stack.Screen name="Splash" component={SplashScreen} options={{ animationTypeForReplace: 'pop' }} />
               <Stack.Screen name="Main" component={HomeTabs} />

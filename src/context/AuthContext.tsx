@@ -11,6 +11,7 @@ interface User {
     role: string;
     partner_code: string;
     status: boolean | number;
+    save_ads?: string; // JSON string array of ad IDs
 }
 
 interface AuthContextType {
@@ -26,6 +27,7 @@ interface AuthContextType {
     forgotPassword: (identity: string) => Promise<void>;
     resetPassword: (payload: any) => Promise<void>;
     setUser: React.Dispatch<React.SetStateAction<User | null>>;
+    updateUser: (updatedData: Partial<User>) => Promise<void>;
     otpTimer: number;
     startOtpTimer: (seconds?: number) => void;
 }
@@ -342,6 +344,13 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         setUser(null);
     };
 
+    const updateUser = async (updatedData: Partial<User>) => {
+        if (!user) return;
+        const newUser = { ...user, ...updatedData };
+        setUser(newUser);
+        await AsyncStorage.setItem('user_session', JSON.stringify(newUser));
+    };
+
     return (
         <AuthContext.Provider value={{
             user,
@@ -356,6 +365,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
             forgotPassword,
             resetPassword,
             setUser,
+            updateUser,
             otpTimer,
             startOtpTimer
         }}>

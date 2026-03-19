@@ -61,6 +61,7 @@
 			<key>CFBundleURLSchemes</key>
 			<array>
 				<string>com.googleusercontent.apps.480874086535-7be0ntidffu72ab6ejothp81p74rt24i</string>
+				<string>tokonyang</string>
 			</array>
 		</dict>
 	</array>

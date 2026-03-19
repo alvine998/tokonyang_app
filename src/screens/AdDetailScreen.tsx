@@ -13,12 +13,15 @@ import {
     StatusBar,
     Share,
     Alert,
+    Platform,
 } from 'react-native';
+import { launchImageLibrary, Asset } from 'react-native-image-picker';
 import AppText from '../components/AppText';
 import AppTextInput from '../components/AppTextInput';
 import Icon from 'react-native-vector-icons/Ionicons';
 import axios from 'axios';
 import { useRoute, useNavigation } from '@react-navigation/native';
+import { useAuth } from '../context/AuthContext';
 
 const { width } = Dimensions.get('window');
 
@@ -53,6 +56,7 @@ interface AdDetail {
 const AdDetailScreen = () => {
     const route = useRoute<any>();
     const navigation = useNavigation<any>();
+    const { user, updateUser } = useAuth();
     const { adId } = route.params;
 
     const [ad, setAd] = useState<AdDetail | null>(null);
@@ -68,10 +72,27 @@ const AdDetailScreen = () => {
         type: 'Penipuan',
     });
     const [isReporting, setIsReporting] = useState(false);
+    const [reportImages, setReportImages] = useState<string[]>([]);
+    const [isUploadingImage, setIsUploadingImage] = useState(false);
 
     useEffect(() => {
         fetchAdDetail();
     }, []);
+
+    useEffect(() => {
+        if (user && user.save_ads) {
+            try {
+                const savedAds = JSON.parse(user.save_ads);
+                if (Array.isArray(savedAds)) {
+                    setIsSaved(savedAds.includes(String(adId)));
+                }
+            } catch (e) {
+                console.error('Error parsing save_ads:', e);
+            }
+        } else {
+            setIsSaved(false);
+        }
+    }, [user, adId]);
 
     const fetchAdDetail = async () => {
         try {
@@ -109,17 +130,140 @@ const AdDetailScreen = () => {
 
     const handleShare = async () => {
         try {
+            const subcategory = encodeURIComponent(ad?.subcategory_name?.toLowerCase().replace(/\s+/g, '-') || 'ads');
+            const shareUrl = `https://tokotitoh.co.id/category/${subcategory}/${ad?.id}`;
             await Share.share({
-                message: `Cek iklan ini: ${ad?.title} - https://tokotitoh.co.id/category/${ad?.subcategory_name}/${ad?.id}`,
+                message: `Cek iklan ini: ${ad?.title} - ${shareUrl}`,
             });
         } catch (error) {
             console.error('Error sharing ad:', error);
         }
     };
 
-    const handleSave = () => {
-        setIsSaved(!isSaved);
-        // In a real app, this would call an API
+    const handleSave = async () => {
+        if (!user) {
+            navigation.navigate('Login');
+            return;
+        }
+
+        const currentSavedAdsStr = user.save_ads || '[]';
+        let savedAds: string[] = [];
+        try {
+            let parsed = JSON.parse(currentSavedAdsStr);
+            if (typeof parsed === 'string' && parsed.startsWith('[')) {
+                try { parsed = JSON.parse(parsed); } catch (e) {}
+            }
+            if (Array.isArray(parsed)) {
+                savedAds = parsed.map(String);
+            }
+        } catch (e) {
+            savedAds = [];
+        }
+
+        const adIdStr = String(adId);
+        const alreadySaved = savedAds.includes(adIdStr);
+
+        let newSavedAds: string[];
+        if (alreadySaved) {
+            newSavedAds = savedAds.filter(id => id !== adIdStr);
+        } else {
+            newSavedAds = [...savedAds, adIdStr];
+        }
+
+        const newSavedAdsStr = JSON.stringify(newSavedAds);
+
+        try {
+            const response = await axios.patch('https://api.tokotitoh.co.id/user', {
+                id: user.id,
+                save_ads: newSavedAdsStr
+            }, {
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Accept': 'application/json',
+                    'bearer-token': 'tokotitohapi',
+                    'x-partner-code': 'id.marketplace.tokotitoh'
+                }
+            });
+
+            if (response.status === 200 || response.status === 201) {
+                await updateUser({ save_ads: newSavedAdsStr });
+                setIsSaved(!alreadySaved);
+                Alert.alert('Sukses', alreadySaved ? 'Iklan dihapus dari favorit' : 'Iklan disimpan ke favorit');
+            }
+        } catch (error) {
+            console.error('Error saving ad:', error);
+            Alert.alert('Error', 'Gagal menyimpan iklan');
+        }
+    };
+
+    const uploadImageToApi = async (uri: string) => {
+        try {
+            const formData = new FormData();
+            const filename = uri.split('/').pop() || 'upload.jpg';
+            const match = /\.(\w+)$/.exec(filename);
+            const type = match ? `image/${match[1]}` : `image`;
+
+            formData.append('file', {
+                uri: uri,
+                name: filename,
+                type: type,
+            } as any);
+
+            const response = await fetch('https://api.tokotitoh.co.id/file-upload', {
+                method: 'POST',
+                headers: {
+                    'bearer-token': 'tokotitohapi',
+                    'x-partner-code': 'id.marketplace.tokotitoh',
+                },
+                body: formData,
+            });
+
+            if (!response.ok) {
+                console.error('Upload response not ok:', response.status);
+                return null;
+            }
+
+            const result = await response.json();
+            if (result.status === 'success' && result.url) {
+                return result.url;
+            }
+
+            return null;
+        } catch (error) {
+            console.error('Error uploading image:', error);
+            return null;
+        }
+    };
+
+    const handleAddReportImage = async () => {
+        if (reportImages.length >= 5) {
+            Alert.alert('Peringatan', 'Maksimal 5 gambar yang diperbolehkan.');
+            return;
+        }
+
+        try {
+            const result = await launchImageLibrary({
+                mediaType: 'photo',
+                quality: 0.8,
+                selectionLimit: 5 - reportImages.length,
+            });
+
+            if (result.didCancel) return;
+
+            if (result.assets && result.assets.length > 0) {
+                const selectedUris = result.assets
+                    .map((asset: Asset) => asset.uri || '')
+                    .filter((uri: string) => uri !== '');
+                setReportImages([...reportImages, ...selectedUris]);
+            }
+        } catch (error) {
+            console.error('Error picking image:', error);
+            Alert.alert('Error', 'Gagal memilih gambar');
+        }
+    };
+
+    const handleRemoveReportImage = (index: number) => {
+        setReportImages(reportImages.filter((_, i) => i !== index));
     };
 
     const handleReport = async () => {
@@ -130,14 +274,26 @@ const AdDetailScreen = () => {
 
         setIsReporting(true);
         try {
+            // Upload images if any
+            let uploadedImageUrls: string[] = [];
+            if (reportImages.length > 0) {
+                setIsUploadingImage(true);
+                const uploadPromises = reportImages.map(uri => uploadImageToApi(uri));
+                const results = await Promise.all(uploadPromises);
+                uploadedImageUrls = results.filter((url): url is string => url !== null);
+                setIsUploadingImage(false);
+            }
+
             const payload = {
                 title: `${reportForm.type} - ${reportForm.title}`,
+                partner_code: 'id.marketplace.tokotitoh',
                 description: reportForm.description,
                 type: reportForm.type,
-                ads_id: ad?.id,
+                ads_id: String(ad?.id),
                 ads_name: ad?.title,
-                user_id: 0, // In real app, get from auth
-                user_name: 'Guest', // In real app, get from auth
+                user_id: String(user?.id) || 0,
+                user_name: user?.name || 'Guest',
+                images: uploadedImageUrls,
             };
 
             await axios.post('https://api.tokotitoh.co.id/report', payload, {
@@ -151,12 +307,14 @@ const AdDetailScreen = () => {
 
             setIsReportModalVisible(false);
             setReportForm({ title: '', description: '', type: 'Penipuan' });
+            setReportImages([]);
             Alert.alert('Sukses', 'Berhasil melaporkan iklan ini');
         } catch (error) {
             console.error('Error reporting ad:', error);
             Alert.alert('Error', 'Gagal melaporkan iklan ini, harap hubungi admin');
         } finally {
             setIsReporting(false);
+            setIsUploadingImage(false);
         }
     };
 
@@ -462,13 +620,33 @@ const AdDetailScreen = () => {
                                     <AppText style={styles.radioText}>{type}</AppText>
                                 </TouchableOpacity>
                             ))}
+
+                            <AppText style={styles.inputLabel}>Bukti Gambar (opsional)</AppText>
+                            <View style={styles.reportImagesContainer}>
+                                {reportImages.map((uri, index) => (
+                                    <View key={index} style={styles.reportImageWrapper}>
+                                        <Image source={{ uri }} style={styles.reportImagePreview} />
+                                        <TouchableOpacity
+                                            style={styles.removeReportImageBtn}
+                                            onPress={() => handleRemoveReportImage(index)}>
+                                            <Icon name="close-circle" size={20} color="#D9534F" />
+                                        </TouchableOpacity>
+                                    </View>
+                                ))}
+                                {reportImages.length < 5 && (
+                                    <TouchableOpacity style={styles.addReportImageBtn} onPress={handleAddReportImage}>
+                                        <Icon name="camera-outline" size={30} color="#757575" />
+                                        <AppText style={styles.addReportImageText}>Tambah</AppText>
+                                    </TouchableOpacity>
+                                )}
+                            </View>
                         </ScrollView>
 
                         <TouchableOpacity
-                            style={[styles.submitReportBtn, isReporting && styles.disabledBtn]}
+                            style={[styles.submitReportBtn, (isReporting || isUploadingImage) && styles.disabledBtn]}
                             onPress={handleReport}
-                            disabled={isReporting}>
-                            {isReporting ? (
+                            disabled={isReporting || isUploadingImage}>
+                            {isReporting || isUploadingImage ? (
                                 <ActivityIndicator color="#fff" />
                             ) : (
                                 <AppText style={styles.submitReportBtnText}>Kirim Laporan</AppText>
@@ -793,6 +971,43 @@ const styles = StyleSheet.create({
         fontSize: 16,
         fontWeight: 'bold',
         color: '#fff',
+    },
+    reportImagesContainer: {
+        flexDirection: 'row',
+        flexWrap: 'wrap',
+        gap: 10,
+        marginTop: 10,
+    },
+    reportImageWrapper: {
+        position: 'relative',
+    },
+    reportImagePreview: {
+        width: 80,
+        height: 80,
+        borderRadius: 8,
+    },
+    removeReportImageBtn: {
+        position: 'absolute',
+        top: -5,
+        right: -5,
+        backgroundColor: '#fff',
+        borderRadius: 10,
+    },
+    addReportImageBtn: {
+        width: 80,
+        height: 80,
+        borderRadius: 8,
+        borderWidth: 1,
+        borderColor: '#CED4DA',
+        borderStyle: 'dashed',
+        justifyContent: 'center',
+        alignItems: 'center',
+        backgroundColor: '#F7F8F9',
+    },
+    addReportImageText: {
+        fontSize: 10,
+        color: '#757575',
+        marginTop: 4,
     },
     errorContainer: {
         flex: 1,
