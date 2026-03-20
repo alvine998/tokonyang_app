@@ -51,6 +51,7 @@ interface AdDetail {
     created_on: string;
     area?: number;
     building?: number;
+    status: number | string;
 }
 
 const AdDetailScreen = () => {
@@ -198,9 +199,12 @@ const AdDetailScreen = () => {
 
     const handleEdit = () => {
         if (!ad) return;
-        navigation.navigate('Jual', {
-            editId: ad.id,
-            adData: ad
+        navigation.navigate('Main', {
+            screen: 'Jual',
+            params: {
+                editId: ad.id,
+                adData: ad
+            }
         });
     };
 
@@ -407,18 +411,24 @@ const AdDetailScreen = () => {
                         <Icon name="arrow-back" size={24} color="#000" />
                     </TouchableOpacity>
                     <View style={styles.headerRight}>
-                        <TouchableOpacity style={styles.headerBtn} onPress={handleShare}>
-                            <Icon name="share-social-outline" size={24} color="#000" />
-                        </TouchableOpacity>
-                        <TouchableOpacity style={styles.headerBtn} onPress={() => setIsReportModalVisible(true)}>
-                            <Icon name="flag-outline" size={24} color="#000" />
-                        </TouchableOpacity>
-                        <TouchableOpacity
-                            style={[styles.headerBtn]}
-                            onPress={handleSave}
-                        >
-                            <Icon name={isSaved ? "heart" : "heart-outline"} size={24} color={isSaved ? "#000" : "#000"} />
-                        </TouchableOpacity>
+                        {Number(ad.status) === 1 && (
+                            <TouchableOpacity style={styles.headerBtn} onPress={handleShare}>
+                                <Icon name="share-social-outline" size={24} color="#000" />
+                            </TouchableOpacity>
+                        )}
+                        {Number(ad.status) === 1 && user?.id !== ad.user_id && (
+                            <TouchableOpacity style={styles.headerBtn} onPress={() => setIsReportModalVisible(true)}>
+                                <Icon name="flag-outline" size={24} color="#000" />
+                            </TouchableOpacity>
+                        )}
+                        {Number(ad.status) === 1 && (
+                            <TouchableOpacity
+                                style={[styles.headerBtn]}
+                                onPress={handleSave}
+                            >
+                                <Icon name={isSaved ? "heart" : "heart-outline"} size={24} color={isSaved ? "#000" : "#000"} />
+                            </TouchableOpacity>
+                        )}
                     </View>
                 </View>
 
@@ -456,7 +466,7 @@ const AdDetailScreen = () => {
                     <AppText style={styles.title}>{ad.title}</AppText>
                     <View style={styles.locationRow}>
                         <Icon name="location-outline" size={14} color="#757575" />
-                        <AppText style={styles.locationText}>{ad.district_name}, {ad.city_name}</AppText>
+                        <AppText style={styles.locationText}>{ad.district_name}, {ad.city_name?.includes("KABUPATEN") ? ad.city_name?.replace("KABUPATEN", "KAB. ") : ad.city_name}</AppText>
                         <AppText style={styles.dateText}> • {new Date(ad.created_on).toLocaleDateString('id-ID')}</AppText>
                     </View>
                 </View>
@@ -496,29 +506,35 @@ const AdDetailScreen = () => {
 
                     {/* General Specs */}
                     <SpecItem icon="location-outline" label="Kota" value={ad.district_name} />
-                    <SpecItem icon="business-outline" label="Kabupaten/Kota" value={ad.city_name} />
+                    <SpecItem icon="business-outline" label="Kab/Kota" value={ad.city_name?.includes("KABUPATEN") ? ad.city_name?.replace("KABUPATEN", "KAB. ") : ad.city_name} />
                     <SpecItem icon="checkmark-circle-outline" label="Kondisi" value={ad.condition} />
                 </View>
 
                 {/* Additional Action Buttons */}
                 <View style={styles.actionRow}>
-                    <TouchableOpacity style={styles.actionBtn} onPress={handleShare}>
-                        <Icon name="share-social-outline" size={18} color="#000" />
-                        <AppText style={styles.actionBtnText}>Bagikan</AppText>
-                    </TouchableOpacity>
-                    <TouchableOpacity style={styles.actionBtn} onPress={() => setIsReportModalVisible(true)}>
-                        <Icon name="flag-outline" size={18} color="#000" />
-                        <AppText style={styles.actionBtnText}>Laporkan</AppText>
-                    </TouchableOpacity>
-                    <TouchableOpacity
-                        style={[styles.actionBtn, isSaved && styles.savedBtn]}
-                        onPress={handleSave}
-                    >
-                        <Icon name={isSaved ? "heart" : "heart-outline"} size={18} color={isSaved ? "#fff" : "#000"} />
-                        <AppText style={[styles.actionBtnText, isSaved && styles.savedBtnText]}>
-                            {isSaved ? "Tersimpan" : "Simpan"}
-                        </AppText>
-                    </TouchableOpacity>
+                    {Number(ad.status) === 1 && (
+                        <TouchableOpacity style={styles.actionBtn} onPress={handleShare}>
+                            <Icon name="share-social-outline" size={18} color="#000" />
+                            <AppText style={styles.actionBtnText}>Bagikan</AppText>
+                        </TouchableOpacity>
+                    )}
+                    {Number(ad.status) === 1 && user?.id !== ad.user_id && (
+                        <TouchableOpacity style={styles.actionBtn} onPress={() => setIsReportModalVisible(true)}>
+                            <Icon name="flag-outline" size={18} color="#000" />
+                            <AppText style={styles.actionBtnText}>Laporkan</AppText>
+                        </TouchableOpacity>
+                    )}
+                    {Number(ad.status) === 1 && (
+                        <TouchableOpacity
+                            style={[styles.actionBtn, isSaved && styles.savedBtn]}
+                            onPress={handleSave}
+                        >
+                            <Icon name={isSaved ? "heart" : "heart-outline"} size={18} color={isSaved ? "#fff" : "#000"} />
+                            <AppText style={[styles.actionBtnText, isSaved && styles.savedBtnText]}>
+                                {isSaved ? "Tersimpan" : "Simpan"}
+                            </AppText>
+                        </TouchableOpacity>
+                    )}
                 </View>
 
                 {/* Description Section */}

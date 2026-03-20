@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import {
     View,
     StyleSheet,
@@ -7,7 +7,11 @@ import {
     Image,
     SafeAreaView,
     Dimensions,
-    ActivityIndicator
+    ActivityIndicator,
+    Modal,
+    Alert,
+    TouchableWithoutFeedback,
+    RefreshControl
 } from 'react-native';
 import AppText from '../components/AppText';
 import Icon from 'react-native-vector-icons/Ionicons';
@@ -16,19 +20,20 @@ import { useAuth } from '../context/AuthContext';
 import { formatAdDate } from '../utils/dateUtils';
 import axios from 'axios';
 
-const { width } = Dimensions.get('window');
+const { width, height } = Dimensions.get('window');
 
 interface AdItem {
     id: number;
     title: string;
     price: string | number;
     image: string;
-    status: 'AKTIF' | 'NONAKTIF' | 'DITOLAK' | '1' | '0' | '2';
+    status: 'AKTIF' | 'NONAKTIF' | 'DITOLAK' | '1' | '0' | '2' | 1 | 0 | 2;
     views?: number;
     favorites?: number;
     expiryDate?: string;
     province_name?: string;
     city_name?: string;
+    originalData?: any;
 }
 
 const IklanSayaScreen = () => {
@@ -37,7 +42,12 @@ const IklanSayaScreen = () => {
     const [mainTab, setMainTab] = useState<'MY_ADS' | 'SAVED_ADS'>('MY_ADS');
     const [activeTab, setActiveTab] = useState<'AKTIF' | 'NONAKTIF' | 'DITOLAK'>('AKTIF');
     const [loading, setLoading] = useState(true);
+    const [refreshing, setRefreshing] = useState(false);
     const [ads, setAds] = useState<AdItem[]>([]);
+
+    // Menu state
+    const [menuVisible, setMenuVisible] = useState(false);
+    const [selectedAd, setSelectedAd] = useState<AdItem | null>(null);
 
     // Redirect to Login if user is not signed in
     useFocusEffect(
@@ -48,6 +58,27 @@ const IklanSayaScreen = () => {
         }, [user, navigation])
     );
 
+    const counts = useMemo(() => {
+        const c = { AKTIF: 0, NONAKTIF: 0, DITOLAK: 0 };
+        if (mainTab !== 'MY_ADS') return c;
+        ads.forEach(ad => {
+            if (ad.status === 'AKTIF' || ad.status === '1' || ad.status === 1) c.AKTIF++;
+            else if (ad.status === 'NONAKTIF' || ad.status === '0' || ad.status === 0) c.NONAKTIF++;
+            else if (ad.status === 'DITOLAK' || ad.status === '2' || ad.status === 2) c.DITOLAK++;
+        });
+        return c;
+    }, [ads, mainTab]);
+
+    const filteredAds = useMemo(() => {
+        if (mainTab !== 'MY_ADS') return ads;
+        return ads.filter(ad => {
+            if (activeTab === 'AKTIF') return ad.status === 'AKTIF' || ad.status === '1' || ad.status === 1;
+            if (activeTab === 'NONAKTIF') return ad.status === 'NONAKTIF' || ad.status === '0' || ad.status === 0;
+            if (activeTab === 'DITOLAK') return ad.status === 'DITOLAK' || ad.status === '2' || ad.status === 2;
+            return false;
+        });
+    }, [ads, activeTab, mainTab]);
+
     useEffect(() => {
         if (!user) return;
 
@@ -56,28 +87,28 @@ const IklanSayaScreen = () => {
         } else {
             fetchSavedAds();
         }
-    }, [mainTab, activeTab, user]);
+    }, [mainTab, user]); // Removed activeTab dependency as we filter locally
 
-    const fetchUserAds = async () => {
-        setLoading(true);
+    const onRefresh = React.useCallback(async () => {
+        setRefreshing(true);
+        if (mainTab === 'MY_ADS') {
+            await fetchUserAds(false);
+        } else {
+            await fetchSavedAds(false);
+        }
+        setRefreshing(false);
+    }, [mainTab]);
+
+
+    const fetchUserAds = async (showLoading = true) => {
+        if (showLoading) setLoading(true);
         try {
-            // Mapping status for API
-            const statusMap = {
-                'AKTIF': '1',
-                'NONAKTIF': '0',
-                'DITOLAK': '2'
-            };
-
-            const response = await axios.get(`https://api.tokotitoh.co.id/ads?user_id=${user?.id}&status=${statusMap[activeTab]}`, {
+            const response = await axios.get(`https://api.tokotitoh.co.id/ads?user_id=${user?.id}`, {
                 headers: {
                     "bearer-token": "tokotitohapi",
                     "x-partner-code": "id.marketplace.tokotitoh",
                 },
             });
-
-            console.log(user)
-
-            console.log(response.data.items.rows, "response data")
 
             if (response.data && response.data.items && response.data.items.rows) {
                 const mappedAds = response.data.items.rows.map((item: any) => ({
@@ -85,10 +116,11 @@ const IklanSayaScreen = () => {
                     title: item.title,
                     price: item.price,
                     image: item.images ? JSON.parse(item.images)[0] : '',
-                    status: activeTab,
-                    views: 0, // Not provided by API currently
+                    status: item.status, // Preserve numeric status for frontend filtering
+                    views: 0,
                     favorites: 0,
-                    expiryDate: item.created_on // Using created_on as placeholder if expired_on is missing
+                    expiryDate: item.created_on,
+                    originalData: item
                 }));
                 setAds(mappedAds);
             } else {
@@ -98,18 +130,18 @@ const IklanSayaScreen = () => {
             console.error('Error fetching user ads:', error);
             setAds([]);
         } finally {
-            setLoading(false);
+            if (showLoading) setLoading(false);
         }
     };
 
-    const fetchSavedAds = async () => {
+    const fetchSavedAds = async (showLoading = true) => {
         if (!user?.save_ads) {
             setAds([]);
-            setLoading(false);
+            if (showLoading) setLoading(false);
             return;
         }
 
-        setLoading(true);
+        if (showLoading) setLoading(true);
         try {
             let savedIds: string[] = [];
             try {
@@ -132,10 +164,9 @@ const IklanSayaScreen = () => {
 
             if (savedIds.length === 0) {
                 setAds([]);
-                setLoading(false);
+                if (showLoading) setLoading(false);
                 return;
             }
-            console.log(savedIds, "parsed savedIds");
 
             // Fetch ads by IDs - Join with comma since API anticipates a string
             const response = await axios.get(`https://api.tokotitoh.co.id/ads?id=${savedIds.join(',')}`, {
@@ -156,7 +187,8 @@ const IklanSayaScreen = () => {
                     favorites: 0,
                     expiryDate: item.created_on,
                     province_name: item.province_name,
-                    city_name: item.city_name
+                    city_name: item.city_name,
+                    originalData: item
                 }));
                 setAds(mappedAds);
             } else {
@@ -166,8 +198,58 @@ const IklanSayaScreen = () => {
             console.error('Error fetching saved ads:', error);
             setAds([]);
         } finally {
-            setLoading(false);
+            if (showLoading) setLoading(false);
         }
+    };
+
+    const handleEdit = () => {
+        if (!selectedAd || !selectedAd.originalData) return;
+        setMenuVisible(false);
+        navigation.navigate('Jual', {
+            editId: selectedAd.id,
+            adData: selectedAd.originalData
+        });
+    };
+
+    const handleDelete = () => {
+        if (!selectedAd) return;
+        setMenuVisible(false);
+
+        Alert.alert(
+            'Konfirmasi Hapus',
+            'Apakah Anda yakin ingin menghapus iklan ini?',
+            [
+                { text: 'Batal', style: 'cancel' },
+                {
+                    text: 'Hapus',
+                    style: 'destructive',
+                    onPress: async () => {
+                        try {
+                            setLoading(true);
+                            const response = await axios.delete(`https://api.tokotitoh.co.id/ads?id=${selectedAd.id}`, {
+                                headers: {
+                                    'Content-Type': 'application/json',
+                                    'Accept': 'application/json',
+                                    'bearer-token': 'tokotitohapi',
+                                    'x-partner-code': 'id.marketplace.tokotitoh'
+                                },
+                            });
+
+                            if (response.status === 200 || response.status === 204) {
+                                Alert.alert('Sukses', 'Iklan berhasil dihapus');
+                                fetchUserAds();
+                            } else {
+                                throw new Error('Gagal menghapus iklan');
+                            }
+                        } catch (error) {
+                            console.error('Error deleting ad:', error);
+                            Alert.alert('Error', 'Gagal menghapus iklan');
+                            setLoading(false);
+                        }
+                    }
+                }
+            ]
+        );
     };
 
     const renderTab = (label: string, type: 'AKTIF' | 'NONAKTIF' | 'DITOLAK', count: number) => (
@@ -189,9 +271,9 @@ const IklanSayaScreen = () => {
             <View style={styles.adMainRow}>
                 <Image source={{ uri: item.image }} style={styles.adImage} />
                 <View style={styles.adInfo}>
-                    <View style={styles.statusBadge}>
+                    {/* <View style={styles.statusBadge}>
                         <AppText style={styles.statusText}>{item.status}</AppText>
-                    </View>
+                    </View> */}
                     <AppText style={styles.titleText} numberOfLines={2}>{item.title}</AppText>
                     <AppText style={styles.priceText}>
                         {typeof item.price === 'number'
@@ -214,14 +296,20 @@ const IklanSayaScreen = () => {
                             <View style={styles.locationRow}>
                                 <Icon name="location-outline" size={14} color="#757575" />
                                 <AppText style={styles.metricText}>
-                                    {item.city_name}, {item.province_name}
+                                    {item.city_name?.includes("KABUPATEN") ? item.city_name?.replace("KABUPATEN", "KAB. ") : item.city_name}, {item.province_name}
                                 </AppText>
                             </View>
                         )}
                     </View>
                 </View>
                 {mainTab === 'MY_ADS' && (
-                    <TouchableOpacity style={styles.menuButton}>
+                    <TouchableOpacity
+                        style={styles.menuButton}
+                        onPress={() => {
+                            setSelectedAd(item);
+                            setMenuVisible(true);
+                        }}
+                    >
                         <Icon name="ellipsis-vertical" size={20} color="#002F34" />
                     </TouchableOpacity>
                 )}
@@ -231,11 +319,6 @@ const IklanSayaScreen = () => {
                 <AppText style={styles.expiryText}>
                     {mainTab === 'MY_ADS' ? `Berakhir pada: ${formatAdDate(item.expiryDate || '')}` : `Ditambahkan pada: ${formatAdDate(item.expiryDate || '')}`}
                 </AppText>
-                {mainTab === 'MY_ADS' && (
-                    <TouchableOpacity style={styles.boostButton}>
-                        <AppText style={styles.boostButtonText}>TINGKATKAN IKLAN</AppText>
-                    </TouchableOpacity>
-                )}
             </View>
         </TouchableOpacity>
     );
@@ -296,9 +379,9 @@ const IklanSayaScreen = () => {
             {/* Status Tabs - only show for MY_ADS */}
             {mainTab === 'MY_ADS' && (
                 <View style={styles.tabBar}>
-                    {renderTab('AKTIF', 'AKTIF', 0)}
-                    {renderTab('NONAKTIF', 'NONAKTIF', 0)}
-                    {renderTab('DITOLAK', 'DITOLAK', 0)}
+                    {renderTab('AKTIF', 'AKTIF', counts.AKTIF)}
+                    {renderTab('NONAKTIF', 'NONAKTIF', counts.NONAKTIF)}
+                    {renderTab('DITOLAK', 'DITOLAK', counts.DITOLAK)}
                 </View>
             )}
 
@@ -309,14 +392,53 @@ const IklanSayaScreen = () => {
                 </View>
             ) : (
                 <FlatList
-                    data={ads}
+                    data={filteredAds}
                     renderItem={renderAdItem}
                     keyExtractor={(item) => item.id.toString()}
                     contentContainerStyle={styles.listContent}
                     ListEmptyComponent={renderEmptyState}
                     showsVerticalScrollIndicator={false}
+                    refreshControl={
+                        <RefreshControl
+                            refreshing={refreshing}
+                            onRefresh={onRefresh}
+                            colors={['#002F34']}
+                            tintColor="#002F34"
+                        />
+                    }
                 />
             )}
+
+            {/* Action Menu Modal */}
+            <Modal
+                visible={menuVisible}
+                transparent={true}
+                animationType="fade"
+                onRequestClose={() => setMenuVisible(false)}
+            >
+                <TouchableWithoutFeedback onPress={() => setMenuVisible(false)}>
+                    <View style={styles.modalOverlay}>
+                        <TouchableWithoutFeedback>
+                            <View style={styles.menuContainer}>
+                                <TouchableOpacity style={styles.menuItem} onPress={handleEdit}>
+                                    <Icon name="create-outline" size={22} color="#002F34" />
+                                    <AppText style={styles.menuItemText}>Edit Iklan</AppText>
+                                </TouchableOpacity>
+                                <View style={styles.menuDivider} />
+                                <TouchableOpacity style={styles.menuItem} onPress={handleDelete}>
+                                    <Icon name="trash-outline" size={22} color="#D9534F" />
+                                    <AppText style={[styles.menuItemText, { color: '#D9534F' }]}>Hapus Iklan</AppText>
+                                </TouchableOpacity>
+                                <View style={styles.menuDivider} />
+                                <TouchableOpacity style={styles.menuItem} onPress={() => setMenuVisible(false)}>
+                                    <Icon name="close-outline" size={22} color="#757575" />
+                                    <AppText style={[styles.menuItemText, { color: '#757575' }]}>Batal</AppText>
+                                </TouchableOpacity>
+                            </View>
+                        </TouchableWithoutFeedback>
+                    </View>
+                </TouchableWithoutFeedback>
+            </Modal>
         </SafeAreaView>
     );
 };
@@ -479,17 +601,6 @@ const styles = StyleSheet.create({
         fontSize: 11,
         color: '#757575',
     },
-    boostButton: {
-        backgroundColor: '#002F34',
-        paddingHorizontal: 12,
-        paddingVertical: 8,
-        borderRadius: 4,
-    },
-    boostButtonText: {
-        fontSize: 12,
-        fontWeight: 'bold',
-        color: '#fff',
-    },
     emptyContainer: {
         flex: 1,
         justifyContent: 'center',
@@ -524,6 +635,31 @@ const styles = StyleSheet.create({
         fontSize: 14,
         fontWeight: '800',
         color: '#fff',
+    },
+    modalOverlay: {
+        flex: 1,
+        backgroundColor: 'rgba(0,0,0,0.5)',
+        justifyContent: 'flex-end',
+    },
+    menuContainer: {
+        backgroundColor: '#fff',
+        borderTopLeftRadius: 16,
+        borderTopRightRadius: 16,
+        paddingBottom: 20,
+    },
+    menuItem: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        padding: 16,
+    },
+    menuItemText: {
+        fontSize: 16,
+        marginLeft: 12,
+        color: '#002F34',
+    },
+    menuDivider: {
+        height: 1,
+        backgroundColor: '#F0F0F0',
     },
 });
 

@@ -100,6 +100,8 @@ const AdsListScreen = () => {
         fuel_type: '',
         condition: '',
     });
+    const [placeholderIndex, setPlaceholderIndex] = useState(0);
+    const suggestions = ['Mobil', 'Motor', 'Properti', 'Elektronik', 'HP & Gadget'];
 
     const createQueryString = (params: any) => {
         return Object.keys(params)
@@ -140,6 +142,12 @@ const AdsListScreen = () => {
         fetchFilterData();
         determineNavSet();
         fetchBrands();
+
+        const interval = setInterval(() => {
+            setPlaceholderIndex((prev) => (prev + 1) % suggestions.length);
+        }, 3000);
+
+        return () => clearInterval(interval);
     }, []);
 
     const determineNavSet = () => {
@@ -433,7 +441,7 @@ const AdsListScreen = () => {
                 <View style={styles.searchBar}>
                     <Icon name="search-outline" size={20} color="#757575" style={styles.searchIcon} />
                     <AppTextInput
-                        placeholder="Cari disini"
+                        placeholder={`Cari ${suggestions[placeholderIndex]}...`}
                         style={styles.searchInput}
                         placeholderTextColor="#9E9E9E"
                         value={searchQuery}

@@ -50,6 +50,8 @@ const HomeScreen = () => {
     const [loadingSub, setLoadingSub] = useState(false);
     const [selectedCategory, setSelectedCategory] = useState<Category | null>(null);
     const [homeSearch, setHomeSearch] = useState('');
+    const [placeholderIndex, setPlaceholderIndex] = useState(0);
+    const suggestions = ['Mobil', 'Motor', 'Properti', 'Elektronik', 'HP & Gadget'];
 
     const currentBackPressTime = useRef<number>(0);
     const isFocused = useIsFocused();
@@ -93,6 +95,12 @@ const HomeScreen = () => {
 
     useEffect(() => {
         fetchCategories();
+
+        const interval = setInterval(() => {
+            setPlaceholderIndex((prev) => (prev + 1) % suggestions.length);
+        }, 3000);
+
+        return () => clearInterval(interval);
     }, []);
 
     const fetchCategories = async () => {
@@ -173,7 +181,7 @@ const HomeScreen = () => {
                     </View>
                     <View style={styles.searchBar}>
                         <AppTextInput
-                            placeholder="Cari disini"
+                            placeholder={`Cari ${suggestions[placeholderIndex]}...`}
                             maxFontSizeMultiplier={1.2}
                             style={styles.searchInput}
                             placeholderTextColor="#9E9E9E"

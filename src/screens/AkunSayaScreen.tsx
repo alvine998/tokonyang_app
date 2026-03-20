@@ -118,7 +118,7 @@ const AkunSayaScreen = () => {
 
                     {/* Version */}
                     <View style={styles.versionContainer}>
-                        <AppText style={styles.versionText}>Versi 1.0.18</AppText>
+                        <AppText style={styles.versionText}>Versi 1.0.22</AppText>
                     </View>
                 </View>
 

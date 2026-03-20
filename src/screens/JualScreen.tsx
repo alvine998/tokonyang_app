@@ -442,7 +442,8 @@ const JualScreen = () => {
 
     // Go to previous step
     const goBack = () => {
-        if (currentStep > 0) {
+        const minStep = editId ? 2 : 0;
+        if (currentStep > minStep) {
             setCurrentStep(currentStep - 1);
             setCompletedSteps(completedSteps.filter(s => s !== currentStep + 1));
         } else {
