@@ -37,5 +37,10 @@ export const navsFoodPet = [
 export const navsDefault = [
   { name: 'HARGA' },
   { name: 'URUTKAN' },
-  // { name: 'KATEGORI' },
+];
+
+export const navsMinimal = [
+  { name: 'HARGA' },
+  { name: 'KONDISI' },
+  { name: 'URUTKAN' },
 ];

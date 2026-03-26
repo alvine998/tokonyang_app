@@ -25,6 +25,7 @@ import {
     navsBusTruck,
     navsFoodPet,
     navsDefault,
+    navsMinimal,
 } from '../utils/constants';
 import normalize from 'react-native-normalize';
 
@@ -154,7 +155,23 @@ const AdsListScreen = () => {
         const catName = category?.name?.toLowerCase() || '';
         const subcatName = subcategory?.name?.toLowerCase() || '';
 
-        if (catName.includes('mobil') || catName.includes('motor')) {
+        const minimalSubcats = [
+            'sparepart',
+            'aksesoris',
+            'audio',
+            'velg',
+            'ban',
+            'bengkel',
+            'montir',
+            'karoseri'
+        ];
+
+        const isMinimal = minimalSubcats.some(sub => subcatName.includes(sub));
+
+        if ((catName.includes('mobil') || catName.includes('motor')) && isMinimal) {
+            setCurrentNavSet(navsMinimal);
+            setActiveFilterTab('HARGA');
+        } else if (catName.includes('mobil') || catName.includes('motor')) {
             setCurrentNavSet(navsCar);
             setActiveFilterTab('MEREK');
         } else if (catName.includes('properti')) {
@@ -664,26 +681,46 @@ const AdsListScreen = () => {
                                 {activeFilterTab === 'LUAS TANAH' && (
                                     <View style={styles.newFilterSection}>
                                         <AppText style={styles.newSectionLabel}>Luas Tanah (m2)</AppText>
-                                        <AppTextInput
-                                            style={styles.newFilterInput}
-                                            placeholder="Gunakan angka saja"
-                                            keyboardType="numeric"
-                                            value={filters.minArea}
-                                            onChangeText={(text) => setFilters({ ...filters, minArea: text })}
-                                        />
+                                        <View style={{ flexDirection: 'column', alignItems: 'center', gap: normalize(10) }}>
+                                            <AppTextInput
+                                                style={[styles.newFilterInput, { flex: 1, textAlign: 'center' }]}
+                                                placeholder="Mulai Dari"
+                                                keyboardType="numeric"
+                                                value={filters.minArea}
+                                                onChangeText={(text) => setFilters({ ...filters, minArea: text })}
+                                            />
+                                            {/* <AppText style={{ marginHorizontal: 10 }}>-</AppText> */}
+                                            <AppTextInput
+                                                style={[styles.newFilterInput, { flex: 1, textAlign: 'center' }]}
+                                                placeholder="Sampai"
+                                                keyboardType="numeric"
+                                                value={filters.maxArea}
+                                                onChangeText={(text) => setFilters({ ...filters, maxArea: text })}
+                                            />
+                                        </View>
                                     </View>
                                 )}
 
                                 {activeFilterTab === 'LUAS BANGUNAN' && (
                                     <View style={styles.newFilterSection}>
                                         <AppText style={styles.newSectionLabel}>Luas Bangunan (m2)</AppText>
-                                        <AppTextInput
-                                            style={styles.newFilterInput}
-                                            placeholder="Gunakan angka saja"
-                                            keyboardType="numeric"
-                                            value={filters.minBuilding}
-                                            onChangeText={(text) => setFilters({ ...filters, minBuilding: text })}
-                                        />
+                                        <View style={{ flexDirection: 'column', alignItems: 'center', gap: normalize(10), width: '100%' }}>
+                                            <AppTextInput
+                                                style={[styles.newFilterInput, { flex: 1, textAlign: 'center' }]}
+                                                placeholder="Mulai Dari"
+                                                keyboardType="numeric"
+                                                value={filters.minBuilding}
+                                                onChangeText={(text) => setFilters({ ...filters, minBuilding: text })}
+                                            />
+                                            {/* <AppText style={{ marginHorizontal: 10 }}>-</AppText> */}
+                                            <AppTextInput
+                                                style={[styles.newFilterInput, { flex: 1, textAlign: 'center' }]}
+                                                placeholder="Sampai"
+                                                keyboardType="numeric"
+                                                value={filters.maxBuilding}
+                                                onChangeText={(text) => setFilters({ ...filters, maxBuilding: text })}
+                                            />
+                                        </View>
                                     </View>
                                 )}
 
@@ -1292,6 +1329,7 @@ const styles = StyleSheet.create({
         height: 48,
         fontSize: 14,
         color: '#000',
+        width: "100%"
     },
     chipScroll: {
         marginBottom: 10,
