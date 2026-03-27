@@ -88,6 +88,7 @@ const JualScreen = () => {
     // Form data state
     const [formData, setFormData] = useState<any>({});
     const [images, setImages] = useState<string[]>([]);
+    const [imageSizes, setImageSizes] = useState<number[]>([]);
 
     // Categories & Subcategories
     const [categories, setCategories] = useState<Category[]>([]);
@@ -141,6 +142,7 @@ const JualScreen = () => {
         setCompletedSteps([1]);
         setFormData({});
         setImages([]);
+        setImageSizes([]);
         setCities([]);
         setDistricts([]);
     };
@@ -174,6 +176,7 @@ const JualScreen = () => {
                 try {
                     const parsedImages = typeof ad.images === 'string' ? JSON.parse(ad.images) : ad.images;
                     setImages(parsedImages);
+                    setImageSizes(new Array(parsedImages.length).fill(0));
                 } catch (e) {
                     console.error('Error parsing images in JualScreen:', e);
                     if (Array.isArray(ad.images)) {
@@ -416,10 +419,24 @@ const JualScreen = () => {
             }
 
             if (result.assets && result.assets.length > 0) {
+                // Check total size limit (25 MB)
+                const newAssets = result.assets;
+                const newBatchSize = newAssets.reduce((sum, asset) => sum + (asset.fileSize || 0), 0);
+                const currentTotalSize = imageSizes.reduce((sum, size) => sum + size, 0);
+
+                if (currentTotalSize + newBatchSize > 25 * 1024 * 1024) {
+                    Alert.alert('Peringatan', 'Total ukuran gambar tidak boleh melebihi 25 MB.');
+                    return;
+                }
+
                 // Store local URIs for display
-                const selectedUris = result.assets
+                const selectedUris = newAssets
                     .map((asset: Asset) => asset.uri || '')
                     .filter((uri: string) => uri !== '');
+
+                const selectedSizes = newAssets
+                    .filter((asset: Asset) => asset.uri !== '')
+                    .map((asset: Asset) => asset.fileSize || 0);
 
                 if (selectedUris.length === 0) {
                     Alert.alert('Error', 'Gagal memilih gambar');
@@ -428,7 +445,8 @@ const JualScreen = () => {
 
                 // Add to images array (local URIs for now)
                 setImages([...images, ...selectedUris]);
-                console.log(`Added ${selectedUris.length} images`);
+                setImageSizes([...imageSizes, ...selectedSizes]);
+                console.log(`Added ${selectedUris.length} images, total size: ${((currentTotalSize + newBatchSize) / (1024 * 1024)).toFixed(2)} MB`);
             }
         } catch (error) {
             console.error('Error picking image:', error);
@@ -438,6 +456,7 @@ const JualScreen = () => {
 
     const handleRemoveImage = (index: number) => {
         setImages(images.filter((_, i) => i !== index));
+        setImageSizes(imageSizes.filter((_, i) => i !== index));
     };
 
     // Go to previous step
@@ -742,7 +761,7 @@ const JualScreen = () => {
 
     // Step 0: Select Category
     const renderCategoryStep = () => (
-        <View style={styles.stepContent}>
+        <ScrollView style={styles.stepContent} showsVerticalScrollIndicator={false}>
             <TouchableOpacity style={styles.backButton} onPress={goBack}>
                 <Icon name="arrow-back" size={24} color="#2152FF" />
                 <AppText style={styles.backButtonText}>Kembali</AppText>
@@ -764,12 +783,13 @@ const JualScreen = () => {
                     ))}
                 </View>
             )}
-        </View>
+            <View style={{ height: 40 }} />
+        </ScrollView>
     );
 
     // Step 1: Select Subcategory
     const renderSubcategoryStep = () => (
-        <View style={styles.stepContent}>
+        <ScrollView style={styles.stepContent} showsVerticalScrollIndicator={false}>
             <TouchableOpacity style={styles.backButton} onPress={goBack}>
                 <Icon name="arrow-back" size={24} color="#2152FF" />
             </TouchableOpacity>
@@ -790,12 +810,13 @@ const JualScreen = () => {
                     ))}
                 </View>
             )}
-        </View>
+            <View style={{ height: 40 }} />
+        </ScrollView>
     );
 
     // Step 2: Images
     const renderImagesStep = () => (
-        <View style={styles.stepContent}>
+        <ScrollView style={styles.stepContent} showsVerticalScrollIndicator={false}>
             <TouchableOpacity style={styles.backButton} onPress={goBack}>
                 <Icon name="arrow-back" size={24} color="#2152FF" />
             </TouchableOpacity>
@@ -837,7 +858,8 @@ const JualScreen = () => {
             <TouchableOpacity style={styles.nextButton} onPress={handleImagesNext}>
                 <AppText style={styles.nextButtonText}>Selanjutnya</AppText>
             </TouchableOpacity>
-        </View>
+            <View style={{ height: 40 }} />
+        </ScrollView>
     );
 
     // Step 3: Form Data

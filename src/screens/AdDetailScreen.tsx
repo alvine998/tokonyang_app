@@ -75,6 +75,27 @@ const AdDetailScreen = () => {
     const [isReporting, setIsReporting] = useState(false);
     const [reportImages, setReportImages] = useState<string[]>([]);
     const [isUploadingImage, setIsUploadingImage] = useState(false);
+    const [adsUser, setAdsUser] = useState<any>(null);
+
+    const fetchAdsUser = async (userId: number) => {
+        try {
+            const response = await axios.get(`https://api.tokotitoh.co.id/users?id=${userId}`, {
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Accept': 'application/json',
+                    'bearer-token': 'tokotitohapi',
+                    'x-partner-code': 'id.marketplace.tokotitoh'
+                }
+            });
+            if (response.data && response.data.items && response.data.items.rows && response.data.items.rows.length > 0) {
+                setAdsUser(response.data.items.rows[0]);
+            }
+        } catch (error) {
+            console.error('Error fetching ads user:', error);
+        } finally {
+            setLoading(false);
+        }
+    };
 
     useEffect(() => {
         fetchAdDetail();
@@ -107,6 +128,7 @@ const AdDetailScreen = () => {
             });
             if (response.data && response.data.items && response.data.items.rows && response.data.items.rows.length > 0) {
                 setAd(response.data.items.rows[0]);
+                fetchAdsUser(response.data.items.rows[0].user_id);
             }
         } catch (error) {
             console.error('Error fetching ad detail:', error);
@@ -549,9 +571,17 @@ const AdDetailScreen = () => {
                 <View style={styles.sectionHeader}>
                     <AppText style={styles.sectionTitle}>Profil Penjual</AppText>
                 </View>
-                <View style={styles.sellerRow}>
+                <TouchableOpacity
+                    onPress={() => navigation.navigate('UserAds', { userName: ad.user_name, userId: ad.user_id })}
+                    style={styles.sellerRow}>
                     <View style={styles.sellerAvatar}>
-                        <Icon name="person" size={30} color="#757575" />
+                        {
+                            adsUser?.image ? (
+                                <Image source={{ uri: adsUser.image }} style={styles.sellerAvatar} />
+                            ) : (
+                                <Icon name="person" size={30} color="#757575" />
+                            )
+                        }
                     </View>
                     <View style={styles.sellerInfo}>
                         <AppText style={styles.sellerName}>{ad.user_name}</AppText>
@@ -564,7 +594,7 @@ const AdDetailScreen = () => {
                         onPress={() => navigation.navigate('UserAds', { userName: ad.user_name, userId: ad.user_id })}>
                         <Icon name="chevron-forward" size={24} color="#757575" />
                     </TouchableOpacity>
-                </View>
+                </TouchableOpacity>
 
                 <View style={styles.adIdFooter}>
                     <AppText style={styles.adIdLabel}>ID Iklan: </AppText>

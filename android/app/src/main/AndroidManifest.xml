@@ -37,6 +37,8 @@
             <category android:name="android.intent.category.BROWSABLE" />
             <data android:scheme="https" android:host="tokotitoh.co.id" />
             <data android:scheme="http" android:host="tokotitoh.co.id" />
+            <data android:scheme="https" android:host="www.tokotitoh.co.id" />
+            <data android:scheme="http" android:host="www.tokotitoh.co.id" />
         </intent-filter>
       </activity>
     </application>

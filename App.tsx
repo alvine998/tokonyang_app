@@ -138,6 +138,8 @@ function App() {
       'tokonyang://',
       'https://tokotitoh.co.id',
       'http://tokotitoh.co.id',
+      'https://www.tokotitoh.co.id',
+      'http://www.tokotitoh.co.id',
     ],
     config: {
       screens: {
