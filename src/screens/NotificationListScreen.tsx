@@ -12,6 +12,7 @@ import AppText from '../components/AppText';
 import Icon from 'react-native-vector-icons/Ionicons';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import axios from 'axios';
+import { useAuth } from '../context/AuthContext';
 
 interface Notification {
     id: number;
@@ -28,6 +29,7 @@ const NotificationListScreen = () => {
     const navigation = useNavigation<any>();
     const route = useRoute<any>();
     const { userId, status } = route.params || {};
+    const { user } = useAuth();
 
     const [notifications, setNotifications] = useState<Notification[]>([]);
     const [refreshing, setRefreshing] = useState(false);
@@ -52,13 +54,14 @@ const NotificationListScreen = () => {
 
         try {
             const params: any = {
-                page: 1,
-                size: currentLimit,
+                pagination: 'true',
+                size: 100,
             };
 
             // Add optional filters if provided
-            if (userId) {
-                params.user_id = userId;
+            const effectiveUserId = userId || user?.id;
+            if (effectiveUserId) {
+                params.user_id = effectiveUserId;
             }
             if (status) {
                 params.status = status;
@@ -171,8 +174,27 @@ const NotificationListScreen = () => {
         }
     };
 
-    const handleNotificationPress = (notification: Notification) => {
-        // Mark as read
+    const handleNotificationPress = async (notification: Notification) => {
+        // Mark as read in backend if not already read
+        if (!notification.isRead) {
+            try {
+                await axios.patch('https://api.tokotitoh.co.id/notification', {
+                    id: notification.id,
+                    is_read: 1
+                }, {
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json',
+                        'bearer-token': 'tokotitohapi',
+                        'x-partner-code': 'id.marketplace.tokotitoh'
+                    }
+                });
+            } catch (error) {
+                console.error('Error marking notification as read:', error);
+            }
+        }
+
+        // Mark as read in local state
         setNotifications(prev =>
             prev.map(n => (n.id === notification.id ? { ...n, isRead: true } : n))
         );

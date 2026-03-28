@@ -23,6 +23,7 @@ import axios from 'axios';
 import { useNavigation, useFocusEffect, useIsFocused } from '@react-navigation/native';
 import { SCREEN_WIDTH, getCategoryColumns, isTablet } from '../utils/responsive';
 import normalize from 'react-native-normalize';
+import { useAuth } from '../context/AuthContext';
 
 const width = SCREEN_WIDTH;
 
@@ -44,6 +45,8 @@ const HomeScreen = () => {
     const [categories, setCategories] = useState<Category[]>([]);
     const [loading, setLoading] = useState(true);
     const [refreshing, setRefreshing] = useState(false);
+    const { user } = useAuth();
+    const [unreadCount, setUnreadCount] = useState(0);
 
     const [isModalVisible, setIsModalVisible] = useState(false);
     const [subcategories, setSubcategories] = useState<Subcategory[]>([]);
@@ -102,6 +105,42 @@ const HomeScreen = () => {
 
         return () => clearInterval(interval);
     }, []);
+
+    useFocusEffect(
+        useCallback(() => {
+            if (user) {
+                fetchUnreadCount();
+            }
+        }, [user])
+    );
+
+    const fetchUnreadCount = async () => {
+        if (!user) return;
+        try {
+            const response = await axios.get('https://api.tokotitoh.co.id/notifications', {
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Accept': 'application/json',
+                    'bearer-token': 'tokotitohapi',
+                    'x-partner-code': 'id.marketplace.tokotitoh'
+                },
+                params: {
+                    pagination: 'true',
+                    user_id: user.id,
+                    is_read: 0,
+                    size: 100 // Get up to 100 unread
+                }
+            });
+            console.log(response.data.items, "hdhdh");
+
+            if (response.data && response.data.items) {
+                const unreadItems = response.data.items.rows || response.data.items;
+                setUnreadCount(Array.isArray(unreadItems) ? unreadItems.length : 0);
+            }
+        } catch (error) {
+            console.error('Error fetching unread count:', error);
+        }
+    };
 
     const fetchCategories = async () => {
         try {
@@ -195,9 +234,24 @@ const HomeScreen = () => {
                     </View>
                     <TouchableOpacity
                         style={styles.notificationBtn}
-                        onPress={() => navigation.navigate('NotificationList')}
+                        onPress={() => {
+                            if (user) {
+                                navigation.navigate('NotificationList');
+                            } else {
+                                navigation.navigate('Login');
+                            }
+                        }}
                     >
-                        <Icon name="notifications-outline" size={28} color="#000" />
+                        <View>
+                            <Icon name="notifications-outline" size={28} color="#000" />
+                            {unreadCount > 0 && (
+                                <View style={styles.badge}>
+                                    <AppText style={styles.badgeText}>
+                                        {unreadCount > 99 ? '99+' : unreadCount}
+                                    </AppText>
+                                </View>
+                            )}
+                        </View>
                     </TouchableOpacity>
                 </View>
 
@@ -447,6 +501,26 @@ const styles = StyleSheet.create({
         marginTop: 40,
         fontSize: 16,
         color: '#757575',
+    },
+    badge: {
+        position: 'absolute',
+        right: -6,
+        top: -6,
+        backgroundColor: '#FF3B30',
+        borderRadius: 10,
+        minWidth: 20,
+        height: 20,
+        justifyContent: 'center',
+        alignItems: 'center',
+        paddingHorizontal: 4,
+        borderWidth: 2,
+        borderColor: '#fff',
+    },
+    badgeText: {
+        color: '#fff',
+        fontSize: normalize(10),
+        fontWeight: 'bold',
+        textAlign: 'center',
     },
 });
 

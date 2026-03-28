@@ -97,16 +97,16 @@ const LoginScreen = () => {
             {/* Header with Back Button */}
 
             <KeyboardAvoidingView
-                behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+                behavior={Platform.OS === 'ios' ? 'padding' : undefined}
                 style={{ flex: 1 }}
             >
                 <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
                     <View style={styles.logoContainer}>
-                        <Image
+                        {/* <Image
                             source={require('../assets/images/tokotitoh.png')}
                             style={styles.logo}
                             resizeMode="contain"
-                        />
+                        /> */}
                         <AppText style={styles.title}>Login Tokotitoh</AppText>
                     </View>
 
@@ -232,6 +232,7 @@ const styles = StyleSheet.create({
         paddingTop: 20,
         paddingBottom: 20,
         alignItems: 'center',
+        flexGrow: 1,
     },
     logoContainer: {
         alignItems: 'center',

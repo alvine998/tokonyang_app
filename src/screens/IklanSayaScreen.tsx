@@ -283,14 +283,14 @@ const IklanSayaScreen = () => {
                     <View style={styles.metricsRow}>
                         {mainTab === 'MY_ADS' ? (
                             <>
-                                <View style={styles.metricItem}>
+                                {/* <View style={styles.metricItem}>
                                     <Icon name="eye-outline" size={14} color="#757575" />
                                     <AppText style={styles.metricText}>{item.views}</AppText>
                                 </View>
                                 <View style={styles.metricItem}>
                                     <Icon name="heart-outline" size={14} color="#757575" />
                                     <AppText style={styles.metricText}>{item.favorites}</AppText>
-                                </View>
+                                </View> */}
                             </>
                         ) : (
                             <View style={styles.locationRow}>

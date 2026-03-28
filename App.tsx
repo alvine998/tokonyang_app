@@ -159,7 +159,7 @@ function App() {
   return (
     <SafeAreaProvider>
       <AuthProvider>
-        <View style={{ flex: 1, marginTop: 20 }}>
+        <View style={{ flex: 1, marginTop: 30 }}>
           <NavigationContainer linking={linking}>
             <Stack.Navigator screenOptions={{ headerShown: false }}>
               <Stack.Screen name="Splash" component={SplashScreen} options={{ animationTypeForReplace: 'pop' }} />
