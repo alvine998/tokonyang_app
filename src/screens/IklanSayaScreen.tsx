@@ -266,7 +266,12 @@ const IklanSayaScreen = () => {
     const renderAdItem = ({ item }: { item: AdItem }) => (
         <TouchableOpacity
             style={styles.adCard}
-            onPress={() => navigation.navigate('AdDetail', { adId: item.id })}
+            onPress={() => {
+                const isRejected = item.status === 'DITOLAK' || item.status === '2' || item.status === 2;
+                if (isRejected) return;
+                navigation.navigate('AdDetail', { adId: item.id });
+            }}
+            activeOpacity={item.status === 'DITOLAK' || item.status === '2' || item.status === 2 ? 1 : 0.7}
         >
             <View style={styles.adMainRow}>
                 <Image source={{ uri: item.image }} style={styles.adImage} />
@@ -302,7 +307,7 @@ const IklanSayaScreen = () => {
                         )}
                     </View>
                 </View>
-                {mainTab === 'MY_ADS' && (
+                {mainTab === 'MY_ADS' && !(item.status === 'DITOLAK' || item.status === '2' || item.status === 2) && (
                     <TouchableOpacity
                         style={styles.menuButton}
                         onPress={() => {

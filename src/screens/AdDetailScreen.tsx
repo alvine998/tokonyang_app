@@ -653,16 +653,18 @@ const AdDetailScreen = () => {
             {/* Bottom Actions */}
             <View style={styles.bottomActions}>
                 {user?.id === ad?.user_id ? (
-                    <>
-                        <TouchableOpacity style={[styles.editBtn, { flex: 1 }]} onPress={handleEdit}>
-                            <Icon name="create-outline" size={20} color="#fff" />
-                            <AppText style={styles.waBtnText}>Edit Iklan</AppText>
-                        </TouchableOpacity>
-                        <TouchableOpacity style={[styles.deleteAdBtn, { flex: 1 }]} onPress={handleDelete}>
-                            <Icon name="trash-outline" size={20} color="#fff" />
-                            <AppText style={styles.waBtnText}>Hapus Iklan</AppText>
-                        </TouchableOpacity>
-                    </>
+                    Number(ad.status) === 2 || ad.status === '2' || ad.status === 'DITOLAK' ? null : (
+                        <>
+                            <TouchableOpacity style={[styles.editBtn, { flex: 1 }]} onPress={handleEdit}>
+                                <Icon name="create-outline" size={20} color="#fff" />
+                                <AppText style={styles.waBtnText}>Edit Iklan</AppText>
+                            </TouchableOpacity>
+                            <TouchableOpacity style={[styles.deleteAdBtn, { flex: 1 }]} onPress={handleDelete}>
+                                <Icon name="trash-outline" size={20} color="#fff" />
+                                <AppText style={styles.waBtnText}>Hapus Iklan</AppText>
+                            </TouchableOpacity>
+                        </>
+                    )
                 ) : (
                     <TouchableOpacity style={styles.waBtn} onPress={handleWhatsApp}>
                         <Icon name="logo-whatsapp" size={20} color="#fff" />
