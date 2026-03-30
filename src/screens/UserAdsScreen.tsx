@@ -66,6 +66,7 @@ const UserAdsScreen = () => {
                     pagination: 'true',
                     page: pageNumber,
                     size: PAGE_SIZE,
+                    status: 1,
                     user_id: userId, // Filtering by user_name since API seems to support it or similar
                 }
             });
