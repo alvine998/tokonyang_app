@@ -15,7 +15,7 @@ import {
 import AppText from '../components/AppText';
 import AppTextInput from '../components/AppTextInput';
 import Icon from 'react-native-vector-icons/Ionicons';
-import axios from 'axios';
+import api from '../utils/api';
 import { useRoute, useNavigation } from '@react-navigation/native';
 import { SCREEN_WIDTH } from '../utils/responsive';
 import AdListItem from '../components/AdListItem';
@@ -26,6 +26,7 @@ import {
     navsFoodPet,
     navsDefault,
     navsMinimal,
+    navsWithCondition,
 } from '../utils/constants';
 import normalize from 'react-native-normalize';
 
@@ -58,12 +59,7 @@ const AdsListScreen = () => {
     const [brands, setBrands] = useState([]);
     const fetchBrands = async () => {
         try {
-            const response = await axios.get(`https://api.tokotitoh.co.id/brands?category_id=${subcategory?.category_id || category?.id}&page=1&size=999`, {
-                headers: {
-                    "bearer-token": "tokotitohapi",
-                    "x-partner-code": "id.marketplace.tokotitoh",
-                },
-            });
+            const response = await api.get(`/brands?category_id=${subcategory?.category_id || category?.id}&page=1&size=999`);
             console.log(response.data.items.rows);
             if (response.data && response.data.items) {
                 setBrands(response.data.items.rows);
@@ -168,6 +164,27 @@ const AdsListScreen = () => {
 
         const isMinimal = minimalSubcats.some(sub => subcatName.includes(sub));
 
+        const condCategories = [
+            'elektronik',
+            'hp',
+            'gadget',
+            'pribadi',
+            'rumah',
+            'ibu',
+            'bayi',
+            'anak',
+            'hobi',
+            'sport',
+            'bahan bangunan',
+            'hewan',
+            'tanaman',
+            'kantor',
+            'industri',
+            'pelayaran'
+        ];
+
+        const needsCondition = condCategories.some(c => catName.includes(c));
+
         if ((catName.includes('mobil') || catName.includes('motor')) && isMinimal) {
             setCurrentNavSet(navsMinimal);
             setActiveFilterTab('HARGA');
@@ -180,8 +197,11 @@ const AdsListScreen = () => {
         } else if (subcatName.includes('alat berat') || subcatName.includes('bus dan truk')) {
             setCurrentNavSet(navsBusTruck);
             setActiveFilterTab('MEREK');
-        } else if (catName.includes('makanan') || catName.includes('hewan')) {
+        } else if (catName.includes('makanan')) {
             setCurrentNavSet(navsFoodPet);
+            setActiveFilterTab('HARGA');
+        } else if (needsCondition) {
+            setCurrentNavSet(navsWithCondition);
             setActiveFilterTab('HARGA');
         } else {
             setCurrentNavSet(navsDefault);
@@ -193,24 +213,9 @@ const AdsListScreen = () => {
         setLoadingFilterData(true);
         try {
             const [brandsRes, provincesRes, categoriesRes] = await Promise.all([
-                axios.get(`https://api.tokotitoh.co.id/brands?category_id=${subcategory?.category_id || category?.id}&page=1&size=999`, {
-                    headers: {
-                        "bearer-token": "tokotitohapi",
-                        "x-partner-code": "id.marketplace.tokotitoh",
-                    },
-                }),
-                axios.get(`https://api.tokotitoh.co.id/provinces?page=1&size=999`, {
-                    headers: {
-                        "bearer-token": "tokotitohapi",
-                        "x-partner-code": "id.marketplace.tokotitoh",
-                    },
-                }),
-                axios.get(`https://api.tokotitoh.co.id/categories?page=1&size=999`, {
-                    headers: {
-                        "bearer-token": "tokotitohapi",
-                        "x-partner-code": "id.marketplace.tokotitoh",
-                    },
-                }),
+                api.get(`/brands?category_id=${subcategory?.category_id || category?.id}&page=1&size=999`),
+                api.get(`/provinces?page=1&size=999`),
+                api.get(`/categories?page=1&size=999`),
             ]);
 
             if (brandsRes.data && brandsRes.data.items) {
@@ -237,12 +242,7 @@ const AdsListScreen = () => {
         try {
             // Join brand IDs with comma as requested for the API
             const brandIdsQuery = brandIds.join(',');
-            const response = await axios.get(`https://api.tokotitoh.co.id/types?brand_ids=${brandIdsQuery}&page=1&size=999`, {
-                headers: {
-                    "bearer-token": "tokotitohapi",
-                    "x-partner-code": "id.marketplace.tokotitoh",
-                },
-            });
+            const response = await api.get(`/types?brand_ids=${brandIdsQuery}&page=1&size=999`);
             if (response.data && response.data.items) {
                 setTypes(response.data.items.rows);
             }
@@ -280,12 +280,7 @@ const AdsListScreen = () => {
     const fetchCities = async (provinceId: string) => {
         setLoadingCities(true);
         try {
-            const response = await axios.get(`https://api.tokotitoh.co.id/cities?province_id=${provinceId}`, {
-                headers: {
-                    'bearer-token': 'tokotitohapi',
-                    'x-partner-code': 'id.marketplace.tokotitoh'
-                }
-            });
+            const response = await api.get(`/cities?province_id=${provinceId}`);
             if (response.data && response.data.items) {
                 setCities(response.data.items.rows);
             }
@@ -299,12 +294,7 @@ const AdsListScreen = () => {
     const fetchDistricts = async (cityId: string) => {
         setLoadingDistricts(true);
         try {
-            const response = await axios.get(`https://api.tokotitoh.co.id/districts?city_id=${cityId}`, {
-                headers: {
-                    'bearer-token': 'tokotitohapi',
-                    'x-partner-code': 'id.marketplace.tokotitoh'
-                }
-            });
+            const response = await api.get(`/districts?city_id=${cityId}`);
             if (response.data && response.data.items) {
                 setDistricts(response.data.items.rows);
             }
@@ -317,12 +307,7 @@ const AdsListScreen = () => {
 
     const fetchSubcategories = async (categoryId: string) => {
         try {
-            const response = await axios.get(`https://api.tokotitoh.co.id/subcategories?category_id=${categoryId}`, {
-                headers: {
-                    'bearer-token': 'tokotitohapi',
-                    'x-partner-code': 'id.marketplace.tokotitoh'
-                }
-            });
+            const response = await api.get(`/subcategories?category_id=${categoryId}`);
             if (response.data && response.data.items) {
                 setSubcategories(response.data.items.rows);
             }
@@ -361,20 +346,14 @@ const AdsListScreen = () => {
         }
 
         try {
-            const result = await axios.get(
-                `https://api.tokotitoh.co.id/ads?${createQueryString({
+            const result = await api.get(
+                `/ads?${createQueryString({
                     ...filters,
                     subcategory_id: filters.subcategory_id === 0 ? "" : filters.subcategory_id,
                     page: pageNumber,
                     size: PAGE_SIZE,
                     search: searchQuery || filters.search
-                })}`,
-                {
-                    headers: {
-                        "bearer-token": "tokotitohapi",
-                        "x-partner-code": "id.marketplace.tokotitoh",
-                    },
-                }
+                })}`
             );
 
             if (result.data && result.data.items && result.data.items.rows) {
@@ -781,8 +760,8 @@ const AdsListScreen = () => {
                                         <View style={styles.brandList}>
                                             {[
                                                 { value: "", label: "Semua Kondisi" },
-                                                { value: "new", label: "Baru" },
-                                                { value: "second", label: "Bekas" },
+                                                { value: "baru", label: "Baru" },
+                                                { value: "bekas", label: "Bekas" },
                                             ].map((opt) => (
                                                 <TouchableOpacity
                                                     key={opt.value}

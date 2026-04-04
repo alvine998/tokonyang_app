@@ -44,3 +44,8 @@ export const navsMinimal = [
   { name: 'KONDISI' },
   { name: 'URUTKAN' },
 ];
+export const navsWithCondition = [
+  { name: 'HARGA' },
+  { name: 'KONDISI' },
+  { name: 'URUTKAN' },
+];

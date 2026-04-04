@@ -15,7 +15,7 @@ import AppTextInput from '../components/AppTextInput';
 import Icon from 'react-native-vector-icons/Ionicons';
 import { useNavigation } from '@react-navigation/native';
 import { useAuth } from '../context/AuthContext';
-import axios from 'axios';
+import api from '../utils/api';
 
 const UbahPasswordScreen = () => {
     const navigation = useNavigation<any>();
@@ -32,12 +32,7 @@ const UbahPasswordScreen = () => {
     const [showNewPassword, setShowNewPassword] = useState(false);
     const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
-    const API_HEADERS = {
-        'Content-Type': 'application/json',
-        'Accept': 'application/json',
-        'bearer-token': 'tokotitohapi',
-        'x-partner-code': 'id.marketplace.tokotitoh'
-    };
+    // API configuration is now centralized in src/utils/api.ts
 
     const validateForm = (): boolean => {
         if (!currentPassword.trim()) {
@@ -82,11 +77,7 @@ const UbahPasswordScreen = () => {
                 password: newPassword,
             };
 
-            await axios.patch(
-                'https://api.tokotitoh.co.id/user',
-                payload,
-                { headers: API_HEADERS }
-            );
+            await api.patch('/user', payload);
 
             Alert.alert(
                 'Berhasil',

@@ -14,7 +14,7 @@ import AppText from '../components/AppText';
 import Icon from 'react-native-vector-icons/Ionicons';
 import IconFA from 'react-native-vector-icons/FontAwesome5';
 import { useNavigation } from '@react-navigation/native';
-import axios from 'axios';
+import api from '../utils/api';
 import normalize from 'react-native-normalize';
 
 const { width } = Dimensions.get('window');
@@ -34,12 +34,7 @@ interface Subcategory {
     category_name: string;
 }
 
-const API_HEADERS = {
-    'Content-Type': 'application/json',
-    'Accept': 'application/json',
-    'bearer-token': 'tokotitohapi',
-    'x-partner-code': 'id.marketplace.tokotitoh'
-};
+// API configuration is now centralized in src/utils/api.ts
 
 const CategoryListScreen = () => {
     const navigation = useNavigation<any>();
@@ -58,9 +53,7 @@ const CategoryListScreen = () => {
 
     const fetchCategories = async () => {
         try {
-            const response = await axios.get('https://api.tokotitoh.co.id/categories', {
-                headers: API_HEADERS,
-            });
+            const response = await api.get('/categories');
             if (response.data?.items?.rows) {
                 setCategories(response.data.items.rows);
             }
@@ -78,10 +71,7 @@ const CategoryListScreen = () => {
         setSubcategories([]);
 
         try {
-            const response = await axios.get(
-                `https://api.tokotitoh.co.id/subcategories?category_id=${category.id}`,
-                { headers: API_HEADERS }
-            );
+            const response = await api.get(`/subcategories?category_id=${category.id}`);
             if (response.data?.items?.rows) {
                 setSubcategories(response.data.items.rows);
             }

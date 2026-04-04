@@ -1,6 +1,6 @@
 import React, { createContext, useState, useEffect, useContext } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import axios from 'axios';
+import api from '../utils/api';
 import { GoogleSignin, statusCodes } from '@react-native-google-signin/google-signin';
 
 interface User {
@@ -32,13 +32,7 @@ interface AuthContextType {
     startOtpTimer: (seconds?: number) => void;
 }
 
-const API_BASE_URL = 'https://api.tokotitoh.co.id';
-const AUTH_HEADERS = {
-    'Content-Type': 'application/json',
-    'Accept': 'application/json',
-    'bearer-token': 'tokotitohapi',
-    'x-partner-code': 'id.marketplace.tokotitoh'
-};
+// API configuration is now centralized in src/utils/api.ts
 
 const AuthContext = React.createContext<AuthContextType | undefined>(undefined);
 
@@ -93,9 +87,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         console.log('Fetching user details for ID:', userId);
         setIsLoading(true);
         try {
-            const response = await axios.get(`${API_BASE_URL}/users?id=${userId}`, {
-                headers: AUTH_HEADERS
-            });
+            const response = await api.get(`/users?id=${userId}`);
 
             console.log('[AUTH_DEBUG] Fetch User Details Response:', JSON.stringify(response.data, null, 2));
 
@@ -131,11 +123,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     const login = async (phone: string, password: string) => {
         setIsLoading(true);
         try {
-            const response = await axios.post(`${API_BASE_URL}/user/login`, {
+            const response = await api.post(`/user/login`, {
                 identity: phone,
                 password
-            }, {
-                headers: AUTH_HEADERS
             });
 
             console.log(response.data, "=> Login Data")
@@ -158,11 +148,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         console.log('Verifying OTP for:', identity);
         setIsLoading(true);
         try {
-            const response = await axios.post(`${API_BASE_URL}/otp/verify`, {
+            const response = await api.post(`/otp/verify`, {
                 email: identity,
                 otp
-            }, {
-                headers: AUTH_HEADERS
             });
 
             console.log('OTP Verify Response status:', response.status);
@@ -193,10 +181,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
     const sendOTP = async (identity: string) => {
         try {
-            const response = await axios.post(`${API_BASE_URL}/otp/send`, {
+            const response = await api.post(`/otp/send`, {
                 email: identity
-            }, {
-                headers: AUTH_HEADERS
             });
 
             if (response.status !== 200 && response.status !== 201) {
@@ -211,10 +197,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
     const resendOTP = async (identity: string) => {
         try {
-            const response = await axios.post(`${API_BASE_URL}/otp/resend`, {
+            const response = await api.post(`/otp/resend`, {
                 email: identity
-            }, {
-                headers: AUTH_HEADERS
             });
 
             if (response.status !== 200 && response.status !== 201) {
@@ -229,10 +213,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
     const forgotPassword = async (identity: string) => {
         try {
-            const response = await axios.post(`${API_BASE_URL}/user/forgot-password`, {
+            const response = await api.post(`/user/forgot-password`, {
                 email: identity
-            }, {
-                headers: AUTH_HEADERS
             });
 
             if (response.status !== 200 && response.status !== 201) {
@@ -247,9 +229,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
     const resetPassword = async (payload: any) => {
         try {
-            const response = await axios.post(`${API_BASE_URL}/user/reset-password`, payload, {
-                headers: AUTH_HEADERS
-            });
+            const response = await api.post(`/user/reset-password`, payload);
 
             if (response.status !== 200 && response.status !== 201) {
                 throw new Error(response.data.message || 'Gagal mengatur ulang password');
@@ -262,9 +242,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
     const register = async (payload: any) => {
         try {
-            const response = await axios.post(`${API_BASE_URL}/user`, payload, {
-                headers: AUTH_HEADERS
-            });
+            const response = await api.post(`/user`, payload);
 
             if (response.status !== 200 && response.status !== 201) {
                 throw new Error(response.data.message || 'Pendaftaran gagal');
@@ -285,14 +263,12 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
             // Send to your backend API
             console.log('[AUTH_DEBUG] Sending Google user info to backend:', userInfo.data?.user.email);
-            const response = await axios.post(`${API_BASE_URL}/user/login/by/google`, {
+            const response = await api.post(`/user/login/by/google`, {
                 email: userInfo.data?.user.email,
                 uid: userInfo.data?.user.id,
                 displayName: userInfo.data?.user.name,
                 photoURL: userInfo.data?.user.photo,
                 phoneNumber: null,
-            }, {
-                headers: AUTH_HEADERS
             });
 
             console.log('[AUTH_DEBUG] Google login API response status:', response.status);

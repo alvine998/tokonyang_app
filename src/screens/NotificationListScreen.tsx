@@ -11,7 +11,7 @@ import {
 import AppText from '../components/AppText';
 import Icon from 'react-native-vector-icons/Ionicons';
 import { useNavigation, useRoute } from '@react-navigation/native';
-import axios from 'axios';
+import api from '../utils/api';
 import { useAuth } from '../context/AuthContext';
 
 interface Notification {
@@ -67,13 +67,7 @@ const NotificationListScreen = () => {
                 params.status = status;
             }
 
-            const response = await axios.get('https://api.tokotitoh.co.id/notifications', {
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Accept': 'application/json',
-                    'bearer-token': 'tokotitohapi',
-                    'x-partner-code': 'id.marketplace.tokotitoh'
-                },
+            const response = await api.get('/notifications', {
                 params
             });
 
@@ -178,16 +172,9 @@ const NotificationListScreen = () => {
         // Mark as read in backend if not already read
         if (!notification.isRead) {
             try {
-                await axios.patch('https://api.tokotitoh.co.id/notification', {
+                await api.patch('/notification', {
                     id: notification.id,
                     is_read: 1
-                }, {
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'Accept': 'application/json',
-                        'bearer-token': 'tokotitohapi',
-                        'x-partner-code': 'id.marketplace.tokotitoh'
-                    }
                 });
             } catch (error) {
                 console.error('Error marking notification as read:', error);

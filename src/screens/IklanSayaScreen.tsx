@@ -18,7 +18,7 @@ import Icon from 'react-native-vector-icons/Ionicons';
 import { useNavigation, useFocusEffect } from '@react-navigation/native';
 import { useAuth } from '../context/AuthContext';
 import { formatAdDate } from '../utils/dateUtils';
-import axios from 'axios';
+import api from '../utils/api';
 
 const { width, height } = Dimensions.get('window');
 
@@ -103,12 +103,7 @@ const IklanSayaScreen = () => {
     const fetchUserAds = async (showLoading = true) => {
         if (showLoading) setLoading(true);
         try {
-            const response = await axios.get(`https://api.tokotitoh.co.id/ads?user_id=${user?.id}`, {
-                headers: {
-                    "bearer-token": "tokotitohapi",
-                    "x-partner-code": "id.marketplace.tokotitoh",
-                },
-            });
+            const response = await api.get(`/ads?user_id=${user?.id}`);
 
             if (response.data && response.data.items && response.data.items.rows) {
                 const mappedAds = response.data.items.rows.map((item: any) => ({
@@ -169,12 +164,7 @@ const IklanSayaScreen = () => {
             }
 
             // Fetch ads by IDs - Join with comma since API anticipates a string
-            const response = await axios.get(`https://api.tokotitoh.co.id/ads?id=${savedIds.join(',')}`, {
-                headers: {
-                    "bearer-token": "tokotitohapi",
-                    "x-partner-code": "id.marketplace.tokotitoh",
-                },
-            });
+            const response = await api.get(`/ads?id=${savedIds.join(',')}`);
 
             if (response.data && response.data.items && response.data.items.rows) {
                 const mappedAds = response.data.items.rows.map((item: any) => ({
@@ -226,14 +216,7 @@ const IklanSayaScreen = () => {
                     onPress: async () => {
                         try {
                             setLoading(true);
-                            const response = await axios.delete(`https://api.tokotitoh.co.id/ads?id=${selectedAd.id}`, {
-                                headers: {
-                                    'Content-Type': 'application/json',
-                                    'Accept': 'application/json',
-                                    'bearer-token': 'tokotitohapi',
-                                    'x-partner-code': 'id.marketplace.tokotitoh'
-                                },
-                            });
+                            const response = await api.delete(`/ads?id=${selectedAd.id}`);
 
                             if (response.status === 200 || response.status === 204) {
                                 Alert.alert('Sukses', 'Iklan berhasil dihapus');

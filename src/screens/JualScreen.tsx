@@ -17,7 +17,7 @@ import AppTextInput from '../components/AppTextInput';
 import Icon from 'react-native-vector-icons/Ionicons';
 import { useNavigation, useRoute, useFocusEffect } from '@react-navigation/native';
 import { useAuth } from '../context/AuthContext';
-import axios from 'axios';
+import api from '../utils/api';
 import { launchImageLibrary, Asset } from 'react-native-image-picker';
 import { uploadMultipleImagesToApi } from '../config/firebase';
 interface Category {
@@ -124,12 +124,7 @@ const JualScreen = () => {
     const [uploadingImage, setUploadingImage] = useState(false);
     const [submitting, setSubmitting] = useState(false);
 
-    const API_HEADERS = {
-        'Content-Type': 'application/json',
-        'Accept': 'application/json',
-        'bearer-token': 'tokotitohapi',
-        'x-partner-code': 'id.marketplace.tokotitoh'
-    };
+    // API configuration is now centralized in src/utils/api.ts
 
     // Check if any modal is visible
     const isAnyModalVisible = showBrandModal || showTypeModal || showFuelModal ||
@@ -215,9 +210,7 @@ const JualScreen = () => {
     const fetchCategories = async () => {
         setLoadingCategories(true);
         try {
-            const response = await axios.get('https://api.tokotitoh.co.id/categories', {
-                headers: API_HEADERS,
-            });
+            const response = await api.get('/categories');
             if (response.data?.items?.rows) {
                 setCategories(response.data.items.rows);
             }
@@ -232,10 +225,7 @@ const JualScreen = () => {
     const fetchSubcategories = async (categoryId: number) => {
         setLoadingSubcategories(true);
         try {
-            const response = await axios.get(
-                `https://api.tokotitoh.co.id/subcategories?category_id=${categoryId}`,
-                { headers: API_HEADERS }
-            );
+            const response = await api.get(`/subcategories?category_id=${categoryId}`);
             if (response.data?.items?.rows) {
                 setSubcategories(response.data.items.rows);
             }
@@ -250,10 +240,7 @@ const JualScreen = () => {
     const fetchBrands = async (categoryId: number) => {
         setLoadingBrands(true);
         try {
-            const response = await axios.get(
-                `https://api.tokotitoh.co.id/brands?category_id=${categoryId}`,
-                { headers: API_HEADERS }
-            );
+            const response = await api.get(`/brands?category_id=${categoryId}`);
             if (response.data?.items?.rows) {
                 setBrands(response.data.items.rows);
             }
@@ -268,10 +255,7 @@ const JualScreen = () => {
     const fetchTypes = async (brandId: number) => {
         setLoadingTypes(true);
         try {
-            const response = await axios.get(
-                `https://api.tokotitoh.co.id/types?brand_id=${brandId}`,
-                { headers: API_HEADERS }
-            );
+            const response = await api.get(`/types?brand_id=${brandId}`);
             if (response.data?.items?.rows) {
                 setTypes(response.data.items.rows);
             }
@@ -286,9 +270,7 @@ const JualScreen = () => {
     const fetchProvinces = async () => {
         setLoadingProvinces(true);
         try {
-            const response = await axios.get('https://api.tokotitoh.co.id/provinces', {
-                headers: API_HEADERS
-            });
+            const response = await api.get('/provinces');
             const data = response.data?.items?.rows || response.data?.items || [];
             setProvinces(data);
         } catch (error) {
@@ -302,10 +284,7 @@ const JualScreen = () => {
     const fetchCities = async (provinceId: string) => {
         setLoadingCities(true);
         try {
-            const response = await axios.get(
-                `https://api.tokotitoh.co.id/cities?province_id=${provinceId}`,
-                { headers: API_HEADERS }
-            );
+            const response = await api.get(`/cities?province_id=${provinceId}`);
             const data = response.data?.items?.rows || response.data?.items || [];
             setCities(data);
         } catch (error) {
@@ -319,10 +298,7 @@ const JualScreen = () => {
     const fetchDistricts = async (cityId: string) => {
         setLoadingDistricts(true);
         try {
-            const response = await axios.get(
-                `https://api.tokotitoh.co.id/districts?city_id=${cityId}`,
-                { headers: API_HEADERS }
-            );
+            const response = await api.get(`/districts?city_id=${cityId}`);
             const data = response.data?.items?.rows || response.data?.items || [];
             setDistricts(data);
         } catch (error) {
@@ -347,22 +323,14 @@ const JualScreen = () => {
 
     const needsConditionField = () => {
         const subName = formData.subcategory_name?.toLowerCase() || '';
-        const catName = formData.category_name?.toLowerCase() || '';
 
-        // Hide for Mobil & Motor as requested
-        if (catName.includes('mobil') || catName.includes('motor')) {
+        // If the subcategory name itself contains "Bekas" or "Baru", we don't need to ask again.
+        if (subName.includes('bekas') || subName.includes('baru')) {
             return false;
         }
 
-        return subName.includes('sparepart') ||
-            subName.includes('aksesoris') ||
-            subName.includes('bengkel') ||
-            subName.includes('velg') ||
-            catName.includes('elektronik') ||
-            catName.includes('hp') ||
-            catName.includes('hobi') ||
-            catName.includes('keperluan pribadi') ||
-            catName.includes('perlengkapan rumah');
+        // Show for everything else
+        return true;
     };
 
     const isBusTruckCategory = () => {
@@ -385,10 +353,20 @@ const JualScreen = () => {
 
     // Handle subcategory selection
     const handleSubcategorySelect = (subcategory: Subcategory) => {
+        const subName = subcategory.name.toLowerCase();
+        let autoCondition = formData.condition;
+
+        if (subName.includes('bekas')) {
+            autoCondition = 'bekas';
+        } else if (subName.includes('baru')) {
+            autoCondition = 'baru';
+        }
+
         setFormData({
             ...formData,
             subcategory_id: subcategory.id,
             subcategory_name: subcategory.name,
+            condition: autoCondition,
         });
         setCompletedSteps([...completedSteps, 3]);
         setCurrentStep(2);
@@ -537,21 +515,16 @@ const JualScreen = () => {
                 type: type,
             } as any);
 
-            const response = await fetch('https://api.tokotitoh.co.id/file-upload', {
-                method: 'POST',
-                headers: {
-                    'bearer-token': 'tokotitohapi',
-                    'x-partner-code': 'id.marketplace.tokotitoh',
-                },
-                body: formData,
+            const response = await api.post('/file-upload', formData, {
+                headers: { 'Content-Type': 'multipart/form-data' }
             });
 
-            if (!response.ok) {
+            if (response.status !== 200) {
                 console.error('Upload response not ok:', response.status);
                 return null;
             }
 
-            const result = await response.json();
+            const result = response.data;
             console.log('Upload result:', result);
 
             // API returns: { status: "success", url: "...", code: 200 }
@@ -650,15 +623,9 @@ const JualScreen = () => {
             console.log('Submitting payload:', payload);
 
             if (editId) {
-                await axios.patch(
-                    'https://api.tokotitoh.co.id/ads',
-                    { ...payload, id: editId, status: 0 },
-                    { headers: API_HEADERS }
-                );
+                await api.patch('/ads', { ...payload, id: editId, status: 0 });
             } else {
-                await axios.post('https://api.tokotitoh.co.id/ads', payload, {
-                    headers: API_HEADERS,
-                });
+                await api.post('/ads', payload);
             }
 
             Alert.alert(

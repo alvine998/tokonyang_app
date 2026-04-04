@@ -17,26 +17,29 @@ interface AdListItemProps {
 const AdListItem: React.FC<AdListItemProps> = ({ item }) => {
     const navigation = useNavigation<any>();
 
-    let imageUrl = 'https://via.placeholder.com/150';
-    try {
-        const images = JSON.parse(item.images);
-        if (Array.isArray(images) && images.length > 0) {
-            imageUrl = images[0];
+    const imageUrl = React.useMemo(() => {
+        let url = 'https://via.placeholder.com/150';
+        try {
+            const images = JSON.parse(item.images);
+            if (Array.isArray(images) && images.length > 0) {
+                url = images[0];
+            }
+        } catch (e) {
+            // Fallback if parsing fails or images is not a JSON string
+            if (typeof item.images === 'string' && item.images.startsWith('http')) {
+                url = item.images;
+            }
         }
-    } catch (e) {
-        // Fallback if parsing fails or images is not a JSON string
-        if (typeof item.images === 'string' && item.images.startsWith('http')) {
-            imageUrl = item.images;
-        }
-    }
+        return url;
+    }, [item.images]);
 
-    const formatPrice = (price: number) => {
+    const formattedPrice = React.useMemo(() => {
         return new Intl.NumberFormat('id-ID', {
             style: 'currency',
             currency: 'IDR',
             minimumFractionDigits: 0,
-        }).format(price);
-    };
+        }).format(item.price);
+    }, [item.price]);
 
     return (
         <TouchableOpacity
@@ -50,7 +53,7 @@ const AdListItem: React.FC<AdListItemProps> = ({ item }) => {
             />
             <View style={styles.content}>
                 <View style={styles.topInfo}>
-                    <AppText style={styles.price}>{formatPrice(item.price)}</AppText>
+                    <AppText style={styles.price}>{formattedPrice}</AppText>
                     <AppText style={styles.title} numberOfLines={2}>
                         {item.title}
                     </AppText>

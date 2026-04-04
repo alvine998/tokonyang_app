@@ -17,7 +17,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import Icon from 'react-native-vector-icons/Ionicons';
 import { useAuth } from '../context/AuthContext';
 import { useNavigation } from '@react-navigation/native';
-import axios from 'axios';
+import api from '../utils/api';
 import { launchImageLibrary } from 'react-native-image-picker';
 
 const EditProfileScreen = () => {
@@ -39,21 +39,13 @@ const EditProfileScreen = () => {
         bio: '',
     });
 
-    const API_HEADERS = {
-        'Content-Type': 'application/json',
-        'Accept': 'application/json',
-        'bearer-token': 'tokotitohapi',
-        'x-partner-code': 'id.marketplace.tokotitoh'
-    };
+    // API configuration is now centralized in src/utils/api.ts
 
     const fetchProfile = async (id: number) => {
         if (!id) return;
         setLoading(true);
         try {
-            const response = await axios.get(
-                `https://api.tokotitoh.co.id/users?id=${id}`,
-                { headers: API_HEADERS }
-            );
+            const response = await api.get(`/users?id=${id}`);
             if (response.data?.items?.rows && response.data.items.rows.length > 0) {
                 const data = response.data.items.rows[0];
 
@@ -126,16 +118,11 @@ const EditProfileScreen = () => {
                             type: type,
                         } as any);
 
-                        const uploadResponse = await fetch('https://api.tokotitoh.co.id/file-upload', {
-                            method: 'POST',
-                            headers: {
-                                'bearer-token': 'tokotitohapi',
-                                'x-partner-code': 'id.marketplace.tokotitoh',
-                            },
-                            body: formData,
+                        const uploadResponse = await api.post('/file-upload', formData, {
+                            headers: { 'Content-Type': 'multipart/form-data' }
                         });
 
-                        const uploadResult = await uploadResponse.json();
+                        const uploadResult = uploadResponse.data;
                         console.log('image upload response:', uploadResult);
 
                         // If the API returns a URL, use it
@@ -177,11 +164,7 @@ const EditProfileScreen = () => {
                 image: profile.image,
             };
 
-            await axios.patch(
-                'https://api.tokotitoh.co.id/user',
-                payload,
-                { headers: API_HEADERS }
-            );
+            await api.patch('/user', payload);
 
             // Update local storage and global state
             if (user && setUser) {

@@ -19,7 +19,7 @@ import { launchImageLibrary, Asset } from 'react-native-image-picker';
 import AppText from '../components/AppText';
 import AppTextInput from '../components/AppTextInput';
 import Icon from 'react-native-vector-icons/Ionicons';
-import axios from 'axios';
+import api from '../utils/api';
 import { useRoute, useNavigation } from '@react-navigation/native';
 import { useAuth } from '../context/AuthContext';
 
@@ -79,14 +79,7 @@ const AdDetailScreen = () => {
 
     const fetchAdsUser = async (userId: number) => {
         try {
-            const response = await axios.get(`https://api.tokotitoh.co.id/users?id=${userId}`, {
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Accept': 'application/json',
-                    'bearer-token': 'tokotitohapi',
-                    'x-partner-code': 'id.marketplace.tokotitoh'
-                }
-            });
+            const response = await api.get(`/users?id=${userId}`);
             if (response.data && response.data.items && response.data.items.rows && response.data.items.rows.length > 0) {
                 setAdsUser(response.data.items.rows[0]);
             }
@@ -118,14 +111,7 @@ const AdDetailScreen = () => {
 
     const fetchAdDetail = async () => {
         try {
-            const response = await axios.get(`https://api.tokotitoh.co.id/ads?id=${adId}`, {
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Accept': 'application/json',
-                    'bearer-token': 'tokotitohapi',
-                    'x-partner-code': 'id.marketplace.tokotitoh'
-                },
-            });
+            const response = await api.get(`/ads?id=${adId}`);
             if (response.data && response.data.items && response.data.items.rows && response.data.items.rows.length > 0) {
                 setAd(response.data.items.rows[0]);
                 fetchAdsUser(response.data.items.rows[0].user_id);
@@ -137,13 +123,14 @@ const AdDetailScreen = () => {
         }
     };
 
-    const formatPrice = (price: number) => {
+    const formattedPrice = React.useMemo(() => {
+        if (!ad?.price) return 'Rp 0';
         return new Intl.NumberFormat('id-ID', {
             style: 'currency',
             currency: 'IDR',
             minimumFractionDigits: 0,
-        }).format(price);
-    };
+        }).format(ad.price);
+    }, [ad?.price]);
 
     const handleWhatsApp = () => {
         if (ad?.wa) {
@@ -196,16 +183,9 @@ const AdDetailScreen = () => {
         const newSavedAdsStr = JSON.stringify(newSavedAds);
 
         try {
-            const response = await axios.patch('https://api.tokotitoh.co.id/user', {
+            const response = await api.patch('/user', {
                 id: user.id,
                 save_ads: newSavedAdsStr
-            }, {
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Accept': 'application/json',
-                    'bearer-token': 'tokotitohapi',
-                    'x-partner-code': 'id.marketplace.tokotitoh'
-                }
             });
 
             if (response.status === 200 || response.status === 201) {
@@ -244,14 +224,7 @@ const AdDetailScreen = () => {
                     onPress: async () => {
                         try {
                             setLoading(true);
-                            const response = await axios.delete(`https://api.tokotitoh.co.id/ads?id=${ad.id}`, {
-                                headers: {
-                                    'Content-Type': 'application/json',
-                                    'Accept': 'application/json',
-                                    'bearer-token': 'tokotitohapi',
-                                    'x-partner-code': 'id.marketplace.tokotitoh'
-                                },
-                            });
+                            const response = await api.delete(`/ads?id=${ad.id}`);
 
                             if (response.status === 200 || response.status === 204) {
                                 Alert.alert('Sukses', 'Iklan berhasil dihapus');
@@ -283,21 +256,18 @@ const AdDetailScreen = () => {
                 type: type,
             } as any);
 
-            const response = await fetch('https://api.tokotitoh.co.id/file-upload', {
-                method: 'POST',
+            const response = await api.post('/file-upload', formData, {
                 headers: {
-                    'bearer-token': 'tokotitohapi',
-                    'x-partner-code': 'id.marketplace.tokotitoh',
-                },
-                body: formData,
+                    'Content-Type': 'application/json', // This will be overriden by axios for FormData
+                }
             });
 
-            if (!response.ok) {
+            if (response.status !== 200) {
                 console.error('Upload response not ok:', response.status);
                 return null;
             }
 
-            const result = await response.json();
+            const result = response.data;
             if (result.status === 'success' && result.url) {
                 return result.url;
             }
@@ -370,14 +340,7 @@ const AdDetailScreen = () => {
                 images: uploadedImageUrls,
             };
 
-            await axios.post('https://api.tokotitoh.co.id/report', payload, {
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Accept': 'application/json',
-                    'bearer-token': 'tokotitohapi',
-                    'x-partner-code': 'id.marketplace.tokotitoh'
-                },
-            });
+            await api.post('/report', payload);
 
             setIsReportModalVisible(false);
             setReportForm({ title: '', description: '', type: 'Penipuan' });
@@ -422,6 +385,8 @@ const AdDetailScreen = () => {
             </View>
         </View>
     );
+
+    console.log(ad, "ads")
 
     return (
         <View style={styles.container}>
@@ -484,7 +449,7 @@ const AdDetailScreen = () => {
 
                 {/* Content */}
                 <View style={styles.contentSection}>
-                    <AppText style={styles.price}>{formatPrice(ad.price)}</AppText>
+                    <AppText style={styles.price}>{formattedPrice}</AppText>
                     <AppText style={styles.title}>{ad.title}</AppText>
                     <View style={styles.locationRow}>
                         <Icon name="location-outline" size={14} color="#757575" />
@@ -527,9 +492,14 @@ const AdDetailScreen = () => {
                     )}
 
                     {/* General Specs */}
+                    <SpecItem 
+                        icon="checkmark-circle-outline" 
+                        label="Kondisi" 
+                        value={ad.condition ? ad.condition.charAt(0).toUpperCase() + ad.condition.slice(1) : '-'} 
+                    />
                     <SpecItem icon="location-outline" label="Kota" value={ad.district_name} />
                     <SpecItem icon="business-outline" label="Kab/Kota" value={ad.city_name?.includes("KABUPATEN") ? ad.city_name?.replace("KABUPATEN", "KAB. ") : ad.city_name} />
-                    <SpecItem icon="checkmark-circle-outline" label="Kondisi" value={ad.condition} />
+
                 </View>
 
                 {/* Additional Action Buttons */}

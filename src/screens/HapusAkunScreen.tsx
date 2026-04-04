@@ -12,7 +12,7 @@ import AppText from '../components/AppText';
 import Icon from 'react-native-vector-icons/Ionicons';
 import { useNavigation } from '@react-navigation/native';
 import { useAuth } from '../context/AuthContext';
-import axios from 'axios';
+import api from '../utils/api';
 
 const HapusAkunScreen = () => {
     const navigation = useNavigation<any>();
@@ -20,12 +20,7 @@ const HapusAkunScreen = () => {
     const userId = user?.id;
     const [loading, setLoading] = useState(false);
 
-    const API_HEADERS = {
-        'Content-Type': 'application/json',
-        'Accept': 'application/json',
-        'bearer-token': 'tokotitohapi',
-        'x-partner-code': 'id.marketplace.tokotitoh'
-    };
+    // API configuration is now centralized in src/utils/api.ts
 
     const handleDeleteAccount = async () => {
         if (!userId) {
@@ -44,10 +39,7 @@ const HapusAkunScreen = () => {
                     onPress: async () => {
                         setLoading(true);
                         try {
-                            const response = await axios.delete(
-                                `https://api.tokotitoh.co.id/user?id=${userId}`,
-                                { headers: API_HEADERS }
-                            );
+                            const response = await api.delete(`/user?id=${userId}`);
 
                             if (response.status === 200 || response.status === 204) {
                                 Alert.alert(

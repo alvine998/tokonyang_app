@@ -47,3 +47,19 @@
 # Keep everything for vector icons
 -keep class com.horcrux.svg.** { *; }
 -keep class com.oblador.vectoricons.** { *; }
+# Firebase
+-keep class com.google.firebase.** { *; }
+-keep class com.google.android.gms.internal.** { *; }
+-dontwarn com.google.firebase.**
+-dontwarn com.google.android.gms.**
+
+# Google Sign-In
+-keep class com.google.signin.** { *; }
+-keep class com.reactnativegooglesignin.** { *; }
+
+# Async Storage
+-keep class com.reactnativecommunity.asyncstorage.** { *; }
+
+# Image Picker
+-keep class com.imagepicker.** { *; }
+-dontwarn com.imagepicker.**

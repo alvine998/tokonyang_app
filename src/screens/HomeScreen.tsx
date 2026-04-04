@@ -19,7 +19,7 @@ import AppText from '../components/AppText';
 import AppTextInput from '../components/AppTextInput';
 import Icon from 'react-native-vector-icons/Ionicons';
 import IconFA from 'react-native-vector-icons/FontAwesome5';
-import axios from 'axios';
+import api from '../utils/api';
 import { useNavigation, useFocusEffect, useIsFocused } from '@react-navigation/native';
 import { SCREEN_WIDTH, getCategoryColumns, isTablet } from '../utils/responsive';
 import normalize from 'react-native-normalize';
@@ -117,13 +117,7 @@ const HomeScreen = () => {
     const fetchUnreadCount = async () => {
         if (!user) return;
         try {
-            const response = await axios.get('https://api.tokotitoh.co.id/notifications', {
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Accept': 'application/json',
-                    'bearer-token': 'tokotitohapi',
-                    'x-partner-code': 'id.marketplace.tokotitoh'
-                },
+            const response = await api.get('/notifications', {
                 params: {
                     pagination: 'true',
                     user_id: user.id,
@@ -137,21 +131,14 @@ const HomeScreen = () => {
                 const unreadItems = response.data.items.rows || response.data.items;
                 setUnreadCount(Array.isArray(unreadItems) ? unreadItems.length : 0);
             }
-        } catch (error) {
-            console.error('Error fetching unread count:', error);
+        } catch (error: any) {
+            console.error('Error fetching unread count:', error.message);
         }
     };
 
     const fetchCategories = async () => {
         try {
-            const response = await axios.get('https://api.tokotitoh.co.id/categories', {
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Accept': 'application/json',
-                    'bearer-token': 'tokotitohapi',
-                    'x-partner-code': 'id.marketplace.tokotitoh'
-                },
-            });
+            const response = await api.get('/categories');
             if (response.data && response.data.items && response.data.items.rows) {
                 setCategories(response.data.items.rows);
             }
@@ -177,14 +164,7 @@ const HomeScreen = () => {
         setSubcategories([]);
 
         try {
-            const response = await axios.get(`https://api.tokotitoh.co.id/subcategories?category_id=${category.id}`, {
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Accept': 'application/json',
-                    'bearer-token': 'tokotitohapi',
-                    'x-partner-code': 'id.marketplace.tokotitoh'
-                },
-            });
+            const response = await api.get(`/subcategories?category_id=${category.id}`);
             if (response.data && response.data.items && response.data.items.rows) {
                 setSubcategories(response.data.items.rows);
             }

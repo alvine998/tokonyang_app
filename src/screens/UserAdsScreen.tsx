@@ -10,7 +10,7 @@ import {
 } from 'react-native';
 import AppText from '../components/AppText';
 import Icon from 'react-native-vector-icons/Ionicons';
-import axios from 'axios';
+import api from '../utils/api';
 import { useRoute, useNavigation } from '@react-navigation/native';
 import { SCREEN_WIDTH } from '../utils/responsive';
 import AdListItem from '../components/AdListItem';
@@ -55,13 +55,7 @@ const UserAdsScreen = () => {
         }
 
         try {
-            const response = await axios.get('https://api.tokotitoh.co.id/ads', {
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Accept': 'application/json',
-                    'bearer-token': 'tokotitohapi',
-                    'x-partner-code': 'id.marketplace.tokotitoh'
-                },
+            const response = await api.get('/ads', {
                 params: {
                     pagination: 'true',
                     page: pageNumber,
