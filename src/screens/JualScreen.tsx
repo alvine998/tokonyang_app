@@ -322,7 +322,24 @@ const JualScreen = () => {
     };
 
     const needsConditionField = () => {
+        const catName = formData.category_name?.toLowerCase() || '';
         const subName = formData.subcategory_name?.toLowerCase() || '';
+
+        // Property doesn't need condition
+        if (catName.includes('properti')) {
+            return false;
+        }
+
+        // Specific car / motor subcategories don't need condition
+        if (
+            subName.includes('baru') ||
+            subName.includes('promosi') ||
+            subName.includes('kredit') ||
+            subName.includes('disewakan') ||
+            ((catName.includes('mobil') || catName.includes('motor')) && subName.includes('dijual'))
+        ) {
+            return false;
+        }
 
         // If the subcategory name itself contains "Bekas" or "Baru", we don't need to ask again.
         if (subName.includes('bekas') || subName.includes('baru')) {
@@ -611,9 +628,10 @@ const JualScreen = () => {
                 ownership: formData.ownership || 'individual',
                 fuel_type: formData.fuel_type || null,
                 condition: formData.condition || null,
-                land_area: formData.land_area || null,
-                building_area: formData.building_area || null,
+                land_area: formData.area || null,
+                building_area: formData.building || null,
                 area: formData.area || null,
+                building: formData.building || null,
                 certificates: formData.certificates || null,
                 wa: formData.wa || null,
                 expired_on: expiredOn,

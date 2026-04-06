@@ -492,11 +492,15 @@ const AdDetailScreen = () => {
                     )}
 
                     {/* General Specs */}
-                    <SpecItem 
-                        icon="checkmark-circle-outline" 
-                        label="Kondisi" 
-                        value={ad.condition ? ad.condition.charAt(0).toUpperCase() + ad.condition.slice(1) : '-'} 
-                    />
+                    {!ad.category_name?.toLowerCase().includes("properti") && 
+                     !['baru', 'promosi', 'kredit', 'disewakan'].some(s => ad.subcategory_name?.toLowerCase().includes(s)) &&
+                     !((ad.category_name?.toLowerCase().includes('mobil') || ad.category_name?.toLowerCase().includes('motor')) && ad.subcategory_name?.toLowerCase().includes('dijual')) && (
+                        <SpecItem 
+                            icon="checkmark-circle-outline" 
+                            label="Kondisi" 
+                            value={ad.condition ? ad.condition.charAt(0).toUpperCase() + ad.condition.slice(1) : '-'} 
+                        />
+                    )}
                     <SpecItem icon="location-outline" label="Kota" value={ad.district_name} />
                     <SpecItem icon="business-outline" label="Kab/Kota" value={ad.city_name?.includes("KABUPATEN") ? ad.city_name?.replace("KABUPATEN", "KAB. ") : ad.city_name} />
 
