@@ -181,7 +181,7 @@ const CategoryListScreen = () => {
                                             subcategory: item
                                         });
                                     }}>
-                                    <AppText style={styles.subcategoryText}>{item.name}</AppText>
+                                    <AppText style={styles.subcategoryText}>{item.name?.toUpperCase()}</AppText>
                                     {/* <Icon name="chevron-forward" size={20} color="#757575" /> */}
                                 </TouchableOpacity>
                             )}
