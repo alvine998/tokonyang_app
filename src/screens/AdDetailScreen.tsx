@@ -141,7 +141,7 @@ const AdDetailScreen = () => {
     const handleShare = async () => {
         try {
             const subcategory = encodeURIComponent(ad?.subcategory_name?.toLowerCase().replace(/\s+/g, '-') || 'ads');
-            const shareUrl = `https://tokotitoh.co.id/category/${subcategory}/${ad?.id}`;
+            const shareUrl = `https://tokonyang.com/category/${subcategory}/${ad?.id}`;
             await Share.share({
                 message: `Cek iklan ini: ${ad?.title} - ${shareUrl}`,
             });
