@@ -1060,7 +1060,7 @@ const JualScreen = () => {
 
     // Step 4: Location
     const renderLocationStep = () => (
-        <View style={styles.stepContent}>
+        <ScrollView style={styles.stepContent} showsVerticalScrollIndicator={false}>
             <TouchableOpacity style={styles.backButton} onPress={goBack}>
                 <Icon name="arrow-back" size={24} color="#2152FF" />
             </TouchableOpacity>
@@ -1118,7 +1118,7 @@ const JualScreen = () => {
                     <AppText style={styles.submitButtonText}>Selesai</AppText>
                 )}
             </TouchableOpacity>
-        </View>
+        </ScrollView>
     );
 
     return (
@@ -1316,7 +1316,7 @@ const styles = StyleSheet.create({
     },
     categoryItem: {
         flexDirection: 'row',
-        justifyContent: 'space-between',
+        justifyContent: 'center',
         alignItems: 'center',
         paddingVertical: 16,
         borderBottomWidth: 1,

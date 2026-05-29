@@ -6,6 +6,7 @@ import {
     ScrollView,
     SafeAreaView,
     Image,
+    ActivityIndicator,
 } from 'react-native';
 import AppText from '../components/AppText';
 import Icon from 'react-native-vector-icons/Ionicons';
@@ -18,17 +19,9 @@ const AkunSayaScreen = () => {
 
     useFocusEffect(
         useCallback(() => {
-            // Use a slightly longer delay and check isLoading multiple times
-            // to prevent race conditions during state transitions (like after OTP)
-            const checkAuth = setTimeout(() => {
-                console.log('AkunSaya: Redirection check - isLoading:', isLoading, 'user:', !!user);
-                if (!isLoading && !user) {
-                    console.log('AkunSaya: No user found and not loading, redirecting to Login');
-                    navigation.navigate('Login');
-                }
-            }, 1000); // 1s is safer for full state propagation
-
-            return () => clearTimeout(checkAuth);
+            if (!isLoading && !user) {
+                navigation.navigate('Login');
+            }
         }, [user, isLoading, navigation])
     );
 
@@ -60,41 +53,40 @@ const AkunSayaScreen = () => {
 
     const userImageUrl = getProfileImage((user as any)?.image);
 
+    if (isLoading) {
+        return (
+            <SafeAreaView style={styles.container}>
+                <View style={styles.loadingContainer}>
+                    <ActivityIndicator size="large" color="#000" />
+                </View>
+            </SafeAreaView>
+        );
+    }
+
+    if (!user) {
+        return null;
+    }
+
     return (
         <SafeAreaView style={styles.container}>
             <ScrollView showsVerticalScrollIndicator={false}>
                 {/* Profile Header */}
-                {user ? (
-                    <View style={styles.profileHeader}>
-                        <View style={styles.avatarContainer}>
-                            {userImageUrl ? (
-                                <Image
-                                    source={{ uri: userImageUrl }}
-                                    style={styles.avatar}
-                                />
-                            ) : (
-                                <Icon name="person-circle-outline" size={70} color="#000" />
-                            )}
-                        </View>
-                        <View style={styles.profileInfo}>
-                            <AppText style={styles.userName}>{user.name}</AppText>
-                            <AppText style={styles.userEmail}>{user.email}</AppText>
-                        </View>
-                    </View>
-                ) : (
-                    <TouchableOpacity
-                        style={styles.profileHeader}
-                        onPress={() => navigation.navigate('Login')}
-                    >
-                        <View style={styles.avatarContainer}>
+                <View style={styles.profileHeader}>
+                    <View style={styles.avatarContainer}>
+                        {userImageUrl ? (
+                            <Image
+                                source={{ uri: userImageUrl }}
+                                style={styles.avatar}
+                            />
+                        ) : (
                             <Icon name="person-circle-outline" size={70} color="#000" />
-                        </View>
-                        <View style={styles.profileInfo}>
-                            <AppText style={styles.userName}>Login / Daftar</AppText>
-                            <AppText style={styles.userEmail}>Masuk ke akun Anda</AppText>
-                        </View>
-                    </TouchableOpacity>
-                )}
+                        )}
+                    </View>
+                    <View style={styles.profileInfo}>
+                        <AppText style={styles.userName}>{user.name}</AppText>
+                        <AppText style={styles.userEmail}>{user.email}</AppText>
+                    </View>
+                </View>
 
                 {/* Edit Profile Button - only show when logged in */}
                 {user && (
@@ -142,6 +134,11 @@ const styles = StyleSheet.create({
     container: {
         flex: 1,
         backgroundColor: '#fff',
+    },
+    loadingContainer: {
+        flex: 1,
+        justifyContent: 'center',
+        alignItems: 'center',
     },
     profileHeader: {
         flexDirection: 'row',

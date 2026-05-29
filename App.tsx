@@ -82,6 +82,8 @@ const JualButton = ({ children, onPress }: any) => {
 };
 
 function HomeTabs() {
+  const { user, isLoading } = useAuth();
+
   return (
     <Tab.Navigator
       screenOptions={({ route }) => ({
@@ -128,7 +130,19 @@ function HomeTabs() {
         }}
       />
       <Tab.Screen name="Iklan Saya" component={IklanSayaScreen} options={{ tabBarLabel: 'Iklan Saya' }} />
-      <Tab.Screen name="Akun Saya" component={AkunSayaScreen} options={{ tabBarLabel: 'Akun Saya' }} />
+      <Tab.Screen
+        name="Akun Saya"
+        component={AkunSayaScreen}
+        options={{ tabBarLabel: 'Akun Saya' }}
+        listeners={({ navigation }) => ({
+          tabPress: (event) => {
+            if (!isLoading && !user) {
+              event.preventDefault();
+              navigation.navigate('Login');
+            }
+          },
+        })}
+      />
     </Tab.Navigator>
   );
 }
