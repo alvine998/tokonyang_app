@@ -303,11 +303,11 @@ const IklanSayaScreen = () => {
                 )}
             </View>
             <View style={styles.divider} />
-            <View style={styles.adFooter}>
+            {/* <View style={styles.adFooter}>
                 <AppText style={styles.expiryText}>
                     {mainTab === 'MY_ADS' ? `Berakhir pada: ${formatAdDate(item.expiryDate || '')}` : `Ditambahkan pada: ${formatAdDate(item.expiryDate || '')}`}
                 </AppText>
-            </View>
+            </View> */}
         </TouchableOpacity>
     );
 

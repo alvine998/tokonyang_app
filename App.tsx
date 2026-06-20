@@ -127,6 +127,7 @@ function HomeTabs() {
         component={JualScreen}
         options={{
           tabBarButton: (props) => <JualButton {...props} />,
+          tabBarStyle: { display: 'none' },
         }}
       />
       <Tab.Screen name="Iklan Saya" component={IklanSayaScreen} options={{ tabBarLabel: 'Iklan Saya' }} />

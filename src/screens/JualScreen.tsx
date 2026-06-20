@@ -126,11 +126,6 @@ const JualScreen = () => {
 
     // API configuration is now centralized in src/utils/api.ts
 
-    // Check if any modal is visible
-    const isAnyModalVisible = showBrandModal || showTypeModal || showFuelModal ||
-        showTransmissionModal || showConditionModal || showProvinceModal ||
-        showCityModal || showDistrictModal;
-
     const resetForm = () => {
         console.log('Resetting Jual screen state...');
         setCurrentStep(0);
@@ -193,14 +188,6 @@ const JualScreen = () => {
             }
         }
     }, [editId, route.params?.adData]);
-
-    useEffect(() => {
-        navigation.setOptions({
-            tabBarStyle: isAnyModalVisible
-                ? { display: 'none' }
-                : { height: 70, paddingBottom: 10, paddingTop: 10 }
-        });
-    }, [isAnyModalVisible, navigation]);
 
     useEffect(() => {
         fetchCategories();

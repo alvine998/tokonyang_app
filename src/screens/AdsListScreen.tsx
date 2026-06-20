@@ -500,7 +500,10 @@ const AdsListScreen = () => {
                 animationType="slide"
                 transparent={true}
                 onRequestClose={() => setIsFilterVisible(false)}>
-                <View style={styles.modalOverlay}>
+                <TouchableOpacity
+                    style={styles.modalOverlay}
+                    activeOpacity={1}
+                    onPress={() => setIsFilterVisible(false)}>
                     <View style={styles.newModalContent}>
                         {/* Custom Modal Header */}
                         <View style={styles.newModalHeader}>
@@ -892,7 +895,7 @@ const AdsListScreen = () => {
                             <AppText style={styles.newApplyButtonText}>Terapkan</AppText>
                         </TouchableOpacity>
                     </View>
-                </View>
+                </TouchableOpacity>
             </Modal>
 
             {/* Location Modal */}
